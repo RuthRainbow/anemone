@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 public class Simulation extends PApplet {
 	Environment env = new Environment(this);
+	Agent selectedAgent = null;
+	PFont f = createFont("Arial",12,true);
 	
 	public static void main(String args[]){
 		PApplet.main(new String[] { "--present", "group7.anemone.Simulation" });
@@ -26,6 +28,25 @@ public class Simulation extends PApplet {
 	    env.addFood(x, y);
 	  }
 	}
+	public void mousePressed(){
+		ArrayList<Agent> agents = env.getAllAgents();
+		Agent agent_clicked = null;
+		
+		for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+		      Agent ag = agents.get(i);
+		      if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
+		    	  agent_clicked = ag;
+		    	  break;
+		      }
+		}
+		
+		if(agent_clicked != null){ //agent was clicked so update selected
+			selectedAgent = agent_clicked;
+		}else{ //agent was not clicked
+			
+		}
+		
+	}
 	public void draw(){
 	  background(0);
 	  noStroke();
@@ -45,5 +66,13 @@ public class Simulation extends PApplet {
 	      Food fd = food.get(i);
 	      ellipse(fd.getX(), fd.getY(), 5, 5);
 	  }
+	  
+	  if(selectedAgent != null){
+		  fill(255);
+		  textFont(f);
+		  text("Selected agent x = "+selectedAgent.getX(), 10, 10);
+		  text("Selected agent y = "+selectedAgent.getY(), 10, 25);
+	  }
+	  
 	}
 }
