@@ -15,7 +15,7 @@ public abstract class God {
 	
 	// Method to move all agents each tick
 	void Tick() {
-		env.MoveAll();
+		//env.MoveAll();
 	}
 	
 	// Method to add n foods to the environment randomly.
