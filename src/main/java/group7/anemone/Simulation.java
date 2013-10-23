@@ -44,7 +44,7 @@ public class Simulation extends PApplet {
 		if(agent_clicked != null){ //agent was clicked so update selected
 			selectedAgent = agent_clicked;
 		}else{ //agent was not clicked
-
+			env.addFood(mouseX, mouseY);
 		}
 
 	}
