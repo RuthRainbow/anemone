@@ -14,7 +14,7 @@ public class Simulation extends PApplet {
 	}
 	public void setup() {
 		frameRate(30);
-		size(1000, 750);
+		size(screen.width, screen.height);
 
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
