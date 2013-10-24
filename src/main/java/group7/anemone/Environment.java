@@ -6,60 +6,78 @@ import processing.core.PApplet;
 
 public class Environment {
 
-	/*// The list of all fish, sharks and food in the environment
-	ArrayList<Agent> fishes;
-	ArrayList<Agent> sharks;
-	ArrayList<Coordinates> food;
+	PApplet parent;
+	private God god;
+	private ArrayList<Agent> fishes;
+	private ArrayList<Agent> sharks;
+	private ArrayList<Food> food;
+	private int tick = 0;
+
+	public Environment(PApplet p){
+		this.parent = p;
+		this.god = new God(this);
+		this.fishes = new ArrayList<Agent>();
+		this.sharks = new ArrayList<Agent>();
+		this.food = new ArrayList<Food>();
+	}
 
     // Method to get all collisions that occurred in the environment
-    abstract ArrayList<Collision<Agent, Object>> GetCollisions();
+    protected ArrayList<Collision<Agent, Object>> GetCollisions() {
+    	throw new NotImplementedException();
+    }
 
     // Method to get collisions for a specific agent
-    abstract Collision<Agent, Object> GetCollision(Agent agent);
+    protected Collision<Agent, Object> GetCollision(Agent agent) {
+    	throw new NotImplementedException();
+    }
 
-    // Method to get the move for a particular agent
-    abstract void AgentTurn(Agent agent);
-
-    // Method to add an agent to the environment
-    abstract void AddAgent(Agent agent);
-
-    // Move all agents (called by the God)
-    void MoveAll() {
-    	for (Agent fish: fishes) {
-    		AgentTurn(fish);
-    	}
-    	for (Agent shark: sharks) {
-    		AgentTurn(shark);
-    	}
-    }*/
-
-	PApplet parent;
-	private ArrayList<Agent> agents = new ArrayList();
-	private ArrayList<Food> food = new ArrayList();
-
-	Environment(PApplet p){
-		parent = p;
-	}
-
-	void updateAllAgents(){
-		for(int i = 0; i < agents.size(); i++){ //drawing the ikkle agents
-			Agent ag = agents.get(i);
-			ag.update();
+	protected void updateAllAgents(){
+		for (Agent fish: fishes) { //drawing the ikkle fishes
+			fish.update();
 		}
+		for (Agent shark:sharks) {
+			shark.update();
+		}
+		tick++;
+		/* Method not implemented yet:
+		if (tick % 5 == 0) {
+			god.BreedPopulation(fishes);
+			god.BreedPopulation(sharks);
+			// Reset tick (in case of overflow)
+			tick = 0;
+		}*/
 	}
 
-	void addAgent(int x, int y){
-		agents.add(new Agent(x, y, parent));
-	}
-	void addFood(int x, int y){
-		food.add(new Food(x, y));
+	protected void addFish(Coordinates coords){
+		fishes.add(new Agent(coords, parent));
 	}
 
-	ArrayList<Agent> getAllAgents(){
-		return agents;
+	protected void addShark(Coordinates coords) {
+		sharks.add(new Agent(coords, parent));
 	}
-	ArrayList<Food> getAllFood(){
-		return food; 
+
+	void addFood(Coordinates coords){
+		food.add(new Food(coords));
+	}
+
+	protected ArrayList<Agent> getAllFishes(){
+		return fishes;
+	}
+
+	protected ArrayList<Agent> getAllSharks() {
+		return sharks;
+	}
+
+	protected ArrayList<Agent> getAllAgents() {
+		// We know the clone of fishes will be of type ArrayList<Agent>, so this cast is safe.
+	    @SuppressWarnings("unchecked")
+		ArrayList<Agent> all_agents = (ArrayList<Agent>) fishes.clone();
+	    all_agents.addAll(sharks);
+	    return all_agents;
+	}
+
+	protected ArrayList<Food> getAllFood(){
+		return food;
 	}
 }
 
@@ -67,12 +85,10 @@ public class Environment {
 // (If we have breeding on collision, another agent vs wall matters).
 abstract class Collision<Agent, Object> {}
 
-// A class to hold coordinates (e.g. for food).
-class Coordinates {
-	protected float x, y;
+// I made this class so nothing is abstract and so we can find stuff still to implement easily.
+class NotImplementedException extends RuntimeException {
 
-	public Coordinates(float x, float y) {
-		this.x = x;
-		this.y = y;
-	}
+	private static final long serialVersionUID = 1L;
+
+	public NotImplementedException(){}
 }

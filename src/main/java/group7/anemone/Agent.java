@@ -6,18 +6,15 @@ import processing.core.PApplet;
 
 public class Agent {
 	PApplet parent;
-	private double x = 100;
-	private double y = 100;
+	private Coordinates coords;
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
-	private double acceleration;
-	private Point2D.Double drag = new Point2D.Double(0, 0);;
+	private Point2D.Double drag = new Point2D.Double(0, 0);
 
-	Agent(int a, int b, PApplet p){
-		parent = p;
-		x = a; y = b;
-		speed = new Point2D.Double(1, 0);
-
+	Agent(Coordinates coords, PApplet p){
+		this.parent = p;
+		this.coords = coords;
+		this.speed = new Point2D.Double(1, 0);
 	}
 
 	void updateSpeed(){//update speed to be ...
@@ -43,17 +40,17 @@ public class Agent {
 	void update(){
 		updateSpeed();
 
-		x += speed.x;
-		y += speed.y;
+		coords.x += speed.x;
+		coords.y += speed.y;
 
-		if(x > parent.width + 10) x = -10;
-		if(y > parent.height + 10) y = -10;
+		if(coords.x > parent.width + 10) coords.x = -10;
+		if(coords.y > parent.height + 10) coords.y = -10;
 	}
 
 	void setThrust(double x, double y){
-		thrust.x = x; 
+		thrust.x = x;
 		thrust.y = y;
 	}
-	int getX(){return (int) x;}
-	int getY(){return (int) y;}
+	int getX(){return (int) coords.x;}
+	int getY(){return (int) coords.y;}
 }

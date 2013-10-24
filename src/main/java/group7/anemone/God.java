@@ -2,31 +2,23 @@ package group7.anemone;
 
 import java.util.ArrayList;
 
-public abstract class God {
-	
+public class God {
+
 	// Need an object relating to the environment
 	Environment env;
 
-	public void main(String[] args) {
-		while(true) {
-			Tick();
-		}
-	}	
-	
-	// Method to move all agents each tick
-	void Tick() {
-		//env.MoveAll();
+	public God(Environment env) {
+		this.env = env;
 	}
-	
-	// Method to add n foods to the environment randomly.
-	abstract void CreateFood(int num_food);
-	
-	// Method to create offspring from 2 given parents
-	abstract void CreateOffspring(Agent mother, Agent father);
-	
-	// Method to breed the entire population
-	abstract void BreedPopulation(ArrayList<Agent> agents);
-	
 
-	
+	// Method to create offspring from 2 given parents
+	protected void CreateOffspring(Agent mother, Agent father) {
+		throw new NotImplementedException();
+	}
+
+	// Method to breed the entire population
+	protected void BreedPopulation(ArrayList<Agent> agents) {
+		throw new NotImplementedException();
+	}
+
 }

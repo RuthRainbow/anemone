@@ -1,17 +1,22 @@
 package group7.anemone;
 
-import processing.core.*;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import processing.core.PApplet;
+import processing.core.PFont;
+
+// We aren't going to serialise this.
+@SuppressWarnings("serial")
 public class Simulation extends PApplet {
 	Environment env = new Environment(this);
 	Agent selectedAgent = null;
 	PFont f = createFont("Arial",12,true);
 
 	public static void main(String args[]){
+		// Run the applet when the Java application is run
 		PApplet.main(new String[] { "--present", "group7.anemone.Simulation" });
 	}
+
 	public void setup() {
 		frameRate(30);
 		size(screen.width, screen.height);
@@ -19,14 +24,14 @@ public class Simulation extends PApplet {
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
-			env.addAgent(x, y);
+			env.addFish(new Coordinates(x, y));
 		}
 		env.getAllAgents().get(0).setThrust(2, 2);
 
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
-			env.addFood(x, y);
+			env.addFood(new Coordinates(x, y));
 		}
 	}
 	public void mousePressed(){
@@ -44,7 +49,7 @@ public class Simulation extends PApplet {
 		if(agent_clicked != null){ //agent was clicked so update selected
 			selectedAgent = agent_clicked;
 		}else{ //agent was not clicked
-			env.addFood(mouseX, mouseY);
+			env.addFood(new Coordinates(mouseX, mouseY));
 		}
 
 	}
@@ -71,7 +76,6 @@ public class Simulation extends PApplet {
 		fill(255);
 		textFont(f);
 		text("FrameRate: " + frameRate, 10, 10);
-
 
 		if(selectedAgent != null){
 			fill(255);
