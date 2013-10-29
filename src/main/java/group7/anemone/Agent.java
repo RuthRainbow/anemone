@@ -10,11 +10,21 @@ public class Agent {
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
+	private String stringRep = "";
+	private double fitness = 0;
 
 	Agent(Point2D.Double coords, PApplet p){
 		this.parent = p;
 		this.coords = coords;
 		this.speed = new Point2D.Double(1, 0);
+	}
+	
+	protected String getStringRep() {
+		return this.stringRep;
+	}
+	
+	protected double getFitness() {
+		return this.fitness;
 	}
 
 	void updateSpeed(){//update speed to be ...
