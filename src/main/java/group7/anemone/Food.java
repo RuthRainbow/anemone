@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 
 public class Food {
 	private Point2D.Double coords = new Point2D.Double(100, 100);
-	int value = 10;
+	double value = 0.1;
 
 	Food(Point2D.Double coords){
 		this.coords = coords;
@@ -12,5 +12,6 @@ public class Food {
 
 	int getX(){return (int) coords.x;}
 	int getY(){return (int) coords.y;}
-	int getValue(){return value;}
+	double getValue(){return value;}
+	Point2D.Double getCoordinates(){return coords;}
 }

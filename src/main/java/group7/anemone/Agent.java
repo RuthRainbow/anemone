@@ -12,6 +12,9 @@ public class Agent {
 	private Point2D.Double drag = new Point2D.Double(0, 0);
 	private String stringRep = "";
 	private double fitness = 0;
+	private String stringRep = "";
+	private double fitness = 0;
+	private double health = 1;
 
 	Agent(Point2D.Double coords, PApplet p){
 		this.parent = p;
@@ -66,7 +69,7 @@ public class Agent {
 		 */
 	}
 	
-	void update(){	
+	void update(){
 		//Will update the parameters of the agent
 		//Parameters include:
 		//Speed
@@ -81,6 +84,8 @@ public class Agent {
 
 		if(coords.x > parent.width + 10) coords.x = -10;	//f the agent goes off the corner of the map, move it to the other side.
 		if(coords.y > parent.height + 10) coords.y = -10;
+		
+		health -= 0.001;
 	}
 
 	void setThrust(double x, double y){
@@ -88,6 +93,14 @@ public class Agent {
 		thrust.x = x;
 		thrust.y = y;
 	}
+	void updateHealth(double h){
+		health += h;
+		health = Math.min(1, health);
+	}
+	
 	int getX(){return (int) coords.x;}
 	int getY(){return (int) coords.y;}
+	Point2D.Double getCoordinates(){return coords;}
+	double getHealth(){return health;}
+	
 }
