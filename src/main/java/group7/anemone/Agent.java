@@ -6,12 +6,12 @@ import processing.core.PApplet;
 
 public class Agent {
 	PApplet parent;
-	private Coordinates coords;
+	private Point2D.Double coords;
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
 
-	Agent(Coordinates coords, PApplet p){
+	Agent(Point2D.Double coords, PApplet p){
 		this.parent = p;
 		this.coords = coords;
 		this.speed = new Point2D.Double(1, 0);

@@ -1,5 +1,6 @@
 package group7.anemone;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
@@ -24,14 +25,14 @@ public class Simulation extends PApplet {
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
-			env.addFish(new Coordinates(x, y));
+			env.addFish(new Point2D.Double(x, y));
 		}
 		env.getAllAgents().get(0).setThrust(2, 2);
 
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
-			env.addFood(new Coordinates(x, y));
+			env.addFood(new Point2D.Double(x, y));
 		}
 	}
 	public void mousePressed(){
@@ -49,7 +50,7 @@ public class Simulation extends PApplet {
 		if(agent_clicked != null){ //agent was clicked so update selected
 			selectedAgent = agent_clicked;
 		}else{ //agent was not clicked
-			env.addFood(new Coordinates(mouseX, mouseY));
+			env.addFood(new Point2D.Double(mouseX, mouseY));
 		}
 
 	}

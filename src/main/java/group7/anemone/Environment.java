@@ -1,5 +1,6 @@
 package group7.anemone;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
@@ -48,15 +49,15 @@ public class Environment {
 		}*/
 	}
 
-	protected void addFish(Coordinates coords){
+	protected void addFish(Point2D.Double coords){
 		fishes.add(new Agent(coords, parent));
 	}
 
-	protected void addShark(Coordinates coords) {
+	protected void addShark(Point2D.Double coords) {
 		sharks.add(new Agent(coords, parent));
 	}
 
-	void addFood(Coordinates coords){
+	void addFood(Point2D.Double coords){
 		food.add(new Food(coords));
 	}
 

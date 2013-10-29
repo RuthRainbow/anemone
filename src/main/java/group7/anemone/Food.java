@@ -1,10 +1,12 @@
 package group7.anemone;
 
+import java.awt.geom.Point2D;
+
 public class Food {
-	private Coordinates coords = new Coordinates(100, 100);
+	private Point2D.Double coords = new Point2D.Double(100, 100);
 	int value = 10;
 
-	Food(Coordinates coords){
+	Food(Point2D.Double coords){
 		this.coords = coords;
 	}
 
