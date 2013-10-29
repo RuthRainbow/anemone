@@ -13,6 +13,7 @@ public class Environment {
 	private ArrayList<Agent> sharks;
 	private ArrayList<Food> food;
 	private int tick = 0;
+	private ArrayList<Collision> collisions;
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -23,13 +24,44 @@ public class Environment {
 	}
 
     // Method to get all collisions that occurred in the environment
-    protected ArrayList<Collision<Agent, Object>> GetCollisions() {
-    	throw new NotImplementedException();
+    public ArrayList<Collision> updateCollisions() {
+    	collisions = new ArrayList<Collision>();
+    	
+    	for (Agent ag: fishes) { //for each agent, check for any collision
+    		
+    		for (Agent aa: fishes) { // check if collides to any other agent
+        		if(ag == aa) continue;
+        		
+        		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
+        			collisions.add(new Collision(ag, aa));
+        		}
+    		}
+    		
+    		for (Food fd: food) { //check collisions to food
+        		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
+        			collisions.add(new Collision(ag, fd));
+        		}
+    		}
+		}
+    	
+    	return collisions;
+    }
+    
+    protected ArrayList<Collision> getCollisions(){
+    	return collisions;
     }
 
     // Method to get collisions for a specific agent
-    protected Collision<Agent, Object> GetCollision(Agent agent) {
-    	throw new NotImplementedException();
+    protected ArrayList<Collision> GetCollision(Agent agent) {
+    	ArrayList<Collision> result = new ArrayList<Collision>();
+    	
+    	for (Collision cc: result) {
+    		if(cc.getAgent() == agent){
+    			result.add(cc);
+    		}
+		}
+    	
+    	return result;
     }
 
 	protected void updateAllAgents(){
@@ -60,6 +92,13 @@ public class Environment {
 	void addFood(Point2D.Double coords){
 		food.add(new Food(coords));
 	}
+	
+	protected void removeAgent(Agent ag){
+		fishes.remove(ag);
+	}
+	protected void removeFood(Food fd){
+		food.remove(fd);
+	}
 
 	protected ArrayList<Agent> getAllFishes(){
 		return fishes;
@@ -81,10 +120,6 @@ public class Environment {
 		return food;
 	}
 }
-
-// Class to hold a collision between an agent and an object, which could be another agent or a wall.
-// (If we have breeding on collision, another agent vs wall matters).
-abstract class Collision<Agent, Object> {}
 
 // I made this class so nothing is abstract and so we can find stuff still to implement easily.
 class NotImplementedException extends RuntimeException {
