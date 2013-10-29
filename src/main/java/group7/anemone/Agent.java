@@ -37,17 +37,24 @@ public class Agent {
 		if(speed.y > 0) speed.y -= drag.y;
 		else if(speed.y < 0) speed.y += drag.y;
 	}
-	void update(){
+	void update(){	
+		//Will update the parameters of the agent
+		//Parameters include:
+		//Speed
+		//Neural Network State
+		//Sensor data (sight)
 		updateSpeed();
 
-		coords.x += speed.x;
+		//TODO Move the change of coords to the update speed secion?? -Seb
+		coords.x += speed.x;	//Changes the coordinates to display disatance travelled since last update
 		coords.y += speed.y;
 
-		if(coords.x > parent.width + 10) coords.x = -10;
+		if(coords.x > parent.width + 10) coords.x = -10;	//f the agent goes off the corner of the map, move it to the other side.
 		if(coords.y > parent.height + 10) coords.y = -10;
 	}
 
 	void setThrust(double x, double y){
+		//This will be called by the neural network to 
 		thrust.x = x;
 		thrust.y = y;
 	}
