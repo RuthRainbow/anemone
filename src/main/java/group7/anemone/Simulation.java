@@ -54,30 +54,30 @@ public class Simulation extends PApplet {
 
 	}
 	public void draw(){
-		background(0);
+		background(0);	//Draws background, basically refreshes the screen
 		noStroke();
 		fill(255,255,0);
 
-		env.updateAllAgents();
-		ArrayList<Agent> agents = env.getAllAgents();
-		ArrayList<Food> food = env.getAllFood();
+		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
+		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
+		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
 
-		for(int i = 0; i < agents.size(); i++){ //drawing the ikkle agents
+		for(int i = 0; i < agents.size(); i++){ //Runs through arraylist of agents, will draw them on the canvas
 			Agent ag = agents.get(i);
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 		}
 
 		fill(102,255,0);
-		for(int i = 0; i < food.size(); i++){ //drawing the food
+		for(int i = 0; i < food.size(); i++){ //Runs through arraylist of food, will draw them on the canvas
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
 
 		fill(255);
 		textFont(f);
-		text("FrameRate: " + frameRate, 10, 10);
+		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 
-		if(selectedAgent != null){
+		if(selectedAgent != null){	//If an agent is seleted, display its coordinates in the top left hand corner, under the framerate
 			fill(255);
 			textFont(f);
 			text("Selected agent x = "+selectedAgent.getX(), 10, 25);
