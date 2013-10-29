@@ -17,6 +17,7 @@ public class BPNetwork {
 
 	public BPNetwork() 
 	{
+		//On creation, create these arraylists to manage all the neurons and links in this particular network
 		nodes = new BPNode[0];
 		startLinks = new BPStartLink[0];
 		outputLinks = new BPOutputLink[0];

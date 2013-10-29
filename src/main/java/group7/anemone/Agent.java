@@ -48,12 +48,32 @@ public class Agent {
 		if(speed.y > 0) speed.y -= drag.y;
 		else if(speed.y < 0) speed.y += drag.y;
 	}
+	
+	
+	void updateNetwork(){
+		//TODO Actually implement this
+		//This will run through this agents network
+		//Input sensory data
+		//Update all the neurons
+		//Fire syanpse, etc
+		//Should result in some new outputs from outputlinks
+	}
+	
+	void updateSensors(){
+		//TODO Actually implement this
+		/*
+		 * Look at what can be seen
+		 * Shunt it into neural network for processing next step?
+		 */
+	}
+	
 	void update(){
 		//Will update the parameters of the agent
 		//Parameters include:
 		//Speed
 		//Neural Network State
 		//Sensor data (sight)
+		updateNetwork();
 		updateSpeed();
 
 		//TODO Move the change of coords to the update speed secion?? -Seb
