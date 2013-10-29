@@ -60,6 +60,9 @@ public class Simulation extends PApplet {
 		fill(255,255,0);
 
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
+		env.updateCollisions(); //update the environment with the new collisions
+		handleCollisions();
+		checkDeaths();
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
 
@@ -68,7 +71,7 @@ public class Simulation extends PApplet {
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 		}
 
-		fill(102,255,0);
+		fill(0, 0, 255);
 		for(int i = 0; i < food.size(); i++){ //Runs through arraylist of food, will draw them on the canvas
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
@@ -83,7 +86,38 @@ public class Simulation extends PApplet {
 			textFont(f);
 			text("Selected agent x = "+selectedAgent.getX(), 10, 25);
 			text("Selected agent y = "+selectedAgent.getY(), 10, 40);
+			text("Selected agent health = "+selectedAgent.getHealth(), 10, 55);
 		}
 
+	}
+	
+	private void checkDeaths(){ //mwahahaha >:)
+		ArrayList<Agent> agents = env.getAllAgents();
+		
+		for (Agent ag: agents) { 
+			if(ag.getHealth() <= 0){
+				env.removeAgent(ag);
+				selectedAgent = null;
+			}
+		}
+	}
+	
+	private void handleCollisions(){
+		ArrayList<Collision> collisions = env.getCollisions();
+		
+		for (Collision cc: collisions) { //check collisions to food
+    		int type = cc.getType();
+    		
+    		switch(type){
+    			case Collision.TYPE_FOOD: eatFood(cc);break;
+    		}
+		}
+	}
+
+	private void eatFood(Collision cc) {
+		Food fd = (Food) cc.getCollidedObject();
+		
+		env.removeFood(fd);
+		cc.getAgent().updateHealth(fd.getValue());
 	}
 }
