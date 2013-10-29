@@ -10,12 +10,9 @@ public class Agent {
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
-<<<<<<< HEAD
 	private String stringRep = "";
 	private double fitness = 0;
-=======
 	private double health = 1;
->>>>>>> tempbranch
 
 	Agent(Point2D.Double coords, PApplet p){
 		this.parent = p;
