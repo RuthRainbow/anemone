@@ -10,6 +10,8 @@ public class Agent {
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
+	private String stringRep = "";
+	private double fitness = 0;
 
 	Agent(Point2D.Double coords, PApplet p){
 		this.parent = p;
@@ -17,8 +19,17 @@ public class Agent {
 		this.speed = new Point2D.Double(1, 0);
 	}
 	
+<<<<<<< HEAD
 	void createNeuralNetwork()	{
 		//Generate the neural network for this agent
+=======
+	protected String getStringRep() {
+		return this.stringRep;
+	}
+	
+	protected double getFitness() {
+		return this.fitness;
+>>>>>>> 1237faf1c678c87e8a925034a06e45763f0d7604
 	}
 
 	void updateSpeed(){//update speed to be ...
