@@ -47,6 +47,60 @@ public class Environment {
     	return collisions;
     }
     
+    public void updateAgentsSight() {
+    	for (Agent ag: fishes) { 
+    		ArrayList<SightInformation> result = new ArrayList<SightInformation>();
+    		double headBelow = ag.getViewHeading() - ag.getFOV();
+    		double headAbove = ag.getViewHeading() + ag.getFOV();
+    		
+    		
+    		for (Agent aa : fishes) { 
+        		if(ag == aa) continue;
+        		
+        		double distance = ag.getCoordinates().distance(aa.getCoordinates());
+        		if(distance <= ag.getVisionRange()){
+        			double angleBetween = Math.atan((aa.getCoordinates().y - ag.getCoordinates().y) / (aa.getCoordinates().x - ag.getCoordinates().x)) + Math.PI;
+        			angleBetween = angleBetween * 180 / Math.PI;
+        			
+        			if(angleBetween >= ag.getViewHeading() - ag.getFOV() && angleBetween <= ag.getViewHeading() + ag.getFOV()){
+        				result.add(new SightInformation(ag, aa, distance));
+        			}
+        		}
+    		}
+    		
+    		for (Food fd : food) { 
+        		
+        		double distance = ag.getCoordinates().distance(fd.getCoordinates());
+        		if(distance <= ag.getVisionRange()){
+        			double angleBetween = Math.atan((fd.getCoordinates().y - ag.getCoordinates().y) / (fd.getCoordinates().x - ag.getCoordinates().x));
+        			angleBetween = angleBetween * 180 / Math.PI;
+        			
+        			if(fd.getX() > ag.getX()) {
+        				if (fd.getY() < ag.getY()) angleBetween = 360 + angleBetween;
+        			}else{
+        				if (fd.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
+        				else angleBetween += 180;
+        			}
+        			System.out.println("a "+angleBetween);
+        			
+        			
+        			if(angleBetween >= headBelow && angleBetween <= headAbove){
+        				result.add(new SightInformation(ag, fd, distance));
+        			}else if(headBelow < 0){
+        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, fd, distance));
+        			}else if(headAbove > 360){
+        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, fd, distance));
+        			}
+        			
+        		}
+    		}
+    		
+    		ag.updateCanSee(result);
+		}
+    	
+    	//return collisions;
+    }
+    
     protected ArrayList<Collision> getCollisions(){
     	return collisions;
     }
@@ -83,6 +137,9 @@ public class Environment {
 
 	protected void addFish(Point2D.Double coords){
 		fishes.add(new Agent(coords, parent));
+	}
+	protected void addFish(Point2D.Double coords, int heading){
+		fishes.add(new Agent(coords, heading, parent));
 	}
 
 	protected void addShark(Point2D.Double coords) {
