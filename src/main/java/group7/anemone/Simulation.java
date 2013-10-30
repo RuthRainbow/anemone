@@ -12,6 +12,7 @@ public class Simulation extends PApplet {
 	Environment env = new Environment(this);
 	Agent selectedAgent = null;
 	PFont f = createFont("Arial",12,true);
+	int mouseMode=0;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -38,24 +39,47 @@ public class Simulation extends PApplet {
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
 		Agent agent_clicked = null;
-
-		for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
-			Agent ag = agents.get(i);
-			if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
-				agent_clicked = ag;
-				break;
-			}
+		
+		/*
+		 * Check if the mouse has clicked on a button
+		 */
+		if ((mouseX>screen.width-70)&(mouseX<screen.width-20)&(mouseY>20)&(mouseY<70)) {
+			mouseMode=1;
 		}
-
-		if(agent_clicked != null){ //agent was clicked so update selected
-			selectedAgent = agent_clicked;
-		}else{ //agent was not clicked
-			env.addFood(new Point2D.Double(mouseX, mouseY));
+		
+		/*
+		 * Mouse Modes are as follows:
+		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
+		 * 1 = Food tool - Place food where you click
+		 */
+		switch(mouseMode){
+		case 0: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+					Agent ag = agents.get(i);
+					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
+						agent_clicked = ag;
+						break;
+					}
+				}
+				if(agent_clicked != null){ //agent was clicked so update selected
+					selectedAgent = agent_clicked;
+				}
+				break;
+				
+		case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
+				break;
 		}
 
 	}
 	public void draw(){
 		background(0);	//Draws background, basically refreshes the screen
+		
+		//Draw the 'Buttons to click on for food
+		stroke(84,255,159);
+		fill(84,255,159);
+		rect(screen.width-70,20,50,50);
+		fill(0);
+		textFont(f);
+		text("Food",screen.width-60,50);
 		
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 		env.updateCollisions(); //update the environment with the new collisions
@@ -93,6 +117,7 @@ public class Simulation extends PApplet {
 		}
 
 		fill(0, 255, 0);
+		stroke(0,255,0);
 		for(int i = 0; i < food.size(); i++){ //Runs through arraylist of food, will draw them on the canvas
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
