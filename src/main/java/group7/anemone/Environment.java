@@ -8,16 +8,18 @@ import processing.core.PApplet;
 public class Environment {
 
 	PApplet parent;
+	// God & clock needed for breeding every n generations
 	private God god;
+	private int tick = 0;
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
 	private ArrayList<Food> food;
-	private int tick = 0;
+
 	private ArrayList<Collision> collisions;
 
 	public Environment(PApplet p){
 		this.parent = p;
-		this.god = new God(this);
+		this.god = new God();
 		this.fishes = new ArrayList<Agent>();
 		this.sharks = new ArrayList<Agent>();
 		this.food = new ArrayList<Food>();

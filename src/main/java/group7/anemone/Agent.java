@@ -19,16 +19,22 @@ public class Agent {
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
 
-	Agent(Point2D.Double coords, PApplet p){
+	Agent(Point2D.Double coords, PApplet p) {
 		this.parent = p;
 		this.coords = coords;
 		thrust(1);
 	}
-	Agent(Point2D.Double coords, double viewHeading, PApplet p){
+	
+	Agent(Point2D.Double coords, double viewHeading, PApplet p) {
 		this.parent = p;
 		this.coords = coords;
 		this.viewHeading = viewHeading;
 		thrust(1);
+	}
+	
+	// TODO make this so we can create a new agent from a string rep.
+	public Agent(String string) {
+		this.stringRep = string;
 	}
 	
 	protected String getStringRep() {

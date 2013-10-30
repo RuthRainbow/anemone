@@ -3,58 +3,65 @@ package group7.anemone;
 import java.util.ArrayList;
 
 public class God {
-	// Need an object relating to the environment
-	Environment env;
 
-	public God(Environment env) {
-		this.env = env;
+	// This is inside it's own method to make unittesting easier.
+	public double getRandom() {
+		return Math.random();
 	}
-
+	
 	// Method to create offspring from 2 given parents.
-	protected String CreateOffspring(Agent mother, Agent father) {
+	public String CreateOffspring(Agent mother, Agent father) {
 		String child = crossover(mother.getStringRep(), father.getStringRep());
-		if (Math.random() < 0.05) {
+		if (getRandom() < 0.05) {
 			child = mutate(child);
 		}
-		
 		return child;
 	}
 	
 	// Crossover by simply picking the first half from the mother and second half from father.
-	private String crossover(String father, String mother) {
+	public String crossover(String mother, String father) {
 		int crossover = (int) Math.floor(mother.length()/2);
 		StringBuilder child_builder = new StringBuilder();
 		child_builder.append(mother.substring(0, crossover));
-		child_builder.append(father.substring(crossover+1));
+		child_builder.append(father.substring(crossover));
 		return child_builder.toString();
 	}
 	
 	// Mutate a single gene in the child by replacing with a '!' character
-	private String mutate(String child) {
-		int mutationPoint = (int) Math.floor(Math.random() * child.length());
+	public String mutate(String child) {
+		int mutationPoint = (int) Math.floor(getRandom() * child.length());
 		char[] child_arr = child.toCharArray();
 		child_arr[mutationPoint] = '!';
-		return child_arr.toString();
+		StringBuilder result = new StringBuilder();
+		for (char c : child_arr) {
+			result.append(c);
+		}
+		return result.toString();
+	}
+	
+	protected ArrayList<Agent> Selection(ArrayList<Agent> agents) {
+		ArrayList<Agent> selectedAgents = new ArrayList<Agent>();
+		for (Agent agent : agents) {
+			double fitness = agent.getFitness();
+			// This number is completely arbitrary, depends on fitness function
+			if (fitness * getRandom() > 10) {
+				selectedAgents.add(agent);
+			}
+		}
+		return selectedAgents;
 	}
 
 	// Method to breed the entire population
 	protected ArrayList<String> BreedPopulation(ArrayList<Agent> agents) {
 		// Selection
-		ArrayList<Agent> selectedAgents = new ArrayList<Agent>();
-		for (Agent agent : agents) {
-			double fitness = agent.getFitness();
-			// This number is completely arbitrary, depends on fitness function
-			if (fitness * Math.random() > 10) {
-				selectedAgents.add(agent);
-			}
-		}
+		ArrayList<Agent> selectedAgents = Selection(agents);
 		
 		// Crossover - should select partner randomly (unless we are having genders).
 		ArrayList<String> children = new ArrayList<String>();
 		while (selectedAgents.size() > 1) {
-			Agent mother = selectedAgents.get((int) (Math.random() * selectedAgents.size()));
+			Agent mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
 			selectedAgents.remove(mother);
-			Agent father = selectedAgents.get((int) (Math.random() * selectedAgents.size()));
+			Agent father = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
 			selectedAgents.remove(father);
 			// Will need extra things in here where mother and father have converged.
 			children.add(crossover(mother.getStringRep(), father.getStringRep()));
@@ -62,7 +69,7 @@ public class God {
 		
 		// Random mutation
 		for (String child : children) {
-			if (Math.random() < 0.05) {
+			if (getRandom() < 0.05) {
 				child = mutate(child);
 			}
 		}
