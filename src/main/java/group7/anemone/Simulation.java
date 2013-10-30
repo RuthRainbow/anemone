@@ -30,7 +30,7 @@ public class Simulation extends PApplet {
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
-		env.getAllAgents().get(0).setThrust(2, 2);
+		env.getAllAgents().get(0).thrust(2);
 
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
@@ -53,6 +53,9 @@ public class Simulation extends PApplet {
 		}
 		else if ((mouseX>screen.width-210)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
 			mouseMode=2;
+		}
+		else if ((mouseX>screen.width-280)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
+			mouseMode=3;
 		}
 		
 		/*
@@ -78,6 +81,17 @@ public class Simulation extends PApplet {
 				
 		case 2: int heading = (int) Math.floor(Math.random() * 360);
 				env.addFish(new Point2D.Double(mouseX, mouseY), heading);
+				break;
+		case 3: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+					Agent ag = agents.get(i);
+					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
+						agent_clicked = ag;
+						break;
+					}
+				}
+				if(agent_clicked != null){ //agent was clicked so update selected
+					agent_clicked.thrust(2);
+				}
 				break;
 		}
 
@@ -133,23 +147,25 @@ public class Simulation extends PApplet {
 
 		
 		//Draw the 'Buttons to click on for food
-		stroke(84,255,159);
+		noStroke();
 		fill(84,255,159);
 		rect(screen.width-70,20,50,50);	//Draw Food Button
 		
-		stroke(72,118,255);
 		fill(72,118,255);
 		rect(screen.width-140,20,50,50); //Draw select button
 		
-		stroke(255,127,0);
 		fill(255, 127, 0);
 		rect(screen.width-210,20,50,50);	//Draw agent button
+		
+		fill(0, 231, 125);
+		rect(screen.width-280,20,50,50);	//Draw agent button
 		
 		fill(0);
 		textFont(f);
 		text("Food",screen.width-60,50);
 		text("Select",screen.width-130,50);
 		text("Agent",screen.width-200,50);
+		text("Thrust",screen.width-273,50);
 				
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner

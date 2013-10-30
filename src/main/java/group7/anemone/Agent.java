@@ -102,10 +102,15 @@ public class Agent {
 	}
 	ArrayList<SightInformation> getCanSee(){return canSee;}
 	
-	void setThrust(double x, double y){
+	private void setThrust(double x, double y){
 		//This will be called by the neural network to 
 		thrust.x = x;
 		thrust.y = y;
+	}
+	void thrust(double strength){
+		double x = strength * Math.cos(viewHeading * Math.PI / 180);
+		double y = strength * Math.sin(viewHeading * Math.PI / 180);
+		setThrust(x, y);
 	}
 	void changeViewHeading(double h){//This will be called by the neural network to change the current view heading
 		viewHeading += h;
