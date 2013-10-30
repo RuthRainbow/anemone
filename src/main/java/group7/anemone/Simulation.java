@@ -160,7 +160,7 @@ public class Simulation extends PApplet {
 		for (Agent ag: agents) { 
 			if(ag.getHealth() <= 0){
 				env.removeAgent(ag);
-				selectedAgent = null;
+				if(selectedAgent == ag) selectedAgent = null;
 			}
 		}
 	}
