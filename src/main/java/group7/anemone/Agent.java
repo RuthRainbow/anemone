@@ -22,13 +22,13 @@ public class Agent {
 	Agent(Point2D.Double coords, PApplet p){
 		this.parent = p;
 		this.coords = coords;
-		this.speed = new Point2D.Double(1, 0);
+		thrust(1);
 	}
 	Agent(Point2D.Double coords, double viewHeading, PApplet p){
 		this.parent = p;
 		this.coords = coords;
-		this.speed = new Point2D.Double(1, 0);
 		this.viewHeading = viewHeading;
+		thrust(1);
 	}
 	
 	protected String getStringRep() {
