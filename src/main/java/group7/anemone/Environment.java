@@ -55,6 +55,7 @@ public class Environment {
     		double headBelow = ag.getViewHeading() - ag.getFOV();
     		double headAbove = ag.getViewHeading() + ag.getFOV();
     		
+    		//TODO: move this into method and perform for food, other agents and enemies
     		//check for food within FOV
     		for (Food fd : food) { 
         		//check if the food is within viewable distance
@@ -72,17 +73,17 @@ public class Environment {
         			}    
         			//check if the food falls within field of view
         			if(angleBetween >= headBelow && angleBetween <= headAbove){
-        				result.add(new SightInformation(ag, fd, distance));
+        				result.add(new SightInformation(ag, fd, distance, (angleBetween - headBelow) / (ag.getFOV() * 2)));
         			//special cases where field of view crosses 0/360 divide	
         			}else if(headBelow < 0){
-        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, fd, distance));
+        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, fd, distance, ((angleBetween <= headAbove ? angleBetween + 360 : angleBetween ) - (360 + headBelow)) / (ag.getFOV() * 2)));
         			}else if(headAbove > 360){
-        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, fd, distance));
+        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, fd, distance, ((angleBetween <= headAbove-360 ? angleBetween + 360 : angleBetween ) - headBelow) / (ag.getFOV() * 2)));
         			}
         			
         		}
     		}
-    		
+    		/*
     		//check for other agents in FOV
     		for (Agent fi : fishes) { 
         		
@@ -134,7 +135,7 @@ public class Environment {
         			
         		}
     		}  		
-    		
+    		*/
     		//return updated list
     		ag.updateCanSee(result);
 		}

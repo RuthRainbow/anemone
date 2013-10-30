@@ -173,10 +173,15 @@ public class Simulation extends PApplet {
 		if(selectedAgent != null){	//If an agent is seleted, display its coordinates in the top left hand corner, under the framerate
 			fill(255);
 			textFont(f);
+			
+			String tmp = "";
+			for(SightInformation si : selectedAgent.getCanSee()) tmp += ", "+si.getType();
+			
 			text("Selected agent x = "+selectedAgent.getX(), 10, 25);
 			text("Selected agent y = "+selectedAgent.getY(), 10, 40);
 			text("Selected agent health = "+selectedAgent.getHealth(), 10, 55);
-			text("Selected agent total see = "+selectedAgent.getCanSee().size(), 10, 70);
+			text("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
+			text("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
 		}
 
 	}
