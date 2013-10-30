@@ -13,8 +13,16 @@ public class Agent {
 	private String stringRep = "";
 	private double fitness = 0;
 	private double health = 1;
+	private double viewHeading = 0; // in degrees 0-360
+	private double visionRange = 100; //how far they can see into the distance
+	private double fov = 25; //field of view, +-
 
 	Agent(Point2D.Double coords, PApplet p){
+		this.parent = p;
+		this.coords = coords;
+		this.speed = new Point2D.Double(1, 0);
+	}
+	Agent(Point2D.Double coords, double viewHeading, PApplet p){
 		this.parent = p;
 		this.coords = coords;
 		this.speed = new Point2D.Double(1, 0);
@@ -91,6 +99,9 @@ public class Agent {
 		thrust.x = x;
 		thrust.y = y;
 	}
+	void changeViewHeading(double h){//This will be called by the neural network to change the current view heading
+		viewHeading += h;
+	}
 	void updateHealth(double h){
 		health += h;
 		health = Math.min(1, health);
@@ -100,5 +111,7 @@ public class Agent {
 	int getY(){return (int) coords.y;}
 	Point2D.Double getCoordinates(){return coords;}
 	double getHealth(){return health;}
-	
+	double getViewHeading(){return viewHeading;}
+	double getVisionRange(){return visionRange;}
+	double getFOV(){return fov;}
 }

@@ -56,9 +56,7 @@ public class Simulation extends PApplet {
 	}
 	public void draw(){
 		background(0);	//Draws background, basically refreshes the screen
-		noStroke();
-		fill(255,255,0);
-
+		
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 		env.updateCollisions(); //update the environment with the new collisions
 		handleCollisions();
@@ -68,10 +66,33 @@ public class Simulation extends PApplet {
 
 		for(int i = 0; i < agents.size(); i++){ //Runs through arraylist of agents, will draw them on the canvas
 			Agent ag = agents.get(i);
+
+			//draw the field of view for the agent
+			stroke(128);
+			noFill();
+			double range = ag.getVisionRange() * 2;
+			
+			pushMatrix();
+			translate(ag.getX(), ag.getY());
+			rotate((float) toRadians(ag.getViewHeading() - ag.getFOV()));
+			line(0, 0, (int) (range / 2), 0);
+			popMatrix();
+			
+			pushMatrix();
+			translate(ag.getX(), ag.getY());
+			rotate((float) toRadians(ag.getViewHeading() + ag.getFOV()));
+			line(0, 0, (int) (range / 2), 0);
+			popMatrix();
+			
+			arc((float) ag.getX(), (float) ag.getY(), (float) range, (float) range, (float) toRadians(ag.getViewHeading() - ag.getFOV()) , (float) toRadians(ag.getViewHeading() + ag.getFOV()));
+		
+			//draw our circle representation for the agent
+			noStroke();
+			fill(255, 127, 0);
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 		}
 
-		fill(0, 0, 255);
+		fill(0, 255, 0);
 		for(int i = 0; i < food.size(); i++){ //Runs through arraylist of food, will draw them on the canvas
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
@@ -89,6 +110,9 @@ public class Simulation extends PApplet {
 			text("Selected agent health = "+selectedAgent.getHealth(), 10, 55);
 		}
 
+	}
+	private double toRadians(double deg){
+		return deg * Math.PI / 180;
 	}
 	
 	private void checkDeaths(){ //mwahahaha >:)
