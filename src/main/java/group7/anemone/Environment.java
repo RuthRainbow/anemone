@@ -48,44 +48,32 @@ public class Environment {
     }
     
     public void updateAgentsSight() {
+    	//update what each agent can see
     	for (Agent ag: fishes) { 
     		ArrayList<SightInformation> result = new ArrayList<SightInformation>();
+    		//angle of the top and bottom of the agent's field of view
     		double headBelow = ag.getViewHeading() - ag.getFOV();
     		double headAbove = ag.getViewHeading() + ag.getFOV();
     		
-    		
-    		for (Agent aa : fishes) { 
-        		if(ag == aa) continue;
-        		
-        		double distance = ag.getCoordinates().distance(aa.getCoordinates());
-        		if(distance <= ag.getVisionRange()){
-        			double angleBetween = Math.atan((aa.getCoordinates().y - ag.getCoordinates().y) / (aa.getCoordinates().x - ag.getCoordinates().x)) + Math.PI;
-        			angleBetween = angleBetween * 180 / Math.PI;
-        			
-        			if(angleBetween >= ag.getViewHeading() - ag.getFOV() && angleBetween <= ag.getViewHeading() + ag.getFOV()){
-        				result.add(new SightInformation(ag, aa, distance));
-        			}
-        		}
-    		}
-    		
+    		//check for food within FOV
     		for (Food fd : food) { 
-        		
+        		//check if the food is within viewable distance
         		double distance = ag.getCoordinates().distance(fd.getCoordinates());
         		if(distance <= ag.getVisionRange()){
+        			//get angle of food in relation to agent
         			double angleBetween = Math.atan((fd.getCoordinates().y - ag.getCoordinates().y) / (fd.getCoordinates().x - ag.getCoordinates().x));
         			angleBetween = angleBetween * 180 / Math.PI;
-        			
+        			//adjust angles depending on quadrant to be represented in 0-360 rather than -180-180
         			if(fd.getX() > ag.getX()) {
         				if (fd.getY() < ag.getY()) angleBetween = 360 + angleBetween;
         			}else{
         				if (fd.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
         				else angleBetween += 180;
-        			}
-        			System.out.println("a "+angleBetween);
-        			
-        			
+        			}    
+        			//check if the food falls within field of view
         			if(angleBetween >= headBelow && angleBetween <= headAbove){
         				result.add(new SightInformation(ag, fd, distance));
+        			//special cases where field of view crosses 0/360 divide	
         			}else if(headBelow < 0){
         				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, fd, distance));
         			}else if(headAbove > 360){
@@ -95,10 +83,61 @@ public class Environment {
         		}
     		}
     		
+    		//check for other agents in FOV
+    		for (Agent fi : fishes) { 
+        		
+        		double distance = ag.getCoordinates().distance(fi.getCoordinates());
+        		if(distance <= ag.getVisionRange()){
+        			double angleBetween = Math.atan((fi.getCoordinates().y - ag.getCoordinates().y) / (fi.getCoordinates().x - ag.getCoordinates().x));
+        			angleBetween = angleBetween * 180 / Math.PI;
+        			
+        			if(fi.getX() > ag.getX()) {
+        				if (fi.getY() < ag.getY()) angleBetween = 360 + angleBetween;
+        			}else{
+        				if (fi.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
+        				else angleBetween += 180;
+        			}        			
+        			
+        			if(angleBetween >= headBelow && angleBetween <= headAbove){
+        				result.add(new SightInformation(ag, fi, distance));
+        			}else if(headBelow < 0){
+        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, fi, distance));
+        			}else if(headAbove > 360){
+        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, fi, distance));
+        			}
+        			
+        		}
+    		}
+    		
+    		//check for other sharks in FOV
+    		for (Agent sh : sharks) { 
+        		
+        		double distance = ag.getCoordinates().distance(sh.getCoordinates());
+        		if(distance <= ag.getVisionRange()){
+        			double angleBetween = Math.atan((sh.getCoordinates().y - ag.getCoordinates().y) / (sh.getCoordinates().x - ag.getCoordinates().x));
+        			angleBetween = angleBetween * 180 / Math.PI;
+        			
+        			if(sh.getX() > ag.getX()) {
+        				if (sh.getY() < ag.getY()) angleBetween = 360 + angleBetween;
+        			}else{
+        				if (sh.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
+        				else angleBetween += 180;
+        			}        			
+        			
+        			if(angleBetween >= headBelow && angleBetween <= headAbove){
+        				result.add(new SightInformation(ag, sh, distance));
+        			}else if(headBelow < 0){
+        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, sh, distance));
+        			}else if(headAbove > 360){
+        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, sh, distance));
+        			}
+        			
+        		}
+    		}  		
+    		
+    		//return updated list
     		ag.updateCanSee(result);
 		}
-    	
-    	//return collisions;
     }
     
     protected ArrayList<Collision> getCollisions(){
@@ -176,8 +215,10 @@ public class Environment {
 	protected ArrayList<Food> getAllFood(){
 		return food;
 	}
-}
 
+
+
+}
 // I made this class so nothing is abstract and so we can find stuff still to implement easily.
 class NotImplementedException extends RuntimeException {
 
