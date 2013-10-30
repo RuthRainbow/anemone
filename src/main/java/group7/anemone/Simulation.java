@@ -22,14 +22,15 @@ public class Simulation extends PApplet {
 		frameRate(30);
 		size(screen.width, screen.height);
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 1; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
-			env.addFish(new Point2D.Double(x, y));
+			int heading = (int) Math.floor(Math.random() * 360);
+			env.addFish(new Point2D.Double(x, y), heading);
 		}
-		env.getAllAgents().get(0).setThrust(2, 2);
+		//env.getAllAgents().get(0).setThrust(2, 2);
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 0; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			env.addFood(new Point2D.Double(x, y));
@@ -59,8 +60,10 @@ public class Simulation extends PApplet {
 		
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 		env.updateCollisions(); //update the environment with the new collisions
+		env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 		handleCollisions();
 		checkDeaths();
+		
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
 
@@ -108,6 +111,7 @@ public class Simulation extends PApplet {
 			text("Selected agent x = "+selectedAgent.getX(), 10, 25);
 			text("Selected agent y = "+selectedAgent.getY(), 10, 40);
 			text("Selected agent health = "+selectedAgent.getHealth(), 10, 55);
+			text("Selected agent total see = "+selectedAgent.getCanSee().size(), 10, 70);
 		}
 
 	}

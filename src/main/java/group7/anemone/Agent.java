@@ -1,6 +1,7 @@
 package group7.anemone;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import processing.core.PApplet;
 
@@ -16,6 +17,7 @@ public class Agent {
 	private double viewHeading = 0; // in degrees 0-360
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
+	private ArrayList<SightInformation> canSee;
 
 	Agent(Point2D.Double coords, PApplet p){
 		this.parent = p;
@@ -26,6 +28,7 @@ public class Agent {
 		this.parent = p;
 		this.coords = coords;
 		this.speed = new Point2D.Double(1, 0);
+		this.viewHeading = 10;
 	}
 	
 	protected String getStringRep() {
@@ -94,6 +97,11 @@ public class Agent {
 		health -= 0.001;
 	}
 
+	void updateCanSee(ArrayList<SightInformation> see){
+		canSee = see;
+	}
+	ArrayList<SightInformation> getCanSee(){return canSee;}
+	
 	void setThrust(double x, double y){
 		//This will be called by the neural network to 
 		thrust.x = x;
