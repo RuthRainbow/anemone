@@ -28,7 +28,7 @@ public class Agent {
 		this.parent = p;
 		this.coords = coords;
 		this.speed = new Point2D.Double(1, 0);
-		this.viewHeading = 10;
+		this.viewHeading = viewHeading;
 	}
 	
 	protected String getStringRep() {

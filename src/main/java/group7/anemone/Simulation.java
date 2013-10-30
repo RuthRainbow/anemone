@@ -24,15 +24,15 @@ public class Simulation extends PApplet {
 		frameRate(30);
 		size(screen.width, screen.height);
 
-		for(int i = 0; i < 1; i++){
+		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
-		//env.getAllAgents().get(0).setThrust(2, 2);
+		env.getAllAgents().get(0).setThrust(2, 2);
 
-		for(int i = 0; i < 0; i++){
+		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			env.addFood(new Point2D.Double(x, y));
