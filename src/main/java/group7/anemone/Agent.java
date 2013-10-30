@@ -18,6 +18,8 @@ public class Agent {
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
+	
+	private int configNumSegments = 10;
 
 	Agent(Point2D.Double coords, PApplet p) {
 		this.parent = p;
@@ -124,6 +126,25 @@ public class Agent {
 	void updateHealth(double h){
 		health += h;
 		health = Math.min(1, health);
+	}
+	
+	//returns the distance of the closest object in a specified segment, -1 if none found.
+	public double viewingObjectOfTypeInSegment(int segment, int type){ 
+		ArrayList<SightInformation> filtered = new ArrayList<SightInformation>();
+		
+		for(SightInformation si : canSee){ //filter out those objects of type that are in the specified segment
+			if(si.getType() == type && si.getDistanceFromLower() >= (segment / configNumSegments) && si.getDistanceFromLower() < ((segment+1.0) / configNumSegments)){
+				filtered.add(si);
+			}
+		}
+		if(filtered.size() == 0) return -1;
+		
+		double dist = Double.MAX_VALUE;
+		for(SightInformation si : filtered){
+			dist = Math.min(dist, si.getDistance());
+		}
+		
+		return dist / visionRange;
 	}
 	
 	int getX(){return (int) coords.x;}
