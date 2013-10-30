@@ -51,6 +51,9 @@ public class Simulation extends PApplet {
 		else if ((mouseX>screen.width-70)&(mouseX<screen.width-20)&(mouseY>20)&(mouseY<70)) {	//Check food button
 			mouseMode=1;
 		}
+		else if ((mouseX>screen.width-210)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
+			mouseMode=2;
+		}
 		
 		/*
 		 * Mouse Modes are as follows:
@@ -72,29 +75,17 @@ public class Simulation extends PApplet {
 				
 		case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
 				break;
+				
+		case 2: int heading = (int) Math.floor(Math.random() * 360);
+				env.addFish(new Point2D.Double(mouseX, mouseY), heading);
+				break;
 		}
 
 	}
 	public void draw(){
 		background(0);	//Draws background, basically refreshes the screen
 		
-		//Draw the 'Buttons to click on for food
-		stroke(84,255,159);
-		fill(84,255,159);
-		rect(screen.width-70,20,50,50);	//Draw Food Button
 		
-		stroke(72,118,255);
-		fill(72,118,255);
-		rect(screen.width-140,20,50,50); //Draw select button
-		
-		stroke(255,127,0);
-		fill(255, 127, 0);
-		rect(screen.width-210,20,50,50);	//Draw agent button
-		
-		fill(0);
-		textFont(f);
-		text("Food",screen.width-60,50);
-		text("Select",screen.width-130,50);
 		
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 		env.updateCollisions(); //update the environment with the new collisions
@@ -140,8 +131,27 @@ public class Simulation extends PApplet {
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
 
-		fill(255);
+		
+		//Draw the 'Buttons to click on for food
+		stroke(84,255,159);
+		fill(84,255,159);
+		rect(screen.width-70,20,50,50);	//Draw Food Button
+		
+		stroke(72,118,255);
+		fill(72,118,255);
+		rect(screen.width-140,20,50,50); //Draw select button
+		
+		stroke(255,127,0);
+		fill(255, 127, 0);
+		rect(screen.width-210,20,50,50);	//Draw agent button
+		
+		fill(0);
 		textFont(f);
+		text("Food",screen.width-60,50);
+		text("Select",screen.width-130,50);
+		text("Agent",screen.width-200,50);
+				
+		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 
 		if(selectedAgent != null){	//If an agent is seleted, display its coordinates in the top left hand corner, under the framerate
