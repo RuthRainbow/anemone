@@ -222,10 +222,3 @@ public class Environment {
 
 
 }
-// I made this class so nothing is abstract and so we can find stuff still to implement easily.
-class NotImplementedException extends RuntimeException {
-
-	private static final long serialVersionUID = 1L;
-
-	public NotImplementedException(){}
-}
