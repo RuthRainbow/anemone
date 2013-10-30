@@ -44,7 +44,10 @@ public class Simulation extends PApplet {
 		/*
 		 * Check if the mouse has clicked on a button
 		 */
-		if ((mouseX>screen.width-70)&(mouseX<screen.width-20)&(mouseY>20)&(mouseY<70)) {
+		if ((mouseX>screen.width-140)&(mouseX<screen.width-90)&(mouseY>20)&(mouseY<70)) {	//Check select button button
+			mouseMode=0;
+		}
+		else if ((mouseX>screen.width-70)&(mouseX<screen.width-20)&(mouseY>20)&(mouseY<70)) {	//Check food button
 			mouseMode=1;
 		}
 		
@@ -77,10 +80,16 @@ public class Simulation extends PApplet {
 		//Draw the 'Buttons to click on for food
 		stroke(84,255,159);
 		fill(84,255,159);
-		rect(screen.width-70,20,50,50);
+		rect(screen.width-70,20,50,50);	//Draw Food Button
+		
+		stroke(72,118,255);
+		fill(72,118,255);
+		rect(screen.width-140,20,50,50);
+		
 		fill(0);
 		textFont(f);
 		text("Food",screen.width-60,50);
+		text("Select",screen.width-130,50);
 		
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 		env.updateCollisions(); //update the environment with the new collisions
