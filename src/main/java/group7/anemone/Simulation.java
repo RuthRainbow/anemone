@@ -85,7 +85,11 @@ public class Simulation extends PApplet {
 		
 		stroke(72,118,255);
 		fill(72,118,255);
-		rect(screen.width-140,20,50,50);
+		rect(screen.width-140,20,50,50); //Draw select button
+		
+		stroke(255,127,0);
+		fill(255, 127, 0);
+		rect(screen.width-210,20,50,50);	//Draw agent button
 		
 		fill(0);
 		textFont(f);
