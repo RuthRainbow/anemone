@@ -114,7 +114,7 @@ public class Simulation extends PApplet {
 			Agent ag = agents.get(i);
 
 			//draw the field of view for the agent
-			stroke(128);
+			stroke(128, (float) ag.getHealth()*200+55);
 			noFill();
 			double range = ag.getVisionRange() * 2;
 			
@@ -134,7 +134,7 @@ public class Simulation extends PApplet {
 		
 			//draw our circle representation for the agent
 			noStroke();
-			fill(255, 127, 0);
+			fill(255, 127, 0, (float) ag.getHealth()*200 +55);
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 		}
 
