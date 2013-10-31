@@ -11,8 +11,7 @@ public class MSimulation {
 	/* Neurons and Synapses. */
 	private MNetwork network;
 
-	/* Synapse startlists and counts. */
-	ArrayList<int[]> DS, DC;
+	private ArrayList<ArrayList<MSynapse>> events;
 
 	MSimulation(MNetwork network, MSimulationConfig config) {
 		/* Get a reference to the network. */
@@ -21,25 +20,14 @@ public class MSimulation {
 		/* Copy over the configuration. */
 		this.config.eventHorizon = config.eventHorizon;
 
-		/* Prepare the network for simulation. */
-		prepare();
+		initialise();
 	}
 
-	private void prepare() {
-		/* Sort the synapses. */
-		Collections.sort(network.getSynapses(), new Comparator<MSynapse>() {
-			public int compare(MSynapse s1, MSynapse s2) {
-				if (s1.getPreNeuron().getID() < s2.getPreNeuron().getID()) return -1;
-				if (s1.getPreNeuron().getID() > s2.getPreNeuron().getID()) return 1;
+	private void initialise() {
+		int h = this.config.eventHorizon;
 
-				if (s1.getDelay() < s2.getDelay()) return -1;
-				if (s1.getDelay() < s2.getDelay()) return 1;
-
-				return 0;
-			}
-		});
-
-		/* Set up DS and DC. */
+		/* Create event table. */
+		events = new ArrayList<MSynapse>()[h];
 	}
 
 	/* Perform a 1ms integration of the network. */

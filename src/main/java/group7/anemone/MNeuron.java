@@ -1,5 +1,7 @@
 package group7.anemone;
 
+import java.util.ArrayList;
+
 public class MNeuron {
 	/* Neuron parameters (shouldn't change). */
 	private MNeuronParams params;
@@ -9,6 +11,9 @@ public class MNeuron {
 
 	/* Neuron ID. */
 	private int nid;
+
+	/* Pre and post synapses. */
+	private ArrayList<MSynapse> preSynapses, postSynapses;
 
 	MNeuron(MNeuronParams params, MNeuronState state, int nid) {
 		/* Copy parameters. */
@@ -39,5 +44,13 @@ public class MNeuron {
 
 	int getID() {
 		return nid;
+	}
+
+	ArrayList<MSynapse> getPreSynapses() {
+		return preSynapses;
+	}
+
+	ArrayList<MSynapse> getPostSynapses() {
+		return postSynapses;
 	}
 }
