@@ -42,6 +42,15 @@ public class MNeuron {
 		state.I += I;
 	}
 
+	boolean isFiring() {
+		if (state.v >= 70.0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	int getID() {
 		return nid;
 	}
