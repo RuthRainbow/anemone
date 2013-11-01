@@ -32,6 +32,12 @@ public class MNeuron {
 	}
 
 	void update() {
+		if (isFiring()) {
+			state.v = params.c;
+			state.u += params.d;
+			state.I = 0;
+		}
+
 		/* Perform update of Izhikevich model. */
 		state.v += 0.5*(0.04*state.v*state.v + 5*state.v + 140 - state.u + state.I);
 		state.v += 0.5*(0.04*state.v*state.v + 5*state.v + 140 - state.u + state.I);
