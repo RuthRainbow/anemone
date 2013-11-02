@@ -41,21 +41,26 @@ public class Simulation extends PApplet {
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
 		Agent agent_clicked = null;
+		boolean buttonPress = false;
 		
 		/*
 		 * Check if the mouse has clicked on a button
 		 */
 		if ((mouseX>screen.width-140)&(mouseX<screen.width-90)&(mouseY>20)&(mouseY<70)) {	//Check select button button
 			mouseMode=0;
+			buttonPress=true;
 		}
 		else if ((mouseX>screen.width-70)&(mouseX<screen.width-20)&(mouseY>20)&(mouseY<70)) {	//Check food button
 			mouseMode=1;
+			buttonPress=true;
 		}
 		else if ((mouseX>screen.width-210)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
 			mouseMode=2;
+			buttonPress=true;
 		}
 		else if ((mouseX>screen.width-280)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
 			mouseMode=3;
+			buttonPress=true;
 		}
 		
 		/*
@@ -63,36 +68,38 @@ public class Simulation extends PApplet {
 		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
 		 * 1 = Food tool - Place food where you click
 		 */
-		switch(mouseMode){
-		case 0: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
-					Agent ag = agents.get(i);
-					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
-						agent_clicked = ag;
-						break;
+		if (buttonPress==false)	{
+			switch(mouseMode){
+			case 0: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+						Agent ag = agents.get(i);
+						if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
+							agent_clicked = ag;
+							break;
+						}
 					}
-				}
-				if(agent_clicked != null){ //agent was clicked so update selected
-					selectedAgent = agent_clicked;
-				}
-				break;
-				
-		case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
-				break;
-				
-		case 2: int heading = (int) Math.floor(Math.random() * 360);
-				env.addFish(new Point2D.Double(mouseX, mouseY), heading);
-				break;
-		case 3: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
-					Agent ag = agents.get(i);
-					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
-						agent_clicked = ag;
-						break;
+					if(agent_clicked != null){ //agent was clicked so update selected
+						selectedAgent = agent_clicked;
 					}
-				}
-				if(agent_clicked != null){ //agent was clicked so update selected
-					agent_clicked.thrust(2);
-				}
-				break;
+					break;
+					
+			case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
+					break;
+					
+			case 2: int heading = (int) Math.floor(Math.random() * 360);
+					env.addFish(new Point2D.Double(mouseX, mouseY), heading);
+					break;
+			case 3: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+						Agent ag = agents.get(i);
+						if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
+							agent_clicked = ag;
+							break;
+						}
+					}
+					if(agent_clicked != null){ //agent was clicked so update selected
+						agent_clicked.thrust(2);
+					}
+					break;
+			}
 		}
 
 	}
