@@ -9,11 +9,20 @@ public class GodTest extends TestCase {
 	static God god = new God();
 	
 	public static void testSetup() {}
-	public void testCrossover() {
+	public void testSinglePointCrossover() {
 		String mother = "ABCDEF";
 		String father = "GHIJKL";
-		String child = god.crossover(mother, father);
+		String child = god.SinglePointCrossover(mother, father);
 		assertEquals("ABCJKL", child);	
+	}
+	
+	public void testUniformCrossover() {
+		God spy = Mockito.spy(god);
+		Mockito.when(spy.getRandom()).thenReturn(0.1);
+		String mother = "ABCDEF";
+		String father = "GHIJKL";
+		String child = spy.UniformCrossover(mother, father);
+		assertEquals("ABCDEF", child);	
 	}
 	
 	public void testMutation() {
@@ -31,7 +40,7 @@ public class GodTest extends TestCase {
 		String child = spy.CreateOffspring(mother, father);
 		assertEquals("ABCJKL", child);
 	}
-	
+
 	public void testCreateOffspringMutation() {
 		God spy = Mockito.spy(god);
 		Mockito.when(spy.getRandom()).thenReturn(0.01);

@@ -18,12 +18,33 @@ public class God {
 		return child;
 	}
 	
-	// Crossover by simply picking the first half from the mother and second half from father.
+	// Method for crossover - return crossover method you want.
 	public String crossover(String mother, String father) {
+		return SinglePointCrossover(mother, father);
+	}
+	
+	// Crossover by simply picking the first half from the mother and second half from father.
+	public String SinglePointCrossover(String mother, String father) {
 		int crossover = (int) Math.floor(mother.length()/2);
 		StringBuilder child_builder = new StringBuilder();
 		child_builder.append(mother.substring(0, crossover));
 		child_builder.append(father.substring(crossover));
+		return child_builder.toString();
+	}
+	
+	// Crossover where each gene is taken at random from either mother or father.
+	public String UniformCrossover(String mother, String father) {
+		StringBuilder child_builder = new StringBuilder();
+		char[] mother_arr = mother.toCharArray();
+		char[] father_arr = father.toCharArray();
+		for (int i = 0; i < mother.length(); i++) {
+			double crossover_chance = getRandom();
+			if (crossover_chance < 0.5) {
+				child_builder.append(mother_arr[i]);
+			} else {
+				child_builder.append(father_arr[i]);
+			}
+		}
 		return child_builder.toString();
 	}
 	
