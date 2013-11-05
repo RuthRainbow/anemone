@@ -37,6 +37,11 @@ public class Simulation extends PApplet {
 			int y = (int) Math.floor(Math.random() * height);
 			env.addFood(new Point2D.Double(x, y));
 		}
+		
+		env.addWall(new Point2D.Double(0,0), new Point2D.Double(width,0));
+		env.addWall(new Point2D.Double(width,0), new Point2D.Double(width,height));
+		env.addWall(new Point2D.Double(0,height), new Point2D.Double(width,height));
+		env.addWall(new Point2D.Double(0,height), new Point2D.Double(0,0));
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
@@ -215,8 +220,14 @@ public class Simulation extends PApplet {
     		
     		switch(type){
     			case Collision.TYPE_FOOD: eatFood(cc);break;
+    			case Collision.TYPE_WALL: stopAgent(cc); break;
     		}
 		}
+	}
+
+	private void stopAgent(Collision cc) {
+		cc.getAgent().stop();
+		
 	}
 
 	private void eatFood(Collision cc) {
@@ -225,4 +236,6 @@ public class Simulation extends PApplet {
 		env.removeFood(fd);
 		cc.getAgent().updateHealth(fd.getValue());
 	}
+	
+
 }

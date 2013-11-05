@@ -5,9 +5,8 @@ import java.util.ArrayList;
 
 import processing.core.PApplet;
 
-public class Agent {
+public class Agent extends SimulationObject{
 	PApplet parent;
-	private Point2D.Double coords;
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
@@ -22,20 +21,21 @@ public class Agent {
 	private int configNumSegments = 10;
 
 	Agent(Point2D.Double coords, PApplet p) {
+		super(coords);
 		this.parent = p;
-		this.coords = coords;
 		thrust(1);
 	}
 	
 	Agent(Point2D.Double coords, double viewHeading, PApplet p) {
+		super(coords);
 		this.parent = p;
-		this.coords = coords;
 		this.viewHeading = viewHeading;
 		thrust(1);
 	}
 	
 	// TODO make this so we can create a new agent from a string rep.
 	public Agent(String string) {
+		super(new Point2D.Double(0, 0));
 		this.stringRep = string;
 	}
 	
@@ -95,14 +95,11 @@ public class Agent {
 		updateNetwork();
 		updateSpeed();
 
-		//TODO Move the change of coords to the update speed secion?? -Seb
-		coords.x += speed.x;	//Changes the coordinates to display disatance travelled since last update
-		coords.y += speed.y;
-
-		if(coords.x > parent.width + 10) coords.x = -10;	//f the agent goes off the corner of the map, move it to the other side.
-		if(coords.y > parent.height + 10) coords.y = -10;
+		//TODO Move the change of coords to the update speed section?? -Seb
+		coords.x += speed.x;	//Changes the coordinates to display distance travelled since last update
+		coords.y += speed.y;	
 		
-		health -= 0.001;
+		health -= 0.0000001;
 	}
 
 	void updateCanSee(ArrayList<SightInformation> see){
@@ -147,9 +144,11 @@ public class Agent {
 		return dist / visionRange;
 	}
 	
-	int getX(){return (int) coords.x;}
-	int getY(){return (int) coords.y;}
-	Point2D.Double getCoordinates(){return coords;}
+	public void stop(){
+		speed.x = 0;
+		speed.y = 0;
+	}
+	
 	double getHealth(){return health;}
 	double getViewHeading(){return viewHeading;}
 	double getVisionRange(){return visionRange;}
