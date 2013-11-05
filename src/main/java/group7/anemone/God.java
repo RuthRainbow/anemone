@@ -10,12 +10,18 @@ public class God {
 	}
 	
 	// Method to create offspring from 2 given parents.
-	public String CreateOffspring(Agent mother, Agent father) {
-		String child = crossover(mother.getStringRep(), father.getStringRep());
-		if (getRandom() < 0.05) {
-			child = mutate(child);
+	public ArrayList<String> CreateOffspring(Agent mother, Agent father) {
+		ArrayList<String> children = new ArrayList<String>();
+		children.add(crossover(mother.getStringRep(), father.getStringRep()));
+		if (getRandom() < 0.001) {
+			children.add(crossover(mother.getStringRep(), father.getStringRep()));
 		}
-		return child;
+		for (int i = 0; i < children.size(); i++) {
+			if (getRandom() < 0.05) {
+				children.set(i, mutate(children.get(i)));
+			}
+		}
+		return children;
 	}
 	
 	// Method for crossover - return crossover method you want.
