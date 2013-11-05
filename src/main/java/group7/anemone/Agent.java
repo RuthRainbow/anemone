@@ -18,6 +18,7 @@ public class Agent {
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
+	private BPNetwork network;
 	
 	private int configNumSegments = 10;
 
@@ -32,6 +33,8 @@ public class Agent {
 		this.coords = coords;
 		this.viewHeading = viewHeading;
 		thrust(1);
+		
+		createNetwork();
 	}
 	
 	// TODO make this so we can create a new agent from a string rep.
@@ -69,7 +72,7 @@ public class Agent {
 	}
 	
 	
-	void updateNetwork(){
+	void getAffectors(){
 		//TODO Actually implement this
 		//This will run through this agents network
 		//Input sensory data
@@ -78,7 +81,7 @@ public class Agent {
 		//Should result in some new outputs from outputlinks
 	}
 	
-	void updateSensors(){
+	void setEffectors(){
 		//TODO Actually implement this
 		/*
 		 * Look at what can be seen
@@ -86,13 +89,29 @@ public class Agent {
 		 */
 	}
 	
+	void networkKernal(){
+		//TODO Implement this
+		/*
+		 * This function will control this agents neural network.
+		 * It will handle collecting sensory data from the agent and passing it into the network
+		 * It will also handle reading the output from the network and causing effectors to be fired
+		 * 
+		 */
+		
+	}
+	
+	void createNetwork(){
+		network = new BPNetwork(31,3,1);
+	}
+	
+	
 	void update(){
 		//Will update the parameters of the agent
 		//Parameters include:
 		//Speed
 		//Neural Network State
 		//Sensor data (sight)
-		updateNetwork();
+		networkKernal();
 		updateSpeed();
 
 		//TODO Move the change of coords to the update speed secion?? -Seb
