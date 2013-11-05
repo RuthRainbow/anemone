@@ -14,6 +14,7 @@ public class Environment {
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
 	private ArrayList<Food> food;
+	private ArrayList<Wall> wall;
 
 	private ArrayList<Collision> collisions;
 
@@ -23,6 +24,7 @@ public class Environment {
 		this.fishes = new ArrayList<Agent>();
 		this.sharks = new ArrayList<Agent>();
 		this.food = new ArrayList<Food>();
+		this.wall = new ArrayList<Wall>();
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -43,6 +45,12 @@ public class Environment {
         		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
         			collisions.add(new Collision(ag, fd));
         		}
+    		}
+    		
+    		for (Wall wl: wall) {
+    			if (wl.getLine().ptLineDist(ag.getCoordinates()) < 10){
+    				collisions.add(new Collision(ag, wl));
+    			}
     		}
 		}
     	
@@ -190,6 +198,10 @@ public class Environment {
 
 	void addFood(Point2D.Double coords){
 		food.add(new Food(coords));
+	}
+	
+	void addWall(Point2D.Double start, Point2D.Double end){
+		wall.add(new Wall(start, end));
 	}
 	
 	protected void removeAgent(Agent ag){

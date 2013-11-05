@@ -6,6 +6,7 @@ public class Collision {
 	public static final int TYPE_FOOD = 1;
 	public static final int TYPE_AGENT = 2;
 	public static final int TYPE_ENEMY = 3;
+	public static final int TYPE_WALL = 4;
 	
 	private Agent agent;
 	private Object collided;
@@ -24,6 +25,7 @@ public class Collision {
 	public int getType(){
 		if(collided instanceof Food) return TYPE_FOOD;
 		if(collided instanceof Agent) return TYPE_AGENT;
+		if(collided instanceof Wall) return TYPE_WALL;
 		
 		return -1;
 	}
