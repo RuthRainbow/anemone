@@ -1,4 +1,5 @@
 package group7.anemone;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -19,14 +20,14 @@ public class BPNetwork {
 	{
 		//On creation, create these arraylists to manage all the neurons and links in this particular network
 		nodes = new BPNode[inputs + (inputs*(hiddenLayers)) + outputs];
+		System.out.println("Nodes: " + nodes.length);
 		startLinks = new BPStartLink[inputs];
 		outputLinks = new BPOutputLink[outputs];
-		links = new BPLink[inputs + (inputs*(hiddenLayers))];
-		
+		links = new BPLink[ (int) (( Math.pow((inputs + (inputs*hiddenLayers) + outputs),2) * hiddenLayers) + (inputs*outputs))];
 		/*
 		 * This section will generate all of the nodes for a fully connected network of a given size
 		 */
-		for (int x=0; x<(inputs + (inputs*hiddenLayers)); x++) {
+		for (int x=0; x<(inputs + (inputs*hiddenLayers) + outputs -1); x++) {
 			if ((x>=0)|(x<31)) {
 				//The first 30 nodes in this simple neural net are input nodes  
 				nodes[x]=new BPNode(0);
@@ -69,7 +70,8 @@ public class BPNetwork {
 		int linkCounter=0;
 		if (hiddenLayers>0) { //If there are hidden layer nodes
 			for (int x=0; x<(nodes.length-(outputs+inputs)); x++) {	//For every node except those in the last layer and output layer
-				for (int y=31; y<62; y++) {	//Add the links and connect things up
+				for (int y=31; y<62-x; y++) {	//Add the links and connect things up
+					//System.out.println("x: " + x + " y: " + y + " linkCounter: " + linkCounter + " size: " + links.length);
 					links[linkCounter] = new BPLink(1,x,x+y); //Connect the current node to one 31 places ahead
 					nodes[x].addOutputLink(linkCounter);
 					nodes[x+y].addInputLink(linkCounter);
@@ -77,8 +79,9 @@ public class BPNetwork {
 				}
 			}
 			
-			for (int x=nodes.length-(outputs+inputs-1); x<nodes.length; x++) { //For last hidden layer, to connect to the output layer
-				for (int y=nodes.length-outputs; y<nodes.length; y++) {	//For each output node
+			for (int x=nodes.length-(outputs+inputs); x<nodes.length-1; x++) { //For last hidden layer, to connect to the output layer
+				for (int y=nodes.length-outputs; y<nodes.length-1; y++) {	//For each output node
+					System.out.println("x: " + x + " y: " + y + " linkCounter: " + linkCounter + " size: " + links.length);
 					links[linkCounter] = new BPLink(1,x,y);
 					nodes[x].addOutputLink(linkCounter);
 					nodes[y].addInputLink(linkCounter);
