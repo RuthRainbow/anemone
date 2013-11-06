@@ -17,6 +17,7 @@ public class Agent extends SimulationObject{
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
+	private BPNetwork network;
 	
 	private int configNumSegments = 10;
 
@@ -31,6 +32,8 @@ public class Agent extends SimulationObject{
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
+		
+		createNetwork();
 	}
 	
 	// TODO make this so we can create a new agent from a string rep.
@@ -68,31 +71,13 @@ public class Agent extends SimulationObject{
 		else if(speed.y < 0) speed.y += drag.y;
 	}
 	
-	
-	void updateNetwork(){
-		//TODO Actually implement this
-		//This will run through this agents network
-		//Input sensory data
-		//Update all the neurons
-		//Fire syanpse, etc
-		//Should result in some new outputs from outputlinks
+	void createNetwork(){
+		network = new BPNetwork(31,3,1);
+		network.generateOperationQ();
 	}
 	
-	void updateSensors(){
-		//TODO Actually implement this
-		/*
-		 * Look at what can be seen
-		 * Shunt it into neural network for processing next step?
-		 */
-	}
 	
 	void update(){
-		//Will update the parameters of the agent
-		//Parameters include:
-		//Speed
-		//Neural Network State
-		//Sensor data (sight)
-		updateNetwork();
 		updateSpeed();
 
 		//TODO Move the change of coords to the update speed section?? -Seb

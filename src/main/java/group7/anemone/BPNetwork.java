@@ -1,4 +1,5 @@
 package group7.anemone;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -15,38 +16,101 @@ public class BPNetwork {
 	public Queue<Integer> operationQ = new LinkedList<Integer>();
 	public Queue<Integer> backQ = new LinkedList<Integer>();
 
-	public BPNetwork() 
+	public BPNetwork(int inputs, int outputs, int hiddenLayers) 
 	{
 		//On creation, create these arraylists to manage all the neurons and links in this particular network
-		nodes = new BPNode[0];
-		startLinks = new BPStartLink[0];
-		outputLinks = new BPOutputLink[0];
-		links = new BPLink[0];
+		nodes = new BPNode[inputs + (inputs*(hiddenLayers)) + outputs];
+		//System.out.println("Nodes: " + nodes.length);
+		startLinks = new BPStartLink[inputs];
+		outputLinks = new BPOutputLink[outputs];
+		links = new BPLink[ (int) (( Math.pow((inputs + (inputs*hiddenLayers) + outputs),2) * hiddenLayers) + (inputs*outputs))];
+		/*
+		 * This section will generate all of the nodes for a fully connected network of a given size
+		 */
+		for (int x=0; x<(inputs + (inputs*hiddenLayers) + outputs -1); x++) {
+			if ((x>=0)|(x<31)) {
+				//The first 30 nodes in this simple neural net are input nodes  
+				nodes[x]=new BPNode(0);
+				//TODO Set these nodes a target, not sure what that target should be yet
+			}
+			if ((x>=31)|(x<(inputs + (inputs*hiddenLayers) - outputs))) {
+				//From the 31st node up until the last three, these are all hidden nodes
+				nodes[x]=new BPNode(1);
+			}
+			else {
+				//The last three will be output nodes
+				nodes[x]=new BPNode(2);
+			}
+			
+		}
+		
+		
+		/*
+		 * This section will loop through every single node and link up nodes with links
+		 */
+		int startLinkCounter=0;
+		for (int x=0; x<inputs; x++) { //First 31 nodes
+			startLinks[startLinkCounter] = new BPStartLink(1,x);
+			nodes[x].addInputLink(startLinkCounter);
+			startLinkCounter++;
+		}
+		
+		int outputLinkCounter=0;
+		for (int x=nodes.length-outputs; x<outputs; x++) {	//Last 3 nodes
+			outputLinks[outputLinkCounter]= new BPOutputLink(1,x);
+			nodes[x].addOutputLink(outputLinkCounter);
+			outputLinkCounter++;
+		}
+		
+		//TODO
+		//WARNING
+		/*
+		 * THIS CODE ONLY WORKS IF YOU HAVE JUST 1 HIDDEN LAYER. OOPS.
+		 */
+		int linkCounter=0;
+		if (hiddenLayers>0) { //If there are hidden layer nodes
+			for (int x=0; x<(nodes.length-(outputs+inputs)); x++) {	//For every node except those in the last layer and output layer
+				for (int y=31; y<62-x; y++) {	//Add the links and connect things up
+					//System.out.println("x: " + x + " y: " + y + " linkCounter: " + linkCounter + " size: " + links.length);
+					links[linkCounter] = new BPLink(1,x,x+y); //Connect the current node to one 31 places ahead
+					nodes[x].addOutputLink(linkCounter);
+					nodes[x+y].addInputLink(linkCounter);
+					linkCounter++;
+				}
+			}
+			
+			for (int x=nodes.length-(outputs+inputs); x<nodes.length-1; x++) { //For last hidden layer, to connect to the output layer
+				for (int y=nodes.length-outputs; y<nodes.length-1; y++) {	//For each output node
+					//System.out.println("x: " + x + " y: " + y + " linkCounter: " + linkCounter + " size: " + links.length);
+					links[linkCounter] = new BPLink(1,x,y);
+					nodes[x].addOutputLink(linkCounter);
+					nodes[y].addInputLink(linkCounter);
+					linkCounter++;
+				}
+			}
+		}
 		learningRate=1;
 	}
 	
 	// TODO set weight of startlinks to the input that is currently being fed to the network.
 	
 	public void runNetwork() {
-		System.out.println();
-		System.out.println();
-		System.out.println("Starting Neural Net...");
-		System.out.println();
+		//System.out.println();
+		//System.out.println();
+		//System.out.println("Starting Neural Net...");
+		//System.out.println();
 		/*
 		 * Create the nodes and links for the Neural Net
 		 * Edit this method to change the net or the outcome of the net
 		 */
-		generateOperationQ();	//Creates and sets up the Q which controls what order the neural net works through nodes during general operation
+		//generateOperationQ();	//Creates and sets up the Q which controls what order the neural net works through nodes during general operation
 		
 		/*
 		 * This loop will run through the operations of a neural network.
 		 * Firing nodes, lighting up the links etc.
 		 * It will stop once all Nodes that have fired and their successive nodes have done their operations.
 		 */
-		while (operationQ.size()>0)
-		{
-			 nodeOperation(operationQ.poll() );
-		}
+		nodeOperation(operationQ.poll() );
 	}
 	
 	public void backPropagation(int incre)
@@ -264,7 +328,7 @@ public class BPNetwork {
 	}
 	
 	
-	public void input(int startLink, int inputValue)
+	public void input(int startLink, double inputValue)
 	{
 		startLinks[startLink].adjustWeight(inputValue);
 	}

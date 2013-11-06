@@ -12,7 +12,7 @@ public class BPLink extends BasicLink{
 	public void lightup(double nodeEnergy)
 	{
 		this.setActive(nodeEnergy*this.getWeight());
-		System.out.println("A normal link lighting up, with energy of: " + this.getActive());
+		//System.out.println("A normal link lighting up, with energy of: " + this.getActive());
 	}
 	
 }
