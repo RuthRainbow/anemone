@@ -12,7 +12,7 @@ public class BPStartLink extends BasicLink{
 	public void lightup()
 	{
 		this.setActive(this.getWeight());
-		System.out.println("A start link lighting up to: " + this.getActive());
+		//System.out.println("A start link lighting up to: " + this.getActive());
 	}
 
 }

@@ -71,47 +71,13 @@ public class Agent {
 		else if(speed.y < 0) speed.y += drag.y;
 	}
 	
-	
-	void getAffectors(){
-		//TODO Actually implement this
-		//This will run through this agents network
-		//Input sensory data
-		//Update all the neurons
-		//Fire syanpse, etc
-		//Should result in some new outputs from outputlinks
-	}
-	
-	void setEffectors(){
-		//TODO Actually implement this
-		/*
-		 * Look at what can be seen
-		 * Shunt it into neural network for processing next step?
-		 */
-	}
-	
-	void networkKernal(){
-		//TODO Implement this
-		/*
-		 * This function will control this agents neural network.
-		 * It will handle collecting sensory data from the agent and passing it into the network
-		 * It will also handle reading the output from the network and causing effectors to be fired
-		 * 
-		 */
-		
-	}
-	
 	void createNetwork(){
 		network = new BPNetwork(31,3,1);
+		network.generateOperationQ();
 	}
 	
 	
 	void update(){
-		//Will update the parameters of the agent
-		//Parameters include:
-		//Speed
-		//Neural Network State
-		//Sensor data (sight)
-		networkKernal();
 		updateSpeed();
 
 		//TODO Move the change of coords to the update speed secion?? -Seb

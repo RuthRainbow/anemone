@@ -11,7 +11,7 @@ public class BPOutputLink extends BasicLink{
 
 	public void lightup(double nodeEnergy)
 	{
-		System.out.println("An output link lighting up");
+		//System.out.println("An output link lighting up");
 		this.setActive(nodeEnergy);
 	}
 }

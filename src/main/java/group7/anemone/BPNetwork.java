@@ -20,7 +20,7 @@ public class BPNetwork {
 	{
 		//On creation, create these arraylists to manage all the neurons and links in this particular network
 		nodes = new BPNode[inputs + (inputs*(hiddenLayers)) + outputs];
-		System.out.println("Nodes: " + nodes.length);
+		//System.out.println("Nodes: " + nodes.length);
 		startLinks = new BPStartLink[inputs];
 		outputLinks = new BPOutputLink[outputs];
 		links = new BPLink[ (int) (( Math.pow((inputs + (inputs*hiddenLayers) + outputs),2) * hiddenLayers) + (inputs*outputs))];
@@ -81,7 +81,7 @@ public class BPNetwork {
 			
 			for (int x=nodes.length-(outputs+inputs); x<nodes.length-1; x++) { //For last hidden layer, to connect to the output layer
 				for (int y=nodes.length-outputs; y<nodes.length-1; y++) {	//For each output node
-					System.out.println("x: " + x + " y: " + y + " linkCounter: " + linkCounter + " size: " + links.length);
+					//System.out.println("x: " + x + " y: " + y + " linkCounter: " + linkCounter + " size: " + links.length);
 					links[linkCounter] = new BPLink(1,x,y);
 					nodes[x].addOutputLink(linkCounter);
 					nodes[y].addInputLink(linkCounter);
@@ -95,25 +95,22 @@ public class BPNetwork {
 	// TODO set weight of startlinks to the input that is currently being fed to the network.
 	
 	public void runNetwork() {
-		System.out.println();
-		System.out.println();
-		System.out.println("Starting Neural Net...");
-		System.out.println();
+		//System.out.println();
+		//System.out.println();
+		//System.out.println("Starting Neural Net...");
+		//System.out.println();
 		/*
 		 * Create the nodes and links for the Neural Net
 		 * Edit this method to change the net or the outcome of the net
 		 */
-		generateOperationQ();	//Creates and sets up the Q which controls what order the neural net works through nodes during general operation
+		//generateOperationQ();	//Creates and sets up the Q which controls what order the neural net works through nodes during general operation
 		
 		/*
 		 * This loop will run through the operations of a neural network.
 		 * Firing nodes, lighting up the links etc.
 		 * It will stop once all Nodes that have fired and their successive nodes have done their operations.
 		 */
-		while (operationQ.size()>0)
-		{
-			 nodeOperation(operationQ.poll() );
-		}
+		nodeOperation(operationQ.poll() );
 	}
 	
 	public void backPropagation(int incre)
@@ -331,7 +328,7 @@ public class BPNetwork {
 	}
 	
 	
-	public void input(int startLink, int inputValue)
+	public void input(int startLink, double inputValue)
 	{
 		startLinks[startLink].adjustWeight(inputValue);
 	}
