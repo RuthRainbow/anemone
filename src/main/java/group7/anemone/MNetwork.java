@@ -2,6 +2,10 @@ package group7.anemone;
 
 import java.util.ArrayList;
 
+/**
+ * The MNetwork class encapsulates a set of neurons and a set of synapses
+ * that together describe a network.
+ */
 public class MNetwork {
 	private ArrayList<MNeuron> neurons;
 	private ArrayList<MSynapse> synapses;

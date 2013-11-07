@@ -2,6 +2,14 @@ package group7.anemone;
 
 import java.util.ArrayList;
 
+/**
+ * The MNeuron class represents one Izhikevich neuron and its current state.
+ * The class provides methods for integrating its simulation as well as
+ * applying voltaic input (perhaps via a preneuron action potential).
+ * <p>
+ * TODO:
+ * - Implement methods for accessing state information (eg, voltage).
+ */
 public class MNeuron {
 	/* Neuron parameters (shouldn't change). */
 	private MNeuronParams params;
