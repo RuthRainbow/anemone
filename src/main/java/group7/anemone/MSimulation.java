@@ -68,9 +68,10 @@ public class MSimulation {
 	}
 
 	private void doCurrentEvents() {
+		int h = config.eventHorizon;
 		MNeuron n;
 
-		for (MSynapse s : events.get(time)) {
+		for (MSynapse s : events.get(time % h)) {
 			n = s.getPostNeuron();
 			n.addCurrent(s.getWeight());
 		}
