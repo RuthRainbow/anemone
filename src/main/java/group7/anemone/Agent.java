@@ -21,14 +21,16 @@ public class Agent extends SimulationObject{
 	
 	private int configNumSegments = 10;
 
+	private NInterface ninterface;
+
 	Agent(Point2D.Double coords, PApplet p) {
-		super(coords);
-		this.parent = p;
-		thrust(1);
+		this(coords, 0, p);
 	}
 	
 	Agent(Point2D.Double coords, double viewHeading, PApplet p) {
 		super(coords);
+		ninterface = new NInterface(10);
+		canSee = new ArrayList<SightInformation>();
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
@@ -75,9 +77,34 @@ public class Agent extends SimulationObject{
 		network = new BPNetwork(31,3,1);
 		network.generateOperationQ();
 	}
-	
+
+	/*
+	 * TODO:
+	 * - Update the motor proprioreceptors (ninterface.affectors.m*)
+	 * - Normalisation.
+	 */
+	void updateSensors(){
+		int visionDim = ninterface.affectors.getVisionDim();
+		double distance;
+
+		/* Update food vision variables. */
+		for (int i=0; i<visionDim; i++) {
+			/* Food sensory neurons. */
+			distance = viewingObjectOfTypeInSegment(i, Collision.TYPE_FOOD);
+			ninterface.affectors.vFood[i] = distance < 0.0 ? 0.0 : distance;
+
+			/* Ally sensory neurons. */
+			distance = viewingObjectOfTypeInSegment(i, Collision.TYPE_AGENT);
+			ninterface.affectors.vAlly[i] = distance < 0.0 ? 0.0 : distance;
+
+			/* Enemy sensory neurons. */
+			distance = viewingObjectOfTypeInSegment(i, Collision.TYPE_ENEMY);
+			ninterface.affectors.vEnemy[i] = distance < 0.0 ? 0.0 : distance;
+		}
+	}
 	
 	void update(){
+		updateSensors();
 		updateSpeed();
 
 		//TODO Move the change of coords to the update speed section?? -Seb
