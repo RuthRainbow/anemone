@@ -1,5 +1,7 @@
 package group7.anemone;
 
+import group7.anemone.UI.*;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -14,6 +16,10 @@ public class Simulation extends PApplet {
 	Agent selectedAgent = null;
 	PFont f = createFont("Arial",12,true);
 	int mouseMode=0;
+	
+	//UI Elements
+	UIWindow win = new UIWindow(this);
+	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -23,7 +29,8 @@ public class Simulation extends PApplet {
 	public void setup() {
 		frameRate(30);
 		size(screen.width, screen.height);
-
+		setupUI();
+		
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
@@ -46,12 +53,13 @@ public class Simulation extends PApplet {
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
 		Agent agent_clicked = null;
-		boolean buttonPress = false;
+		
+		if(win.mousePressed()) return;
 		
 		/*
 		 * Check if the mouse has clicked on a button
 		 */
-		if ((mouseX>screen.width-140)&(mouseX<screen.width-90)&(mouseY>20)&(mouseY<70)) {	//Check select button button
+		/*if ((mouseX>screen.width-140)&(mouseX<screen.width-90)&(mouseY>20)&(mouseY<70)) {	//Check select button button
 			mouseMode=0;
 			buttonPress=true;
 		}
@@ -66,51 +74,65 @@ public class Simulation extends PApplet {
 		else if ((mouseX>screen.width-280)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
 			mouseMode=3;
 			buttonPress=true;
-		}
+		}*/
 		
 		/*
 		 * Mouse Modes are as follows:
 		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
 		 * 1 = Food tool - Place food where you click
 		 */
-		if (buttonPress==false)	{
-			switch(mouseMode){
-			case 0: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
-						Agent ag = agents.get(i);
-						if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
-							agent_clicked = ag;
-							break;
-						}
+		switch(mouseMode){
+		case 0: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+					Agent ag = agents.get(i);
+					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
+						agent_clicked = ag;
+						break;
 					}
-					if(agent_clicked != null){ //agent was clicked so update selected
-						selectedAgent = agent_clicked;
+				}
+				if(agent_clicked != null){ //agent was clicked so update selected
+					selectedAgent = agent_clicked;
+				}
+				break;
+				
+		case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
+				break;
+				
+		case 2: int heading = (int) Math.floor(Math.random() * 360);
+				env.addFish(new Point2D.Double(mouseX, mouseY), heading);
+				break;
+		case 3: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+					Agent ag = agents.get(i);
+					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
+						agent_clicked = ag;
+						break;
 					}
-					break;
-					
-			case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
-					break;
-					
-			case 2: int heading = (int) Math.floor(Math.random() * 360);
-					env.addFish(new Point2D.Double(mouseX, mouseY), heading);
-					break;
-			case 3: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
-						Agent ag = agents.get(i);
-						if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
-							agent_clicked = ag;
-							break;
-						}
-					}
-					if(agent_clicked != null){ //agent was clicked so update selected
-						agent_clicked.thrust(2);
-					}
-					break;
-			}
+				}
+				if(agent_clicked != null){ //agent was clicked so update selected
+					agent_clicked.thrust(2);
+				}
+				break;
 		}
 
 	}
+	public void mouseReleased(){
+		if(win.mouseReleased()) return;
+		
+		
+	}
+	public void mouseDragged(){
+		if(win.mouseDragged()) return;
+		
+		
+	}
+	public void keyReleased(){
+		if(win.keyReleased()) return;
+		
+		
+	}
+	
 	public void draw(){
 		background(0);	//Draws background, basically refreshes the screen
-		
+		win.draw();
 		
 		
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
@@ -159,7 +181,7 @@ public class Simulation extends PApplet {
 
 		
 		//Draw the 'Buttons to click on for food
-		noStroke();
+		/*noStroke();
 		fill(84,255,159);
 		rect(screen.width-70,20,50,50);	//Draw Food Button
 		
@@ -171,13 +193,13 @@ public class Simulation extends PApplet {
 		
 		fill(0, 231, 125);
 		rect(screen.width-280,20,50,50);	//Draw agent button
-		
+		*/
 		fill(0);
 		textFont(f);
-		text("Food",screen.width-60,50);
+		/*text("Food",screen.width-60,50);
 		text("Select",screen.width-130,50);
 		text("Agent",screen.width-200,50);
-		text("Thrust",screen.width-273,50);
+		text("Thrust",screen.width-273,50);*/
 				
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
@@ -196,6 +218,28 @@ public class Simulation extends PApplet {
 			text("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
 		}
 
+	}
+	
+	private void setupUI(){
+		btnSelectAgent = addModeButton(0, "Select", 280, 2 ,118 ,255);
+		btnAddFood = addModeButton(1, "Food", 210, 84, 255, 159);
+		btnAddAgent = addModeButton(2, "Agent", 140, 255, 127, 0);
+		btnThrust = addModeButton(3, "Thrust", 70, 0, 231, 125);
+		
+		win.selectButton(btnSelectAgent);
+	}
+	private UIButton addModeButton(final int mode, String txt, int pos, int r, int g, int b){
+		UIButton btn = new UIButton(this, pos, 20, 50, 50, txt);
+		btn.setEventHandler(new UIAction(){
+			public void click(UIButton btn){
+				win.selectButton(btn);
+				mouseMode = mode;
+			}
+		});
+		btn.setColor(r, g, b);
+		btn.setIsLeft(false);
+		win.addObject(btn);
+		return btn;
 	}
 	private double toRadians(double deg){
 		return deg * Math.PI / 180;
