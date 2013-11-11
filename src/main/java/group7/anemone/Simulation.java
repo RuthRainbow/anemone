@@ -20,6 +20,7 @@ public class Simulation extends PApplet {
 	//UI Elements
 	UIWindow win = new UIWindow(this);
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust;
+	UIAngle agentHeading;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -140,6 +141,7 @@ public class Simulation extends PApplet {
 		env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 		handleCollisions();
 		checkDeaths();
+		updateUI();
 		
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
@@ -220,6 +222,13 @@ public class Simulation extends PApplet {
 
 	}
 	
+	private void updateUI(){
+		agentHeading.setIsVisible(selectedAgent != null);
+		
+		if(selectedAgent != null){
+			agentHeading.setAngle(selectedAgent.getViewHeading());
+		}
+	}
 	private void setupUI(){
 		btnSelectAgent = addModeButton(0, "Select", 280, 2 ,118 ,255);
 		btnAddFood = addModeButton(1, "Food", 210, 84, 255, 159);
@@ -227,6 +236,18 @@ public class Simulation extends PApplet {
 		btnThrust = addModeButton(3, "Thrust", 70, 0, 231, 125);
 		
 		win.selectButton(btnSelectAgent);
+		
+		agentHeading = new UIAngle(this, 140, 80, 50);
+		agentHeading.setIsLeft(false);
+		agentHeading.setEventHandler(new UIAction(){
+			public void change(UIAngle ang){
+				if(selectedAgent != null){
+					selectedAgent.changeViewHeading(ang.getAngle() - selectedAgent.getViewHeading());
+				}
+			}
+		});
+		win.addObject(agentHeading);
+		
 	}
 	private UIButton addModeButton(final int mode, String txt, int pos, int r, int g, int b){
 		UIButton btn = new UIButton(this, pos, 20, 50, 50, txt);
