@@ -70,7 +70,7 @@ public class UIWindow extends UIObject{
 		super.setBackground(col);
 
 		for(UIObject object : objects){
-			object.setBackground(col);
+			if(!object.fixedBackground) object.setBackground(col);
 		}
 	}
 	public void setBackground(int r, int g, int b){

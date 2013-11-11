@@ -84,6 +84,9 @@ public class UIObject {
 	public void setVisible(boolean vis){
 		isVisible = vis;
 	}
+	public void toggleVisible(){
+		isVisible = !isVisible;
+	}
 
 	public void moved(){}
 	public void draw(){}

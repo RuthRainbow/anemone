@@ -22,10 +22,14 @@ public class Simulation extends PApplet {
 	UIWindow sidePanel;
 	UIWindow btnGroupModes;
 	UIWindow winStats;
+	UIWindow winTheme;
 	
-	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust;
+	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
 	UIAngle agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth;
+	UIDropdown themeDrop;
+	UIColorWheel themeColorWheel;
+	UITheme theme;
 	
 	int width = 0;
 	int height = 0;
@@ -119,6 +123,7 @@ public class Simulation extends PApplet {
 	}
 	public void keyReleased(){	//Hotkeys for buttons
 		if(win.keyReleased()) return;
+		
 		switch(key) {
 		case('e'):	mouseMode=2;
 					btnGroupModes.selectButton(btnAddAgent);
@@ -133,13 +138,12 @@ public class Simulation extends PApplet {
 					btnGroupModes.selectButton(btnAddFood);
 					break;
 		}
-		
 	}
 	
 	public void draw(){
-		background(0);	//Draws background, basically refreshes the screen
-		win.draw();
-		
+		background(theme.getColor("Background"));	//Draws background, basically refreshes the screen
+		win.setBackground(theme.getColor("Background"));
+		sidePanel.setBackground(theme.getColor("Sidepanel"));
 		
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 		env.updateCollisions(); //update the environment with the new collisions
@@ -147,6 +151,8 @@ public class Simulation extends PApplet {
 		handleCollisions();
 		checkDeaths();
 		updateUI();
+		
+		win.draw();
 		
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
@@ -175,12 +181,12 @@ public class Simulation extends PApplet {
 		
 			//draw our circle representation for the agent
 			noStroke();
-			fill(255, 127, 0, (float) ag.getHealth()*200 +55);
+			fill(theme.getColor("Agent"), (float) ag.getHealth()*200 +55);
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 		}
 
-		fill(0, 255, 0);
-		stroke(0,255,0);
+		noStroke();
+		fill(theme.getColor("Food"));
 		for(int i = 0; i < food.size(); i++){ //Runs through arraylist of food, will draw them on the canvas
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
@@ -227,6 +233,7 @@ public class Simulation extends PApplet {
 		sidePanel.setFixedBackground(true);
 		win.addObject(sidePanel);
 
+		//Buttons to change the current mode
 		btnGroupModes = new UIWindow(this, 0, 0, 200, 200);
 		sidePanel.addObject(btnGroupModes);
 		
@@ -237,6 +244,7 @@ public class Simulation extends PApplet {
 		
 		btnGroupModes.selectButton(btnSelectAgent);
 		
+		//control to change the selected agents heading
 		agentHeading = new UIAngle(this, 30, 100, 50);
 		agentHeading.setEventHandler(new UIAction(){
 			public void change(UIAngle ang){
@@ -247,6 +255,7 @@ public class Simulation extends PApplet {
 		});
 		sidePanel.addObject(agentHeading);
 		
+		//Statistics window for the currently selected agent
 		winStats = new UIWindow(this, 0, 300, 200, 200);
 		sidePanel.addObject(winStats);
 		
@@ -255,6 +264,46 @@ public class Simulation extends PApplet {
 		lblY = addStatLabel("X", 45);
 		lblHeading = addStatLabel("X", 60);
 		lblHealth = addStatLabel("X", 75);
+		
+		//Themes window
+		theme = new UITheme();
+		theme.setColor("Background", color(0));
+		theme.setColor("Sidepanel", color(50));
+		theme.setColor("Food", color(0, 255, 0));
+		theme.setColor("Agent", color(255, 127, 0));
+		
+		winTheme = new UIWindow(this, 0, 240, 200, 200);
+		winTheme.setIsTop(false);
+		sidePanel.addObject(winTheme);
+		
+		themeColorWheel = new UIColorWheel(this, 45, 40);
+		themeColorWheel.setVisible(false);
+		themeColorWheel.setEventHandler(new UIAction(){
+			public void change(UIColorWheel wheel){
+				theme.setColor(themeDrop.getSelected(), wheel.getColor());
+			}
+		});
+		winTheme.addObject(themeColorWheel);
+		
+		themeDrop = new UIDropdown(this, 25, 10, 200, theme.getKeys());
+		themeDrop.setVisible(false);
+		themeDrop.setEventHandler(new UIAction(){
+			public void change(UIDropdown drop){
+				themeColorWheel.setColor(theme.getColor(drop.getSelected()));
+			}
+		});
+		winTheme.addObject(themeDrop);
+		
+		btnToggleTheme = new UIButton(this, 25, 195, 200, 30, "Toggle Theme Editor");
+		btnToggleTheme.setColor(20, 20, 20);
+		btnToggleTheme.setFontColor(240, 240, 240);
+		btnToggleTheme.setEventHandler(new UIAction(){
+			public void click(UIButton btn){
+				themeColorWheel.toggleVisible();
+				themeDrop.toggleVisible();
+			}
+		});
+		winTheme.addObject(btnToggleTheme);
 	}
 	private UIButton addModeButton(final int mode, String txt, int pos, int r, int g, int b){
 		UIButton btn = new UIButton(this, pos, 20, 50, 50, txt);
