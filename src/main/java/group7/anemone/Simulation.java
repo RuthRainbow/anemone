@@ -125,9 +125,22 @@ public class Simulation extends PApplet {
 		
 		
 	}
-	public void keyReleased(){
+	public void keyReleased(){	//Hotkeys for buttons
 		if(win.keyReleased()) return;
-		
+		switch(key) {
+		case('e'):	mouseMode=2;
+					win.selectButton(btnAddAgent);
+					break;
+		case('q'): 	mouseMode =0;
+					win.selectButton(btnSelectAgent);
+					break;
+		case('r'):	mouseMode =3;
+					win.selectButton(btnThrust);
+					break;
+		case('w'):	mouseMode=1;
+					win.selectButton(btnAddFood);
+					break;
+		}
 		
 	}
 	
