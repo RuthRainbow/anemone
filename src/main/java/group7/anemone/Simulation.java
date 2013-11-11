@@ -58,26 +58,6 @@ public class Simulation extends PApplet {
 		if(win.mousePressed()) return;
 		
 		/*
-		 * Check if the mouse has clicked on a button
-		 */
-		/*if ((mouseX>screen.width-140)&(mouseX<screen.width-90)&(mouseY>20)&(mouseY<70)) {	//Check select button button
-			mouseMode=0;
-			buttonPress=true;
-		}
-		else if ((mouseX>screen.width-70)&(mouseX<screen.width-20)&(mouseY>20)&(mouseY<70)) {	//Check food button
-			mouseMode=1;
-			buttonPress=true;
-		}
-		else if ((mouseX>screen.width-210)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
-			mouseMode=2;
-			buttonPress=true;
-		}
-		else if ((mouseX>screen.width-280)&(mouseX<screen.width-160)&(mouseY>20)&(mouseY<70)) {	//Check agent button
-			mouseMode=3;
-			buttonPress=true;
-		}*/
-		
-		/*
 		 * Mouse Modes are as follows:
 		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
 		 * 1 = Food tool - Place food where you click
@@ -193,28 +173,6 @@ public class Simulation extends PApplet {
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
-
-		
-		//Draw the 'Buttons to click on for food
-		/*noStroke();
-		fill(84,255,159);
-		rect(screen.width-70,20,50,50);	//Draw Food Button
-		
-		fill(72,118,255);
-		rect(screen.width-140,20,50,50); //Draw select button
-		
-		fill(255, 127, 0);
-		rect(screen.width-210,20,50,50);	//Draw agent button
-		
-		fill(0, 231, 125);
-		rect(screen.width-280,20,50,50);	//Draw agent button
-		*/
-		fill(0);
-		textFont(f);
-		/*text("Food",screen.width-60,50);
-		text("Select",screen.width-130,50);
-		text("Agent",screen.width-200,50);
-		text("Thrust",screen.width-273,50);*/
 				
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
