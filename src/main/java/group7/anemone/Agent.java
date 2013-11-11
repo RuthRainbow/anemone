@@ -142,7 +142,7 @@ public class Agent extends SimulationObject{
 		ArrayList<SightInformation> filtered = new ArrayList<SightInformation>();
 		
 		for(SightInformation si : canSee){ //filter out those objects of type that are in the specified segment
-			if(si.getType() == type && si.getDistanceFromLower() >= (segment / configNumSegments) && si.getDistanceFromLower() < ((segment+1.0) / configNumSegments)){
+			if(si.getType() == type && si.getDistanceFromLower() >= ((double)segment / configNumSegments) && si.getDistanceFromLower() < ((segment+1.0) / configNumSegments)){
 				filtered.add(si);
 			}
 		}
