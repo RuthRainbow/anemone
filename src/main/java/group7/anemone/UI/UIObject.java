@@ -5,6 +5,8 @@ import processing.core.PApplet;
 public class UIObject {
 	private int lx = 0;
 	private int ly = 0;
+	private int ox = 0;
+	private int oy = 0;
 	protected int x = 0;
 	protected int y = 0;
 	protected int width = 0;
@@ -17,10 +19,13 @@ public class UIObject {
 	protected short b = 255;
 
 	protected int bgColor = 0;
+	protected boolean fixedBackground = false;
 
 	protected UIAction events;
 	private boolean isLeft = true;
 	private boolean isTop = true;
+	
+	private UIObject parent;
 
 	public UIObject(PApplet c, int x, int y, int w, int h){
 		this.canvas = c;
@@ -52,16 +57,31 @@ public class UIObject {
 	public void setIsLeft(boolean left){
 		isLeft = left;
 		if(left) x = lx;
-		else x = canvas.width - lx;
+		else x = (parent != null ? parent.width : canvas.width) - lx;
+		x += ox;
 		moved();
 	}
 	public void setIsTop(boolean top){
 		isTop = top;
 		if(top) y = ly;
-		else y = canvas.height - ly;
+		else y = (parent != null ? parent.height : canvas.height) - ly;
+		y += oy;
 		moved();
 	}
-	public void setIsVisible(boolean vis){
+	public void setFixedBackground(boolean fix){
+		fixedBackground = fix;
+	}
+	public void setOffset(int x, int y){
+		ox = x;
+		oy = y;
+
+		setIsLeft(isLeft);
+		setIsTop(isTop);
+	}
+	public void setParent(UIObject p){
+		parent = p;
+	}
+	public void setVisible(boolean vis){
 		isVisible = vis;
 	}
 

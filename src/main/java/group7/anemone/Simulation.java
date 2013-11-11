@@ -18,9 +18,17 @@ public class Simulation extends PApplet {
 	int mouseMode=0;
 	
 	//UI Elements
-	UIWindow win = new UIWindow(this);
+	UIWindow win;
+	UIWindow sidePanel;
+	UIWindow btnGroupModes;
+	UIWindow winStats;
+	
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust;
 	UIAngle agentHeading;
+	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth;
+	
+	int width = 0;
+	int height = 0;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -32,6 +40,9 @@ public class Simulation extends PApplet {
 		size(screen.width, screen.height);
 		setupUI();
 		
+		width = screen.width - 250;
+		height = screen.height;
+		
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
@@ -39,6 +50,7 @@ public class Simulation extends PApplet {
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
 		env.getAllAgents().get(0).thrust(2);
+		selectedAgent = env.getAllAgents().get(0);
 
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
@@ -109,16 +121,16 @@ public class Simulation extends PApplet {
 		if(win.keyReleased()) return;
 		switch(key) {
 		case('e'):	mouseMode=2;
-					win.selectButton(btnAddAgent);
+					btnGroupModes.selectButton(btnAddAgent);
 					break;
 		case('q'): 	mouseMode =0;
-					win.selectButton(btnSelectAgent);
+					btnGroupModes.selectButton(btnSelectAgent);
 					break;
 		case('r'):	mouseMode =3;
-					win.selectButton(btnThrust);
+					btnGroupModes.selectButton(btnThrust);
 					break;
 		case('w'):	mouseMode=1;
-					win.selectButton(btnAddFood);
+					btnGroupModes.selectButton(btnAddFood);
 					break;
 		}
 		
@@ -177,7 +189,7 @@ public class Simulation extends PApplet {
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 
-		if(selectedAgent != null){	//If an agent is seleted, display its coordinates in the top left hand corner, under the framerate
+		/*if(selectedAgent != null){	//If an agent is seleted, display its coordinates in the top left hand corner, under the framerate
 			fill(255);
 			textFont(f);
 			
@@ -189,27 +201,43 @@ public class Simulation extends PApplet {
 			text("Selected agent health = "+selectedAgent.getHealth(), 10, 55);
 			text("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
 			text("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
-		}
+		}*/
 
 	}
 	
 	private void updateUI(){
-		agentHeading.setIsVisible(selectedAgent != null);
+		agentHeading.setVisible(selectedAgent != null);
+		winStats.setVisible(selectedAgent != null);
 		
 		if(selectedAgent != null){
 			agentHeading.setAngle(selectedAgent.getViewHeading());
+			lblX.setText("x = " + selectedAgent.getX());
+			lblY.setText("y = " + selectedAgent.getY());
+			lblHeading.setText("heading = " + selectedAgent.getViewHeading());
+			lblHealth.setText("health = " + selectedAgent.getHealth());
+			//lblX.setText("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
+			//lblX.setText("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
 		}
 	}
 	private void setupUI(){
-		btnSelectAgent = addModeButton(0, "Select", 280, 2 ,118 ,255);
-		btnAddFood = addModeButton(1, "Food", 210, 84, 255, 159);
-		btnAddAgent = addModeButton(2, "Agent", 140, 255, 127, 0);
-		btnThrust = addModeButton(3, "Thrust", 70, 0, 231, 125);
+		win = new UIWindow(this, 0, 0, screen.width, screen.height);
+		sidePanel = new UIWindow(this, 250, 0, 250, screen.height);
+		sidePanel.setIsLeft(false);
+		sidePanel.setBackground(50);
+		sidePanel.setFixedBackground(true);
+		win.addObject(sidePanel);
+
+		btnGroupModes = new UIWindow(this, 0, 0, 200, 200);
+		sidePanel.addObject(btnGroupModes);
 		
-		win.selectButton(btnSelectAgent);
+		btnSelectAgent = addModeButton(0, "Select", 10, 2 ,118 ,255);
+		btnAddFood = addModeButton(1, "Food", 70, 84, 255, 159);
+		btnAddAgent = addModeButton(2, "Agent", 130, 255, 127, 0);
+		btnThrust = addModeButton(3, "Thrust", 190, 0, 231, 125);
 		
-		agentHeading = new UIAngle(this, 140, 80, 50);
-		agentHeading.setIsLeft(false);
+		btnGroupModes.selectButton(btnSelectAgent);
+		
+		agentHeading = new UIAngle(this, 30, 100, 50);
 		agentHeading.setEventHandler(new UIAction(){
 			public void change(UIAngle ang){
 				if(selectedAgent != null){
@@ -217,21 +245,33 @@ public class Simulation extends PApplet {
 				}
 			}
 		});
-		win.addObject(agentHeading);
+		sidePanel.addObject(agentHeading);
 		
+		winStats = new UIWindow(this, 0, 300, 200, 200);
+		sidePanel.addObject(winStats);
+		
+		lblStatTitle = addStatLabel("Selected Agent Stats", 10);
+		lblX = addStatLabel("X", 30);
+		lblY = addStatLabel("X", 45);
+		lblHeading = addStatLabel("X", 60);
+		lblHealth = addStatLabel("X", 75);
 	}
 	private UIButton addModeButton(final int mode, String txt, int pos, int r, int g, int b){
 		UIButton btn = new UIButton(this, pos, 20, 50, 50, txt);
 		btn.setEventHandler(new UIAction(){
 			public void click(UIButton btn){
-				win.selectButton(btn);
+				btnGroupModes.selectButton(btn);
 				mouseMode = mode;
 			}
 		});
 		btn.setColor(r, g, b);
-		btn.setIsLeft(false);
-		win.addObject(btn);
+		btnGroupModes.addObject(btn);
 		return btn;
+	}
+	private UILabel addStatLabel(String value, int pos){
+		UILabel lbl = new UILabel(this, 10, pos, value);
+		winStats.addObject(lbl);
+		return lbl;
 	}
 	private double toRadians(double deg){
 		return deg * Math.PI / 180;

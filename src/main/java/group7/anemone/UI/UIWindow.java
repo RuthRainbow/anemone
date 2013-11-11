@@ -8,11 +8,15 @@ public class UIWindow extends UIObject{
 	ArrayList<UIObject> objects = new ArrayList<UIObject>(); 
 	private UIObject focusedObject;
 
-	public UIWindow(PApplet canvas){
-		super(canvas, 0, 0, canvas.width, canvas.height);
+	public UIWindow(PApplet canvas, int x, int y, int w, int h){
+		super(canvas, x, y, w, h);
 	}
 
 	public void draw(){
+		canvas.noStroke();
+		canvas.fill(bgColor);
+		canvas.rect(x, y, width, height);
+		
 		for(UIObject object : objects){
 			if(object.isVisible) object.draw();
 		}
@@ -51,7 +55,9 @@ public class UIWindow extends UIObject{
 
 	public void addObject(UIObject obj){
 		objects.add(obj);
-		obj.setBackground(bgColor);
+		if(!obj.fixedBackground) obj.setBackground(bgColor);
+		obj.setParent(this);
+		obj.setOffset(x, y);
 	}
 	public void selectButton(UIButton btn){
 		for(UIObject object : objects){
