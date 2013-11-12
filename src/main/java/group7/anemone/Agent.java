@@ -297,5 +297,10 @@ public class Agent extends SimulationObject{
 	double getMovingSpeed(){
 		return Math.sqrt(Math.pow((float) (getChangeX()), 2) + Math.pow((float) (getChangeY()), 2));
 	}
-
+	MNetwork getNetwork(){
+		return mnetwork;
+	}
+	NInterface getInterface(){
+		return ninterface;
+	}
 }

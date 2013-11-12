@@ -100,4 +100,8 @@ public class MSimulation {
 			events.get((time + delay) % h).add(s);
 		}
 	}
+	
+	public MNetwork getNetwork(){
+		return network;
+	}
 }

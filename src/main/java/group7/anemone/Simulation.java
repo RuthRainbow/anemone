@@ -7,6 +7,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -36,9 +37,11 @@ public class Simulation extends PApplet {
 	UITheme theme;
 	UIProgress progHealth;
 	UISlider sliderX, sliderY;
+	UIDrawable3D neuralVisual;
 	
 	int width = 0;
 	int height = 0;
+	float neuralRotation = 0;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -47,7 +50,7 @@ public class Simulation extends PApplet {
 
 	public void setup() {
 		frameRate(30);
-		size(screen.width, screen.height);
+		size(screen.width, screen.height, P3D);
 		setupUI();
 		
 		width = screen.width - 250;
@@ -343,6 +346,79 @@ public class Simulation extends PApplet {
 		});
 		winStats.addObject(btnSelectKill);
 		
+		//3D neural network visual
+		neuralVisual = new UIDrawable3D(this, 0, 250, 250, 250);
+		neuralVisual.setIsTop(false);
+		neuralVisual.setBackground(30);
+		neuralVisual.setFixedBackground(true);
+		neuralVisual.setEventHandler(new UIAction(){
+			public void draw(PApplet canvas){
+				if(selectedAgent == null) return;
+				
+				MNetwork net = selectedAgent.getNetwork();
+				HashMap<MNeuron, Point2D.Double> placed = new HashMap<MNeuron, Point2D.Double>(); //store coordinates of placed neurons
+			    HashMap<Integer, Integer> maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
+			    maxInLevel.put(0, 0);
+			    int maxLevel = 0;
+				
+			    rotateY(neuralRotation);
+			    
+			    //TODO: these positions of nodes can be precalculated when network is generated.
+			    for(MSynapse s : net.getSynapses()){ //determine the x, y coordinates for each node based on links
+			    	MNeuron pre = s.getPreNeuron();
+			    	MNeuron post = s.getPostNeuron();
+			    	int level = 0;
+			    	
+			    	if(!placed.containsKey(pre)){
+			    		if(placed.containsKey(post)){ //pre node not placed but post is, place at level - 1
+			    			level = (int) (placed.get(post).x / 20) - 1;
+			    		}
+			    		
+			    		int max = maxInLevel.get(level);
+			    		Point2D.Double n1 = new Point2D.Double(level * 20, max);
+			    		maxInLevel.put(level, max + 20);
+			    		placed.put(pre, n1);
+			    		
+			    		if(!maxInLevel.containsKey(level+1)) {
+			    			maxInLevel.put(level+1, 0);
+			    			maxLevel++;
+			    		}
+			    	}
+			    	
+			    	if(!placed.containsKey(post)){
+			    		level++;
+			    		int max = maxInLevel.get(level);
+			    		Point2D.Double n2 = new Point2D.Double(level * 20, max);
+			    		maxInLevel.put(level, max + 20);
+			    		placed.put(post, n2);
+			    	}
+			    }
+			    
+			    int offsetX = -maxLevel * 10;
+			    noStroke();
+			    for(MNeuron n : placed.keySet()){ //draw the neurons
+			    	if(n.isFiring()) fill(0, 255, 0);
+			    	else fill(200);
+		    		
+		    		translate((float) placed.get(n).x + offsetX, (float) placed.get(n).y, 0);
+			    	sphere(3);
+			    	translate((float) -(placed.get(n).x + offsetX), (float) -placed.get(n).y, 0);
+			    }
+			    
+			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
+			    	Point2D.Double n1 = placed.get(s.getPreNeuron());
+			    	Point2D.Double n2 = placed.get(s.getPostNeuron());
+			    	
+			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
+			    	else stroke(255);
+			    	line((int) (n1.x + offsetX), (int) n1.y, 0, (int) (n2.x + offsetX), (int) n2.y, 0);
+			    }
+			    
+			    neuralRotation -= 0.02;
+			}
+		});
+		sidePanel.addObject(neuralVisual);
+		
 		//printout of selected agents stats
 		lblStatTitle = addStatLabel("Selected Agent", 5);
 		lblX = addStatLabel("X", 155);
@@ -359,7 +435,7 @@ public class Simulation extends PApplet {
 		theme.setColor("Food", color(0, 255, 0));
 		theme.setColor("Agent", color(255, 127, 0));
 		
-		winTheme = new UIWindow(this, 0, 240, 200, 200);
+		winTheme = new UIWindow(this, 0, 485, 200, 200);
 		winTheme.setIsTop(false);
 		sidePanel.addObject(winTheme);
 		
