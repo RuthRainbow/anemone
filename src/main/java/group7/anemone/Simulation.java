@@ -4,6 +4,7 @@ import group7.anemone.UI.*;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -29,7 +30,7 @@ public class Simulation extends PApplet {
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
 	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust;
 	UIAngle agentHeading;
-	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth;
+	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed;
 	UIDropdown themeDrop;
 	UIColorWheel themeColorWheel;
 	UITheme theme;
@@ -69,7 +70,7 @@ public class Simulation extends PApplet {
 		
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(width,0));
 		env.addWall(new Point2D.Double(width,0), new Point2D.Double(width,height));
-		env.addWall(new Point2D.Double(0,height), new Point2D.Double(width,height));
+		env.addWall(new Point2D.Double(width,height), new Point2D.Double(0,height));
 		env.addWall(new Point2D.Double(0,height), new Point2D.Double(0,0));
 	}
 	public void mousePressed(){
@@ -236,6 +237,8 @@ public class Simulation extends PApplet {
 			lblY.setText("y = " + selectedAgent.getY());
 			lblHeading.setText("heading = " + Math.round(selectedAgent.getViewHeading()) + "°");
 			lblHealth.setText("health = " + Math.round(selectedAgent.getHealth() * 1000) / 10.0 + "%");
+			lblAngle.setText("angle = " + selectedAgent.getMovingAngle() + "°");
+			lblSpeed.setText("speed = " + Math.round(selectedAgent.getMovingSpeed() * 10) / 10.0 + "MPH x 10^6");
 			//lblX.setText("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
 			//lblX.setText("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
 		}
@@ -262,7 +265,7 @@ public class Simulation extends PApplet {
 		btnGroupModes.selectButton(btnSelectAgent);
 		
 		//Statistics window for the currently selected agent
-		winStats = new UIWindow(this, 0, 300, 300, 230);
+		winStats = new UIWindow(this, 0, 300, 300, 250);
 		winStats.setBackground(30);
 		winStats.setFixedBackground(true);
 		sidePanel.addObject(winStats);
@@ -346,6 +349,8 @@ public class Simulation extends PApplet {
 		lblY = addStatLabel("X", 170);
 		lblHeading = addStatLabel("X", 185);
 		lblHealth = addStatLabel("X", 200);
+		lblAngle = addStatLabel("X", 215);
+		lblSpeed = addStatLabel("X", 230);
 		
 		//Themes window
 		theme = new UITheme();
@@ -434,14 +439,26 @@ public class Simulation extends PApplet {
     		
     		switch(type){
     			case Collision.TYPE_FOOD: eatFood(cc);break;
-    			case Collision.TYPE_WALL: stopAgent(cc); break;
+    			case Collision.TYPE_WALL: bounceAgent(cc); break;
     		}
 		}
 	}
 
-	private void stopAgent(Collision cc) {
-		cc.getAgent().stop();
+	private void bounceAgent(Collision cc) {
+		Agent ag = cc.getAgent();
+		Line2D.Double line = ((Wall) cc.getCollidedObject()).getLine();
+		double lineAngle = Utilities.angleBetweenPoints(line.x1, line.y1, line.x2, line.y2);
+		double normalAngle = lineAngle + 90;
+		double agentAngle = ag.getMovingAngle();
+		double newAngle = normalAngle + (normalAngle - agentAngle - 180);
+		double oldHeading = ag.getViewHeading();
+		double thrust = selectedAgent.getMovingSpeed();
 		
+		ag.stop();
+		ag.changeViewHeading(newAngle - ag.getViewHeading());
+		ag.thrust(thrust);
+		ag.changeViewHeading(oldHeading - newAngle);
+		ag.updateHealth(thrust / -100);
 	}
 
 	private void eatFood(Collision cc) {

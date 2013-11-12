@@ -197,4 +197,25 @@ public class Agent extends SimulationObject{
 	double getViewHeading(){return viewHeading;}
 	double getVisionRange(){return visionRange;}
 	double getFOV(){return fov;}
+	double getChangeX(){return speed.x;}
+	double getChangeY(){return speed.y;}
+	double getMovingAngle(){
+		double angle = 0;
+		if(getChangeX() == 0){
+			if(getChangeY() < 0) angle = -90;
+			else angle = 90;
+		}else angle = Math.atan((getChangeY()) / (getChangeX())) * 180.0 / Math.PI;
+
+		if(getChangeX() > 0) {
+			if (getChangeY() < 0) angle = 360 + angle;
+		}else{
+			if (getChangeY() >= 0) angle = 180 + angle;
+			else angle += 180;
+		}
+		return angle;
+	}
+	double getMovingSpeed(){
+		return Math.sqrt(Math.pow((float) (getChangeX()), 2) + Math.pow((float) (getChangeY()), 2));
+	}
+
 }
