@@ -8,7 +8,7 @@ public class UILabel extends UIObject{
 	private PFont f = canvas.createFont("Arial", 12, true);
 
 	public UILabel(PApplet c, int x, int y, String val){
-		super(c, x, y, 0, 0);
+		super(c, x, y + 12, 0, 0);
 
 		this.value = val;
 	}

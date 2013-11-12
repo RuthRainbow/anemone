@@ -111,7 +111,7 @@ public class Agent extends SimulationObject{
 		coords.x += speed.x;	//Changes the coordinates to display distance travelled since last update
 		coords.y += speed.y;	
 		
-		health -= 0.0000001;
+		health -= 0.001;//0.0000001;
 	}
 
 	void updateCanSee(ArrayList<SightInformation> see){
@@ -159,6 +159,12 @@ public class Agent extends SimulationObject{
 	public void stop(){
 		speed.x = 0;
 		speed.y = 0;
+	}
+	public void setX(int x){
+		coords.x = x;
+	}
+	public void setY(int y){
+		coords.y = y;
 	}
 	
 	double getHealth(){return health;}

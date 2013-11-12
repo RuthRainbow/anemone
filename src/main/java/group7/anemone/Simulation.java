@@ -27,11 +27,14 @@ public class Simulation extends PApplet {
 	UIWindow winTheme;
 	
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
+	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust;
 	UIAngle agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth;
 	UIDropdown themeDrop;
 	UIColorWheel themeColorWheel;
 	UITheme theme;
+	UIProgress progHealth;
+	UISlider sliderX, sliderY;
 	
 	int width = 0;
 	int height = 0;
@@ -223,10 +226,15 @@ public class Simulation extends PApplet {
 		
 		if(selectedAgent != null){
 			agentHeading.setAngle(selectedAgent.getViewHeading());
+			progHealth.setValue(selectedAgent.getHealth());
+			progHealth.setColor((int) (255 - 255 * selectedAgent.getHealth()), (int) (255 * selectedAgent.getHealth()), 0);
+			sliderX.setValue((double) selectedAgent.getX() / width);
+			sliderY.setValue((double) selectedAgent.getY() / height);
+			
 			lblX.setText("x = " + selectedAgent.getX());
 			lblY.setText("y = " + selectedAgent.getY());
-			lblHeading.setText("heading = " + selectedAgent.getViewHeading());
-			lblHealth.setText("health = " + selectedAgent.getHealth());
+			lblHeading.setText("heading = " + Math.round(selectedAgent.getViewHeading()) + "°");
+			lblHealth.setText("health = " + Math.round(selectedAgent.getHealth() * 1000) / 10.0 + "%");
 			//lblX.setText("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
 			//lblX.setText("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
 		}
@@ -240,7 +248,9 @@ public class Simulation extends PApplet {
 		win.addObject(sidePanel);
 
 		//Buttons to change the current mode
-		btnGroupModes = new UIWindow(this, 0, 0, 200, 200);
+		btnGroupModes = new UIWindow(this, 0, 0, 250, 150);
+		btnGroupModes.setBackground(30);
+		btnGroupModes.setFixedBackground(true);
 		sidePanel.addObject(btnGroupModes);
 		
 		btnSelectAgent = addModeButton(0, "Select", 10, 2 ,118 ,255);
@@ -250,8 +260,14 @@ public class Simulation extends PApplet {
 		
 		btnGroupModes.selectButton(btnSelectAgent);
 		
+		//Statistics window for the currently selected agent
+		winStats = new UIWindow(this, 0, 300, 300, 230);
+		winStats.setBackground(30);
+		winStats.setFixedBackground(true);
+		sidePanel.addObject(winStats);
+		
 		//control to change the selected agents heading
-		agentHeading = new UIAngle(this, 30, 100, 50);
+		agentHeading = new UIAngle(this, 10, 30, 50);
 		agentHeading.setEventHandler(new UIAction(){
 			public void change(UIAngle ang){
 				if(selectedAgent != null){
@@ -259,17 +275,76 @@ public class Simulation extends PApplet {
 				}
 			}
 		});
-		sidePanel.addObject(agentHeading);
+		winStats.addObject(agentHeading);
 		
-		//Statistics window for the currently selected agent
-		winStats = new UIWindow(this, 0, 300, 200, 200);
-		sidePanel.addObject(winStats);
+		//progress bar of the selected agents current health
+		progHealth = new UIProgress(this, 10, 93, 230, 10);
+		winStats.addObject(progHealth);
 		
-		lblStatTitle = addStatLabel("Selected Agent Stats", 10);
-		lblX = addStatLabel("X", 30);
-		lblY = addStatLabel("X", 45);
-		lblHeading = addStatLabel("X", 60);
-		lblHealth = addStatLabel("X", 75);
+		//sliders to move agents position
+		sliderX = new UISlider(this, 75, 35, 165, 15);
+		sliderX.setEventHandler(new UIAction(){
+			public void change(UISlider slider){
+				if(selectedAgent != null){
+					selectedAgent.setX((int) (slider.getValue() * width));
+				}
+			}
+		});
+		winStats.addObject(sliderX);
+		
+		sliderY = new UISlider(this, 75, 60, 165, 15);
+		sliderY.setEventHandler(new UIAction(){
+			public void change(UISlider slider){
+				if(selectedAgent != null){
+					selectedAgent.setY((int) (slider.getValue() * height));
+				}
+			}
+		});
+		winStats.addObject(sliderY);
+		
+		//boost agent health back to 100%
+		btnSelectHealth = new UIButton(this, 10, 115, 65, 20, "100%");
+		btnSelectHealth.setColor(84, 255, 159);
+		btnSelectHealth.setEventHandler(new UIAction(){
+			public void click(UIButton btn){
+				if(selectedAgent != null){
+					selectedAgent.updateHealth(1);
+				}
+			}
+		});
+		winStats.addObject(btnSelectHealth);
+		
+		//thrust selected agent
+		btnSelectThrust = new UIButton(this, 93, 115, 65, 20, "Thurst");
+		btnSelectThrust.setColor(251, 150, 20);
+		btnSelectThrust.setEventHandler(new UIAction(){
+			public void click(UIButton btn){
+				if(selectedAgent != null){
+					selectedAgent.thrust(2);
+				}
+			}
+		});
+		winStats.addObject(btnSelectThrust);
+		
+		//kill poor agent
+		btnSelectKill = new UIButton(this, 175, 115, 65, 20, "KILL");
+		btnSelectKill.setColor(210, 50, 50);
+		btnSelectKill.setEventHandler(new UIAction(){
+			public void click(UIButton btn){
+				if(selectedAgent != null){
+					env.removeAgent(selectedAgent);
+					selectedAgent = null;
+				}
+			}
+		});
+		winStats.addObject(btnSelectKill);
+		
+		//printout of selected agents stats
+		lblStatTitle = addStatLabel("Selected Agent", 5);
+		lblX = addStatLabel("X", 155);
+		lblY = addStatLabel("X", 170);
+		lblHeading = addStatLabel("X", 185);
+		lblHealth = addStatLabel("X", 200);
 		
 		//Themes window
 		theme = new UITheme();
@@ -292,7 +367,7 @@ public class Simulation extends PApplet {
 		winTheme.addObject(themeColorWheel);
 		
 		themeDrop = new UIDropdown(this, 25, 10, 200, theme.getKeys());
-		//themeDrop.setVisible(false);
+		themeDrop.setVisible(false);
 		themeDrop.setEventHandler(new UIAction(){
 			public void change(UIDropdown drop){
 				themeColorWheel.setColor(theme.getColor(drop.getSelected()));

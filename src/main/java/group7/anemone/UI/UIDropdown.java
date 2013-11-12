@@ -10,7 +10,7 @@ public class UIDropdown extends UIObject{
 	private String[] options = new String[0];
 	private int selectedIndex = 0;
 	private int hoveredIndex = -1;
-	private boolean showDropdown = true;
+	private boolean showDropdown = false;
 	private int showOffset = 0;
 	private int showCapacity = 6;
 
