@@ -190,7 +190,7 @@ public class Simulation extends PApplet {
 		
 			//draw our circle representation for the agent
 			noStroke();
-			fill(theme.getColor("Agent"), (float) ag.getHealth()*200 +55);
+			fill(theme.getColor("Agent")); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 		}
 
@@ -315,7 +315,7 @@ public class Simulation extends PApplet {
 		winStats.addObject(btnSelectHealth);
 		
 		//thrust selected agent
-		btnSelectThrust = new UIButton(this, 93, 115, 65, 20, "Thurst");
+		btnSelectThrust = new UIButton(this, 93, 115, 65, 20, "Thrust");
 		btnSelectThrust.setColor(251, 150, 20);
 		btnSelectThrust.setEventHandler(new UIAction(){
 			public void click(UIButton btn){
