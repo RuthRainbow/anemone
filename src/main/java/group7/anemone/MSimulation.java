@@ -26,6 +26,9 @@ public class MSimulation {
 	 * @oaram 	config 		the parameters for the simulation
 	 */
 	MSimulation(MNetwork network, MSimulationConfig config) {
+		/* Initialise the simulation configuration. */
+		this.config = new MSimulationConfig();
+
 		/* Get a reference to the network. */
 		this.network = network;
 
@@ -82,6 +85,8 @@ public class MSimulation {
 			if (n.isFiring()) {
 				/* Add this neuron's postsynapses to the event table. */
 				queueNeuronSynapses(n);
+
+				System.out.println("Neuron "+n.getID()+" is firing!");
 			}
 		}
 	}
