@@ -1,5 +1,6 @@
 package group7.anemone.UI;
 
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import processing.core.PApplet;
 
@@ -36,6 +37,12 @@ public class UIWindow extends UIObject{
 	public boolean mouseDragged(){
 		for(int i = objects.size() - 1; i >= 0; i--){
 			if(objects.get(i).isVisible && objects.get(i).mouseDragged()) return true;
+		}
+		return false;
+	}
+	public boolean mouseWheel(MouseWheelEvent event){
+		for(int i = objects.size() - 1; i >= 0; i--){
+			if(objects.get(i).isVisible && objects.get(i).mouseWheel(event)) return true;
 		}
 		return false;
 	}

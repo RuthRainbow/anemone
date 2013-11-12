@@ -2,6 +2,8 @@ package group7.anemone;
 
 import group7.anemone.UI.*;
 
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -119,6 +121,10 @@ public class Simulation extends PApplet {
 	public void mouseDragged(){
 		if(win.mouseDragged()) return;
 		
+		
+	}
+	public void mouseWheel(MouseWheelEvent event){
+		if(win.mouseWheel(event)) return;
 		
 	}
 	public void keyReleased(){	//Hotkeys for buttons
@@ -286,7 +292,7 @@ public class Simulation extends PApplet {
 		winTheme.addObject(themeColorWheel);
 		
 		themeDrop = new UIDropdown(this, 25, 10, 200, theme.getKeys());
-		themeDrop.setVisible(false);
+		//themeDrop.setVisible(false);
 		themeDrop.setEventHandler(new UIAction(){
 			public void change(UIDropdown drop){
 				themeColorWheel.setColor(theme.getColor(drop.getSelected()));
@@ -304,6 +310,13 @@ public class Simulation extends PApplet {
 			}
 		});
 		winTheme.addObject(btnToggleTheme);
+		
+		//adds mouse scrolling listener to the applet
+		addMouseWheelListener(new MouseWheelListener(){
+			public void mouseWheelMoved(MouseWheelEvent event){
+				mouseWheel(event);
+			}
+		});
 	}
 	private UIButton addModeButton(final int mode, String txt, int pos, int r, int g, int b){
 		UIButton btn = new UIButton(this, pos, 20, 50, 50, txt);

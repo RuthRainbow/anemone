@@ -1,5 +1,7 @@
 package group7.anemone.UI;
 
+import java.awt.event.MouseWheelEvent;
+
 import processing.core.PApplet;
 
 public class UIObject {
@@ -93,5 +95,6 @@ public class UIObject {
 	public boolean mousePressed(){return false;}
 	public boolean mouseReleased(){return false;}
 	public boolean mouseDragged(){return false;}
+	public boolean mouseWheel(MouseWheelEvent event){return false;}
 	public boolean keyReleased(){return false;}
 }
