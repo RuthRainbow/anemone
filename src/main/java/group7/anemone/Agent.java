@@ -21,6 +21,8 @@ public class Agent extends SimulationObject{
 	
 	private int configNumSegments = 10;
 
+	private MNetwork mnetwork;
+	private MSimulation msimulation;
 	private NInterface ninterface;
 
 	Agent(Point2D.Double coords, PApplet p) {
@@ -36,12 +38,91 @@ public class Agent extends SimulationObject{
 		thrust(1);
 		
 		createNetwork();
+		createSimpleNetwork();
 	}
 	
 	// TODO make this so we can create a new agent from a string rep.
 	public Agent(String string) {
 		super(new Point2D.Double(0, 0));
 		this.stringRep = string;
+	}
+
+	private void createSimpleNetwork() {
+		MSimulationConfig simConfig = new MSimulationConfig();
+		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
+		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
+		MNeuronParams nparams = new MNeuronParams();
+		MNeuronState nstate = new MNeuronState();
+
+		/* Set the neurons to RS (regular spiking) neurons. */
+		nparams.a = 0.1;
+		nparams.b = 0.2;
+		nparams.c = -65.0;
+		nparams.d = 8.0;
+
+		/* Set the neurons to start in a resting state. */
+		nstate.v = -65.0;
+		nstate.u = 0.0;
+		nstate.I = 0.0;
+
+		/* Create the neurons. */
+		MNeuron sn1 = new MNeuron(nparams, nstate, 0);
+		MNeuron sn2 = new MNeuron(nparams, nstate, 1);
+		MNeuron mn = new MNeuron(nparams, nstate, 2);
+
+		neurons.add(sn1);
+		neurons.add(sn2);
+		neurons.add(mn);
+
+		/* Create the synapses. */
+		MSynapse ss1 = new MSynapse(sn1, mn, 1.0, 1);
+		MSynapse ss2 = new MSynapse(sn2, mn, 1.0, 1);
+		synapses.add(ss1);
+		synapses.add(ss2);
+
+		/* This should probably be done by MNetwork. */
+		sn1.getPostSynapses().add(ss1);
+		sn2.getPostSynapses().add(ss2);
+		mn.getPreSynapses().add(ss1);
+		mn.getPreSynapses().add(ss2);
+
+		/* Create the network. */
+		this.mnetwork = new MNetwork(neurons, synapses);
+
+		/* Set the simulation configuration parameters. */
+		simConfig.eventHorizon = 20;
+
+		/* Create the simulation. */
+		this.msimulation = new MSimulation(this.mnetwork, simConfig);
+	}
+
+	private void updateMNetwork() {
+		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
+
+		/* Apply inputs from sensors to network. */
+		for (MNeuron n : neurons) {
+			switch(n.getID()) {
+				/* Sensory neurons. */
+				case 0:
+					System.out.println("Adding current "+ninterface.affectors.vFood[4]);
+					n.addCurrent(ninterface.affectors.vFood[4]);
+					break;
+				case 1:
+					System.out.println("Adding current "+ninterface.affectors.vFood[5]);
+					n.addCurrent(ninterface.affectors.vFood[5]);
+					break;
+				/* Motor neuron. */
+				case 2:
+					if (n.isFiring()) {
+						thrust(2);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
+		msimulation.step();
 	}
 	
 	protected String getStringRep() {
@@ -105,6 +186,7 @@ public class Agent extends SimulationObject{
 	
 	void update(){
 		updateSensors();
+		updateMNetwork();
 		updateSpeed();
 
 		//TODO Move the change of coords to the update speed section?? -Seb

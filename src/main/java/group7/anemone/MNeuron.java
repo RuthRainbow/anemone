@@ -24,6 +24,14 @@ public class MNeuron {
 	private ArrayList<MSynapse> preSynapses, postSynapses;
 
 	MNeuron(MNeuronParams params, MNeuronState state, int nid) {
+		/* Initialise parameters and state. */
+		this.params = new MNeuronParams();
+		this.state = new MNeuronState();
+
+		/* Initialise pre and post synapse list. */
+		this.preSynapses = new ArrayList<MSynapse>();
+		this.postSynapses = new ArrayList<MSynapse>();
+
 		/* Copy parameters. */
 		this.params.a = params.a;
 		this.params.b = params.b;
@@ -36,7 +44,7 @@ public class MNeuron {
 		this.state.I = state.I;
 
 		/* Copy neuron id. */
-		
+		this.nid = nid;
 	}
 
 	void update() {
@@ -57,7 +65,7 @@ public class MNeuron {
 	}
 
 	boolean isFiring() {
-		if (state.v >= 70.0) {
+		if (state.v >= 30.0) {
 			return true;
 		}
 		else {
