@@ -30,7 +30,7 @@ public class MSimulation {
 		this.network = network;
 
 		/* Copy over the configuration. */
-		this.config.eventHorizon = config.eventHorizon;
+		this.config= config;
 
 		initialise();
 	}

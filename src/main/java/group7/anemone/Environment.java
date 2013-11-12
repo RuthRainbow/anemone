@@ -185,15 +185,17 @@ public class Environment {
 		}*/
 	}
 
-	protected void addFish(Point2D.Double coords){
-		fishes.add(new Agent(coords, parent));
-	}
 	protected void addFish(Point2D.Double coords, int heading){
-		fishes.add(new Agent(coords, heading, parent));
-	}
-
-	protected void addShark(Point2D.Double coords) {
-		sharks.add(new Agent(coords, parent));
+		int[][] genome = new int[32][4];
+		for (int first=0; first<32; first++) {
+			genome[first][0] = first;
+			genome[first][1] = first;
+			genome[first][2] = 31;
+			genome[first][3] = 1;
+		}
+		
+		//Creates an agent with a generic genome for a network that has no hidden nodes
+		fishes.add(new Agent(coords, heading, parent, genome));
 	}
 
 	void addFood(Point2D.Double coords){

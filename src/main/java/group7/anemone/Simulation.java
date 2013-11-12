@@ -121,6 +121,7 @@ public class Simulation extends PApplet {
 		
 		
 	}
+	
 	public void mouseDragged(){
 		if(win.mouseDragged()) return;
 		

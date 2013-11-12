@@ -17,17 +17,24 @@ public class Agent extends SimulationObject{
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
-	private BPNetwork network;
+	private MSimulation netSim;
+	
+	/*
+	 * GENOME LAYOUT:
+	 * 		* Each index is an individual gene
+	 * 		* Each gene has 4 values.
+	 * 		* VALUE 1: Historical Marker (Not very biological, maybe we can change how this part works later.
+	 * 		* VALUE 2: Node where a link originates from
+	 * 		* VALUE 3: Node that a link connects to
+	 * 		* VALUE 4: Enabled/disabled gene
+	 */
+	private int[][] genome; 
 	
 	private int configNumSegments = 10;
 
 	private NInterface ninterface;
-
-	Agent(Point2D.Double coords, PApplet p) {
-		this(coords, 0, p);
-	}
 	
-	Agent(Point2D.Double coords, double viewHeading, PApplet p) {
+	Agent(Point2D.Double coords, double viewHeading, PApplet p, int[][] newGenome) {
 		super(coords);
 		ninterface = new NInterface(10);
 		canSee = new ArrayList<SightInformation>();
@@ -35,7 +42,31 @@ public class Agent extends SimulationObject{
 		this.viewHeading = viewHeading;
 		thrust(1);
 		
-		createNetwork();
+		genome=newGenome;
+		constructNetwork();
+		
+	}
+	
+	public void constructNetwork() {
+		MSimulationConfig config = new MSimulationConfig();
+		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
+		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
+		
+		config.eventHorizon=100;
+		
+		for (int x=0; x<genome.length; x++) { //For every gene in the genome
+			if (genome[x][3]==1) {	//If the gene is active...
+				//Create node described at index 1
+				//Create node described at index 2
+				//Create link between pre and post nodes
+			}
+		}
+		MNetwork network = new MNetwork(neurons,synapses);
+		netSim = new MSimulation(network, config); //Create the simulator with this network class
+	}
+	
+	public void stepNetwork() {
+		netSim.step();
 	}
 	
 	// TODO make this so we can create a new agent from a string rep.
@@ -71,11 +102,6 @@ public class Agent extends SimulationObject{
 
 		if(speed.y > 0) speed.y -= drag.y;
 		else if(speed.y < 0) speed.y += drag.y;
-	}
-	
-	void createNetwork(){
-		network = new BPNetwork(31,3,1);
-		network.generateOperationQ();
 	}
 
 	/*
