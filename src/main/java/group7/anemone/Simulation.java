@@ -452,7 +452,7 @@ public class Simulation extends PApplet {
 		double agentAngle = ag.getMovingAngle();
 		double newAngle = normalAngle + (normalAngle - agentAngle - 180);
 		double oldHeading = ag.getViewHeading();
-		double thrust = selectedAgent.getMovingSpeed();
+		double thrust = ag.getMovingSpeed();
 		
 		ag.stop();
 		ag.changeViewHeading(newAngle - ag.getViewHeading());
