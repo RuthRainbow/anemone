@@ -353,14 +353,17 @@ public class Simulation extends PApplet {
 		neuralVisual.setBackground(30);
 		neuralVisual.setFixedBackground(true);
 		neuralVisual.setEventHandler(new UIAction(){
+			private HashMap<MNeuron, Point2D.Double> placed;
+		    private HashMap<Integer, Integer> maxInLevel;
+		    private int maxLevel = 0;
 			public void draw(PApplet canvas){
 				if(selectedAgent == null) return;
 				
 				MNetwork net = selectedAgent.getNetwork();
-				HashMap<MNeuron, Point2D.Double> placed = new HashMap<MNeuron, Point2D.Double>(); //store coordinates of placed neurons
-			    HashMap<Integer, Integer> maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
+				placed = new HashMap<MNeuron, Point2D.Double>(); //store coordinates of placed neurons
+			    maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
 			    maxInLevel.put(0, 0);
-			    int maxLevel = 0;
+			    maxLevel = 0;
 				
 			    rotateY(neuralRotation);
 			    
@@ -375,23 +378,18 @@ public class Simulation extends PApplet {
 			    			level = (int) (placed.get(post).x / 20) - 1;
 			    		}
 			    		
-			    		int max = maxInLevel.get(level);
-			    		Point2D.Double n1 = new Point2D.Double(level * 20, max);
-			    		maxInLevel.put(level, max + 20);
-			    		placed.put(pre, n1);
-			    		
-			    		if(!maxInLevel.containsKey(level+1)) {
-			    			maxInLevel.put(level+1, 0);
-			    			maxLevel++;
-			    		}
+			    		int max = maxValue(level);
+			    		addNode(level, max, pre);
 			    	}
 			    	
 			    	if(!placed.containsKey(post)){
+			    		if(placed.containsKey(pre)){ //post node not placed but pre is, place at level + 1
+			    			level = (int) (placed.get(pre).x / 20);
+			    		}
 			    		level++;
-			    		int max = maxInLevel.get(level);
-			    		Point2D.Double n2 = new Point2D.Double(level * 20, max);
-			    		maxInLevel.put(level, max + 20);
-			    		placed.put(post, n2);
+			    		
+                        int max = maxValue(level);
+			    		addNode(level, max, post);
 			    	}
 			    }
 			    
@@ -415,8 +413,21 @@ public class Simulation extends PApplet {
 			    	line((int) (n1.x + offsetX), (int) n1.y, 0, (int) (n2.x + offsetX), (int) n2.y, 0);
 			    }
 			    
-			    neuralRotation -= 0.02;
+			    //neuralRotation -= 0.02;
 			}
+			private void addNode(int level, int max, MNeuron node){
+				Point2D.Double n1 = new Point2D.Double(level * 20, max);
+				maxInLevel.put(level, max + 20);
+				placed.put(node, n1);
+			}
+			private int maxValue(int level){
+				int max = 0;
+				if(!maxInLevel.containsKey(level)) {
+					maxInLevel.put(level, 0);
+					maxLevel++;
+				}else max = maxInLevel.get(level);
+				return max;
+			} 
 		});
 		sidePanel.addObject(neuralVisual);
 		
