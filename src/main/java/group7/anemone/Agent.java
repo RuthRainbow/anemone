@@ -18,7 +18,7 @@ public class Agent extends SimulationObject{
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
 	private MSimulation netSim;
-	
+
 	/*
 	 * GENOME LAYOUT:
 	 * 		* Each index is an individual gene
@@ -28,14 +28,14 @@ public class Agent extends SimulationObject{
 	 * 		* VALUE 3: Node that a link connects to
 	 * 		* VALUE 4: Enabled/disabled gene
 	 */
-	private int[][] genome; 
-	
+	private int[][] genome;
+
 	private int configNumSegments = 10;
 
 	private MNetwork mnetwork;
 	private MSimulation msimulation;
 	private NInterface ninterface;
-	
+
 	Agent(Point2D.Double coords, double viewHeading, PApplet p, int[][] newGenome) {
 		super(coords);
 		ninterface = new NInterface(10);
@@ -47,14 +47,14 @@ public class Agent extends SimulationObject{
 		constructNetwork();
 		createSimpleNetwork();
 	}
-	
+
 	public void constructNetwork() {
 		MSimulationConfig config = new MSimulationConfig();
 		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
 		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
-		
+
 		config.eventHorizon=100;
-		
+
 		for (int x=0; x<genome.length; x++) { //For every gene in the genome
 			if (genome[x][3]==1) {	//If the gene is active...
 				//Create node described at index 1
@@ -65,11 +65,11 @@ public class Agent extends SimulationObject{
 		MNetwork network = new MNetwork(neurons,synapses);
 		netSim = new MSimulation(network, config); //Create the simulator with this network class
 	}
-	
+
 	public void stepNetwork() {
 		netSim.step();
 	}
-	
+
 	// TODO make this so we can create a new agent from a string rep.
 	public Agent(String string) {
 		super(new Point2D.Double(0, 0));
@@ -153,11 +153,11 @@ public class Agent extends SimulationObject{
 
 		msimulation.step();
 	}
-	
+
 	protected String getStringRep() {
 		return this.stringRep;
 	}
-	
+
 	protected double getFitness() {
 		return this.fitness;
 	}
@@ -207,7 +207,7 @@ public class Agent extends SimulationObject{
 			ninterface.affectors.vEnemy[i] = distance < 0.0 ? 0.0 : distance;
 		}
 	}
-	
+
 	void update(){
 		updateSensors();
 		updateMNetwork();
@@ -215,18 +215,19 @@ public class Agent extends SimulationObject{
 
 		//TODO Move the change of coords to the update speed section?? -Seb
 		coords.x += speed.x;	//Changes the coordinates to display distance travelled since last update
-		coords.y += speed.y;	
-		
+		coords.y += speed.y;
+
 		health -= 0.001;//0.0000001;
+		fitness += 0.01; //Fitness point for living.
 	}
 
 	void updateCanSee(ArrayList<SightInformation> see){
 		canSee = see;
 	}
 	ArrayList<SightInformation> getCanSee(){return canSee;}
-	
+
 	private void setThrust(double x, double y){
-		//This will be called by the neural network to 
+		//This will be called by the neural network to
 		thrust.x = x;
 		thrust.y = y;
 	}
@@ -241,27 +242,28 @@ public class Agent extends SimulationObject{
 	void updateHealth(double h){
 		health += h;
 		health = Math.min(1, health);
+		fitness += h*10; //Also update fitness - could have eaten food or collided with a wall.
 	}
-	
+
 	//returns the distance of the closest object in a specified segment, -1 if none found.
-	public double viewingObjectOfTypeInSegment(int segment, int type){ 
+	public double viewingObjectOfTypeInSegment(int segment, int type){
 		ArrayList<SightInformation> filtered = new ArrayList<SightInformation>();
-		
+
 		for(SightInformation si : canSee){ //filter out those objects of type that are in the specified segment
 			if(si.getType() == type && si.getDistanceFromLower() >= ((double)segment / configNumSegments) && si.getDistanceFromLower() < ((segment+1.0) / configNumSegments)){
 				filtered.add(si);
 			}
 		}
 		if(filtered.size() == 0) return -1;
-		
+
 		double dist = Double.MAX_VALUE;
 		for(SightInformation si : filtered){
 			dist = Math.min(dist, si.getDistance());
 		}
-		
+
 		return dist / visionRange;
 	}
-	
+
 	public void stop(){
 		speed.x = 0;
 		speed.y = 0;
@@ -272,7 +274,7 @@ public class Agent extends SimulationObject{
 	public void setY(int y){
 		coords.y = y;
 	}
-	
+
 	double getHealth(){return health;}
 	double getViewHeading(){return viewHeading;}
 	double getVisionRange(){return visionRange;}
