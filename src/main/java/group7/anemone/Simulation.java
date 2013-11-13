@@ -81,6 +81,7 @@ public class Simulation extends PApplet {
 		Agent agent_clicked = null;
 		
 		if(win.mousePressed()) return;
+		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, width, height)) return;
 		
 		/*
 		 * Mouse Modes are as follows:
@@ -397,8 +398,8 @@ public class Simulation extends PApplet {
 			    int offsetX = -maxLevel * 10;
 			    noStroke();
 			    for(MNeuron n : placed.keySet()){ //draw the neurons
-			    	if(n.isFiring()) fill(0, 255, 0);
-			    	else fill(200);
+			    	if(n.isFiring()) fill(theme.getColor("NeuronFired"));
+			    	else fill(theme.getColor("Neuron"));
 		    		
 		    		translate((float) placed.get(n).x + offsetX, (float) placed.get(n).y, 0);
 			    	sphere(3);
@@ -434,6 +435,8 @@ public class Simulation extends PApplet {
 		theme.setColor("Sidepanel", color(50));
 		theme.setColor("Food", color(0, 255, 0));
 		theme.setColor("Agent", color(255, 127, 0));
+		theme.setColor("Neuron", color(200));
+		theme.setColor("NeuronFired", color(0, 255, 0));
 		
 		winTheme = new UIWindow(this, 0, 485, 200, 200);
 		winTheme.setIsTop(false);
