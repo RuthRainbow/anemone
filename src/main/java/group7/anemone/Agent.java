@@ -133,11 +133,11 @@ public class Agent extends SimulationObject{
 			switch(n.getID()) {
 				/* Sensory neurons. */
 				case 0:
-					System.out.println("Adding current "+ninterface.affectors.vFood[4]);
+					//System.out.println("Adding current "+ninterface.affectors.vFood[4]);
 					n.addCurrent(ninterface.affectors.vFood[4]);
 					break;
 				case 1:
-					System.out.println("Adding current "+ninterface.affectors.vFood[5]);
+					//System.out.println("Adding current "+ninterface.affectors.vFood[5]);
 					n.addCurrent(ninterface.affectors.vFood[5]);
 					break;
 				/* Motor neuron. */

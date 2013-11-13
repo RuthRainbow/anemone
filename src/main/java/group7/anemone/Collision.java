@@ -25,6 +25,8 @@ public class Collision {
 	public int getType(){
 		if(collided instanceof Food) return TYPE_FOOD;
 		if(collided instanceof Agent) return TYPE_AGENT;
+		/*TODO For when enemy class is implemented
+		if(collided instanceof Enemy) return TYPE_ENEMY;*/
 		if(collided instanceof Wall) return TYPE_WALL;
 		
 		return -1;

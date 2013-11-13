@@ -60,98 +60,73 @@ public class Environment {
     public void updateAgentsSight() {
     	//update what each agent can see
     	for (Agent ag: fishes) { 
+    		
     		ArrayList<SightInformation> result = new ArrayList<SightInformation>();
-    		//angle of the top and bottom of the agent's field of view
-    		double headBelow = ag.getViewHeading() - ag.getFOV();
-    		double headAbove = ag.getViewHeading() + ag.getFOV();
     		
-    		//TODO: move this into method and perform for food, other agents and enemies
-    		//check for food within FOV
-    		for (Food fd : food) { 
-        		//check if the food is within viewable distance
-        		double distance = ag.getCoordinates().distance(fd.getCoordinates());
-        		if(distance <= ag.getVisionRange()){
-        			//get angle of food in relation to agent
-        			double angleBetween = Math.atan((fd.getCoordinates().y - ag.getCoordinates().y) / (fd.getCoordinates().x - ag.getCoordinates().x));
-        			angleBetween = angleBetween * 180 / Math.PI;
-        			//adjust angles depending on quadrant to be represented in 0-360 rather than -180-180
-        			if(fd.getX() > ag.getX()) {
-        				if (fd.getY() < ag.getY()) angleBetween = 360 + angleBetween;
-        			}else{
-        				if (fd.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
-        				else angleBetween += 180;
-        			}    
-        			//check if the food falls within field of view
-        			if(angleBetween >= headBelow && angleBetween <= headAbove){
-        				result.add(new SightInformation(ag, fd, distance, (angleBetween - headBelow) / (ag.getFOV() * 2)));
-        			//special cases where field of view crosses 0/360 divide	
-        			}else if(headBelow < 0){
-        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, fd, distance, ((angleBetween <= headAbove ? angleBetween + 360 : angleBetween ) - (360 + headBelow)) / (ag.getFOV() * 2)));
-        			}else if(headAbove > 360){
-        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, fd, distance, ((angleBetween <= headAbove-360 ? angleBetween + 360 : angleBetween ) - headBelow) / (ag.getFOV() * 2)));
-        			}
-        			
-        		}
-    		}
-    		/*
-    		//check for other agents in FOV
-    		for (Agent fi : fishes) { 
-        		
-        		double distance = ag.getCoordinates().distance(fi.getCoordinates());
-        		if(distance <= ag.getVisionRange()){
-        			double angleBetween = Math.atan((fi.getCoordinates().y - ag.getCoordinates().y) / (fi.getCoordinates().x - ag.getCoordinates().x));
-        			angleBetween = angleBetween * 180 / Math.PI;
-        			
-        			if(fi.getX() > ag.getX()) {
-        				if (fi.getY() < ag.getY()) angleBetween = 360 + angleBetween;
-        			}else{
-        				if (fi.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
-        				else angleBetween += 180;
-        			}        			
-        			
-        			if(angleBetween >= headBelow && angleBetween <= headAbove){
-        				result.add(new SightInformation(ag, fi, distance));
-        			}else if(headBelow < 0){
-        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, fi, distance));
-        			}else if(headAbove > 360){
-        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, fi, distance));
-        			}
-        			
-        		}
-    		}
+    		//check for objects within FOV
+    		result.addAll(checkFOV(new ArrayList<SimulationObject>(food),ag));
+    		result.addAll(checkFOV(new ArrayList<SimulationObject>(fishes),ag));
+    		result.addAll(checkFOV(new ArrayList<SimulationObject>(sharks),ag));
+    		result.addAll(checkFOV(new ArrayList<SimulationObject> (wall),ag));
+
     		
-    		//check for other sharks in FOV
-    		for (Agent sh : sharks) { 
-        		
-        		double distance = ag.getCoordinates().distance(sh.getCoordinates());
-        		if(distance <= ag.getVisionRange()){
-        			double angleBetween = Math.atan((sh.getCoordinates().y - ag.getCoordinates().y) / (sh.getCoordinates().x - ag.getCoordinates().x));
-        			angleBetween = angleBetween * 180 / Math.PI;
-        			
-        			if(sh.getX() > ag.getX()) {
-        				if (sh.getY() < ag.getY()) angleBetween = 360 + angleBetween;
-        			}else{
-        				if (sh.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
-        				else angleBetween += 180;
-        			}        			
-        			
-        			if(angleBetween >= headBelow && angleBetween <= headAbove){
-        				result.add(new SightInformation(ag, sh, distance));
-        			}else if(headBelow < 0){
-        				if(angleBetween >= 360 + headBelow) result.add(new SightInformation(ag, sh, distance));
-        			}else if(headAbove > 360){
-        				if(angleBetween <= headAbove - 360) result.add(new SightInformation(ag, sh, distance));
-        			}
-        			
-        		}
-    		}  		
-    		*/
     		//return updated list
     		ag.updateCanSee(result);
 		}
     }
     
-    protected ArrayList<Collision> getCollisions(){
+    private ArrayList<SightInformation> checkFOV(ArrayList<SimulationObject> objects, Agent ag) {
+    	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
+    	
+    	//angle of the top and bottom of the agent's field of view
+		double headBelow = ag.getViewHeading() - ag.getFOV();
+		double headAbove = ag.getViewHeading() + ag.getFOV();
+		
+		
+		for (SimulationObject ob : objects) { 
+    		//check if the food is within viewable distance
+    		double distance = ag.getCoordinates().distance(ob.getCoordinates());
+    		if(distance <= ag.getVisionRange()){
+    			//get angle of food in relation to agent
+    			double angleBetween = Math.atan((ob.getCoordinates().y - ag.getCoordinates().y) / (ob.getCoordinates().x - ag.getCoordinates().x));
+    			angleBetween = angleBetween * 180 / Math.PI;
+    			//adjust angles depending on quadrant to be represented in 0-360 rather than -180-180
+    			if(ob.getX() > ag.getX()) {
+    				if (ob.getY() < ag.getY()) angleBetween = 360 + angleBetween;
+    			}else{
+    				if (ob.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
+    				else angleBetween += 180;
+    			}    
+    			//check if the food falls within field of view
+    			if(angleBetween >= headBelow && angleBetween <= headAbove){
+    				result.add(new SightInformation(ag, ob, distance, (angleBetween - headBelow) / (ag.getFOV() * 2)));
+    				if(ob instanceof Wall) {
+    					System.out.println("Found a wall "+distance +" away.");
+    				}
+    				
+    			//special cases where field of view crosses 0/360 divide	
+    			}else if(headBelow < 0){
+    				if(angleBetween >= 360 + headBelow) {
+    					if(ob instanceof Wall) {
+        					System.out.println("Found a wall "+distance +" away.");
+        				}
+    					result.add(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove ? angleBetween + 360 : angleBetween ) - (360 + headBelow)) / (ag.getFOV() * 2)));
+    				}
+    			}else if(headAbove > 360){
+    				if(angleBetween <= headAbove - 360) {
+    					if(ob instanceof Wall) {
+        					System.out.println("Found a wall "+distance +" away.");
+        				}
+    					result.add(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove-360 ? angleBetween + 360 : angleBetween ) - headBelow) / (ag.getFOV() * 2)));
+    				}
+    			}
+    			
+    		}
+		}
+		return result;
+	}
+
+	protected ArrayList<Collision> getCollisions(){
     	return collisions;
     }
 
