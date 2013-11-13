@@ -13,6 +13,7 @@ public class Agent extends SimulationObject{
 	private String stringRep = "";
 	private double fitness = 0;
 	private double health = 1;
+	private int age = 0; // Age of agent in number of updates.
 	private double viewHeading = 0; // in degrees 0-360
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
@@ -217,11 +218,16 @@ public class Agent extends SimulationObject{
 		coords.x += speed.x;	//Changes the coordinates to display distance travelled since last update
 		coords.y += speed.y;
 
+		age++;
 		health -= 0.001;//0.0000001;
-		fitness += 0.01; //Fitness point for living.
+		if (age < 100) {
+			fitness += 0.001;
+		} else if (age > 200) {
+			fitness -= 0.001;
+		}
 	}
 
-	void updateCanSee(ArrayList<SightInformation> see){
+	protected void updateCanSee(ArrayList<SightInformation> see){
 		canSee = see;
 	}
 	ArrayList<SightInformation> getCanSee(){return canSee;}
@@ -231,18 +237,21 @@ public class Agent extends SimulationObject{
 		thrust.x = x;
 		thrust.y = y;
 	}
-	void thrust(double strength){
+	protected void thrust(double strength){
 		double x = strength * Math.cos(viewHeading * Math.PI / 180);
 		double y = strength * Math.sin(viewHeading * Math.PI / 180);
 		setThrust(x, y);
 	}
-	void changeViewHeading(double h){//This will be called by the neural network to change the current view heading
+	protected void changeViewHeading(double h){//This will be called by the neural network to change the current view heading
 		viewHeading += h;
 	}
-	void updateHealth(double h){
+	protected void updateHealth(double h){
 		health += h;
 		health = Math.min(1, health);
-		fitness += h*10; //Also update fitness - could have eaten food or collided with a wall.
+	}
+
+	protected void updateFitness(double value) {
+		fitness += value;
 	}
 
 	//returns the distance of the closest object in a specified segment, -1 if none found.

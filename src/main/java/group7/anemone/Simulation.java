@@ -1,6 +1,17 @@
 package group7.anemone;
 
-import group7.anemone.UI.*;
+import group7.anemone.UI.UIAction;
+import group7.anemone.UI.UIAngle;
+import group7.anemone.UI.UIButton;
+import group7.anemone.UI.UIColorWheel;
+import group7.anemone.UI.UIDrawable3D;
+import group7.anemone.UI.UIDropdown;
+import group7.anemone.UI.UILabel;
+import group7.anemone.UI.UIProgress;
+import group7.anemone.UI.UISlider;
+import group7.anemone.UI.UITheme;
+import group7.anemone.UI.UIWindow;
+import group7.anemone.UI.Utilities;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -13,21 +24,20 @@ import processing.core.PApplet;
 import processing.core.PFont;
 
 // We aren't going to serialise this.
-//This comment exists because I'm testing out how branching and merging works.
 @SuppressWarnings("serial")
 public class Simulation extends PApplet {
 	Environment env = new Environment(this);
 	Agent selectedAgent = null;
 	PFont f = createFont("Arial",12,true);
 	int mouseMode=0;
-	
+
 	//UI Elements
 	UIWindow win;
 	UIWindow sidePanel;
 	UIWindow btnGroupModes;
 	UIWindow winStats;
 	UIWindow winTheme;
-	
+
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
 	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust;
 	UIAngle agentHeading;
@@ -38,7 +48,7 @@ public class Simulation extends PApplet {
 	UIProgress progHealth;
 	UISlider sliderX, sliderY;
 	UIDrawable3D neuralVisual;
-	
+
 	int width = 0;
 	int height = 0;
 	float neuralRotation = 0;
@@ -52,10 +62,10 @@ public class Simulation extends PApplet {
 		frameRate(30);
 		size(screen.width, screen.height, P3D);
 		setupUI();
-		
+
 		width = screen.width - 250;
 		height = screen.height;
-		
+
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
@@ -70,7 +80,7 @@ public class Simulation extends PApplet {
 			int y = (int) Math.floor(Math.random() * height);
 			env.addFood(new Point2D.Double(x, y));
 		}
-		
+
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(width,0));
 		env.addWall(new Point2D.Double(width,0), new Point2D.Double(width,height));
 		env.addWall(new Point2D.Double(width,height), new Point2D.Double(0,height));
@@ -79,10 +89,10 @@ public class Simulation extends PApplet {
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
 		Agent agent_clicked = null;
-		
+
 		if(win.mousePressed()) return;
 		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, width, height)) return;
-		
+
 		/*
 		 * Mouse Modes are as follows:
 		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
@@ -100,10 +110,10 @@ public class Simulation extends PApplet {
 					selectedAgent = agent_clicked;
 				}
 				break;
-				
+
 		case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
 				break;
-				
+
 		case 2: int heading = (int) Math.floor(Math.random() * 360);
 				env.addFish(new Point2D.Double(mouseX, mouseY), heading);
 				break;
@@ -123,22 +133,22 @@ public class Simulation extends PApplet {
 	}
 	public void mouseReleased(){
 		if(win.mouseReleased()) return;
-		
-		
+
+
 	}
-	
+
 	public void mouseDragged(){
 		if(win.mouseDragged()) return;
-		
-		
+
+
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
-		
+
 	}
 	public void keyReleased(){	//Hotkeys for buttons
 		if(win.keyReleased()) return;
-		
+
 		switch(key) {
 		case('e'):	mouseMode=2;
 					btnGroupModes.selectButton(btnAddAgent);
@@ -154,21 +164,21 @@ public class Simulation extends PApplet {
 					break;
 		}
 	}
-	
+
 	public void draw(){
 		background(theme.getColor("Background"));	//Draws background, basically refreshes the screen
 		win.setBackground(theme.getColor("Background"));
 		sidePanel.setBackground(theme.getColor("Sidepanel"));
-		
+
 		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 		env.updateCollisions(); //update the environment with the new collisions
 		env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 		handleCollisions();
 		checkDeaths();
 		updateUI();
-		
+
 		win.draw();
-		
+
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
 
@@ -179,21 +189,21 @@ public class Simulation extends PApplet {
 			stroke(128, (float) ag.getHealth()*200+55);
 			noFill();
 			double range = ag.getVisionRange() * 2;
-			
+
 			pushMatrix();
 			translate(ag.getX(), ag.getY());
 			rotate((float) toRadians(ag.getViewHeading() - ag.getFOV()));
 			line(0, 0, (int) (range / 2), 0);
 			popMatrix();
-			
+
 			pushMatrix();
 			translate(ag.getX(), ag.getY());
 			rotate((float) toRadians(ag.getViewHeading() + ag.getFOV()));
 			line(0, 0, (int) (range / 2), 0);
 			popMatrix();
-			
+
 			arc((float) ag.getX(), (float) ag.getY(), (float) range, (float) range, (float) toRadians(ag.getViewHeading() - ag.getFOV()) , (float) toRadians(ag.getViewHeading() + ag.getFOV()));
-		
+
 			//draw our circle representation for the agent
 			noStroke();
 			fill(theme.getColor("Agent")); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
@@ -206,17 +216,17 @@ public class Simulation extends PApplet {
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
-				
+
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 
 		/*if(selectedAgent != null){	//If an agent is seleted, display its coordinates in the top left hand corner, under the framerate
 			fill(255);
 			textFont(f);
-			
+
 			String tmp = "";
 			for(SightInformation si : selectedAgent.getCanSee()) tmp += ", "+si.getType();
-			
+
 			text("Selected agent x = "+selectedAgent.getX(), 10, 25);
 			text("Selected agent y = "+selectedAgent.getY(), 10, 40);
 			text("Selected agent health = "+selectedAgent.getHealth(), 10, 55);
@@ -225,18 +235,18 @@ public class Simulation extends PApplet {
 		}*/
 
 	}
-	
+
 	private void updateUI(){
 		agentHeading.setVisible(selectedAgent != null);
 		winStats.setVisible(selectedAgent != null);
-		
+
 		if(selectedAgent != null){
 			agentHeading.setAngle(selectedAgent.getViewHeading());
 			progHealth.setValue(selectedAgent.getHealth());
 			progHealth.setColor((int) (255 - 255 * selectedAgent.getHealth()), (int) (255 * selectedAgent.getHealth()), 0);
 			sliderX.setValue((double) selectedAgent.getX() / width);
 			sliderY.setValue((double) selectedAgent.getY() / height);
-			
+
 			lblX.setText("x = " + selectedAgent.getX());
 			lblY.setText("y = " + selectedAgent.getY());
 			lblHeading.setText("heading = " + Math.round(selectedAgent.getViewHeading()) + "°");
@@ -260,20 +270,20 @@ public class Simulation extends PApplet {
 		btnGroupModes.setBackground(30);
 		btnGroupModes.setFixedBackground(true);
 		sidePanel.addObject(btnGroupModes);
-		
+
 		btnSelectAgent = addModeButton(0, "Select", 10, 2 ,118 ,255);
 		btnAddFood = addModeButton(1, "Food", 70, 84, 255, 159);
 		btnAddAgent = addModeButton(2, "Agent", 130, 255, 127, 0);
 		btnThrust = addModeButton(3, "Thrust", 190, 0, 231, 125);
-		
+
 		btnGroupModes.selectButton(btnSelectAgent);
-		
+
 		//Statistics window for the currently selected agent
 		winStats = new UIWindow(this, 0, 300, 300, 250);
 		winStats.setBackground(30);
 		winStats.setFixedBackground(true);
 		sidePanel.addObject(winStats);
-		
+
 		//control to change the selected agents heading
 		agentHeading = new UIAngle(this, 10, 30, 50);
 		agentHeading.setEventHandler(new UIAction(){
@@ -284,11 +294,11 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(agentHeading);
-		
+
 		//progress bar of the selected agents current health
 		progHealth = new UIProgress(this, 10, 93, 230, 10);
 		winStats.addObject(progHealth);
-		
+
 		//sliders to move agents position
 		sliderX = new UISlider(this, 75, 35, 165, 15);
 		sliderX.setEventHandler(new UIAction(){
@@ -299,7 +309,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(sliderX);
-		
+
 		sliderY = new UISlider(this, 75, 60, 165, 15);
 		sliderY.setEventHandler(new UIAction(){
 			public void change(UISlider slider){
@@ -309,7 +319,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(sliderY);
-		
+
 		//boost agent health back to 100%
 		btnSelectHealth = new UIButton(this, 10, 115, 65, 20, "100%");
 		btnSelectHealth.setColor(84, 255, 159);
@@ -321,7 +331,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(btnSelectHealth);
-		
+
 		//thrust selected agent
 		btnSelectThrust = new UIButton(this, 93, 115, 65, 20, "Thrust");
 		btnSelectThrust.setColor(251, 150, 20);
@@ -333,7 +343,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(btnSelectThrust);
-		
+
 		//kill poor agent
 		btnSelectKill = new UIButton(this, 175, 115, 65, 20, "KILL");
 		btnSelectKill.setColor(210, 50, 50);
@@ -346,7 +356,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(btnSelectKill);
-		
+
 		//3D neural network visual
 		neuralVisual = new UIDrawable3D(this, 0, 250, 250, 250);
 		neuralVisual.setIsTop(false);
@@ -358,61 +368,61 @@ public class Simulation extends PApplet {
 		    private int maxLevel = 0;
 			public void draw(PApplet canvas){
 				if(selectedAgent == null) return;
-				
+
 				MNetwork net = selectedAgent.getNetwork();
 				placed = new HashMap<MNeuron, Point2D.Double>(); //store coordinates of placed neurons
 			    maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
 			    maxInLevel.put(0, 0);
 			    maxLevel = 0;
-				
+
 			    rotateY(neuralRotation);
-			    
+
 			    //TODO: these positions of nodes can be precalculated when network is generated.
 			    for(MSynapse s : net.getSynapses()){ //determine the x, y coordinates for each node based on links
 			    	MNeuron pre = s.getPreNeuron();
 			    	MNeuron post = s.getPostNeuron();
 			    	int level = 0;
-			    	
+
 			    	if(!placed.containsKey(pre)){
 			    		if(placed.containsKey(post)){ //pre node not placed but post is, place at level - 1
 			    			level = (int) (placed.get(post).x / 20) - 1;
 			    		}
-			    		
+
 			    		int max = maxValue(level);
 			    		addNode(level, max, pre);
 			    	}
-			    	
+
 			    	if(!placed.containsKey(post)){
 			    		if(placed.containsKey(pre)){ //post node not placed but pre is, place at level + 1
 			    			level = (int) (placed.get(pre).x / 20);
 			    		}
 			    		level++;
-			    		
+
                         int max = maxValue(level);
 			    		addNode(level, max, post);
 			    	}
 			    }
-			    
+
 			    int offsetX = -maxLevel * 10;
 			    noStroke();
 			    for(MNeuron n : placed.keySet()){ //draw the neurons
 			    	if(n.isFiring()) fill(theme.getColor("NeuronFired"));
 			    	else fill(theme.getColor("Neuron"));
-		    		
+
 		    		translate((float) placed.get(n).x + offsetX, (float) placed.get(n).y, 0);
 			    	sphere(3);
 			    	translate((float) -(placed.get(n).x + offsetX), (float) -placed.get(n).y, 0);
 			    }
-			    
+
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
 			    	Point2D.Double n1 = placed.get(s.getPreNeuron());
 			    	Point2D.Double n2 = placed.get(s.getPostNeuron());
-			    	
+
 			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
 			    	else stroke(255);
 			    	line((int) (n1.x + offsetX), (int) n1.y, 0, (int) (n2.x + offsetX), (int) n2.y, 0);
 			    }
-			    
+
 			    //neuralRotation -= 0.02;
 			}
 			private void addNode(int level, int max, MNeuron node){
@@ -427,10 +437,10 @@ public class Simulation extends PApplet {
 					maxLevel++;
 				}else max = maxInLevel.get(level);
 				return max;
-			} 
+			}
 		});
 		sidePanel.addObject(neuralVisual);
-		
+
 		//printout of selected agents stats
 		lblStatTitle = addStatLabel("Selected Agent", 5);
 		lblX = addStatLabel("X", 155);
@@ -439,7 +449,7 @@ public class Simulation extends PApplet {
 		lblHealth = addStatLabel("X", 200);
 		lblAngle = addStatLabel("X", 215);
 		lblSpeed = addStatLabel("X", 230);
-		
+
 		//Themes window
 		theme = new UITheme();
 		theme.setColor("Background", color(0));
@@ -448,11 +458,11 @@ public class Simulation extends PApplet {
 		theme.setColor("Agent", color(255, 127, 0));
 		theme.setColor("Neuron", color(200));
 		theme.setColor("NeuronFired", color(0, 255, 0));
-		
+
 		winTheme = new UIWindow(this, 0, 485, 200, 200);
 		winTheme.setIsTop(false);
 		sidePanel.addObject(winTheme);
-		
+
 		themeColorWheel = new UIColorWheel(this, 45, 40);
 		themeColorWheel.setVisible(false);
 		themeColorWheel.setEventHandler(new UIAction(){
@@ -461,7 +471,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winTheme.addObject(themeColorWheel);
-		
+
 		themeDrop = new UIDropdown(this, 25, 10, 200, theme.getKeys());
 		themeDrop.setVisible(false);
 		themeDrop.setEventHandler(new UIAction(){
@@ -470,7 +480,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winTheme.addObject(themeDrop);
-		
+
 		btnToggleTheme = new UIButton(this, 25, 195, 200, 30, "Toggle Theme Editor");
 		btnToggleTheme.setColor(20, 20, 20);
 		btnToggleTheme.setFontColor(240, 240, 240);
@@ -481,7 +491,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winTheme.addObject(btnToggleTheme);
-		
+
 		//adds mouse scrolling listener to the applet
 		addMouseWheelListener(new MouseWheelListener(){
 			public void mouseWheelMoved(MouseWheelEvent event){
@@ -509,28 +519,38 @@ public class Simulation extends PApplet {
 	private double toRadians(double deg){
 		return deg * Math.PI / 180;
 	}
-	
+
 	private void checkDeaths(){ //mwahahaha >:)
 		ArrayList<Agent> agents = env.getAllAgents();
-		
-		for (Agent ag: agents) { 
+
+		for (Agent ag: agents) {
 			if(ag.getHealth() <= 0){
 				env.removeAgent(ag);
 				if(selectedAgent == ag) selectedAgent = null;
 			}
 		}
 	}
-	
+
 	private void handleCollisions(){
 		ArrayList<Collision> collisions = env.getCollisions();
-		
+
 		for (Collision cc: collisions) { //check collisions to food
     		int type = cc.getType();
-    		
+
     		switch(type){
     			case Collision.TYPE_FOOD: eatFood(cc);break;
     			case Collision.TYPE_WALL: bounceAgent(cc); break;
+    			case Collision.TYPE_AGENT: breeding(cc); break;
     		}
+		}
+	}
+
+	// If two agents collided, breed with some random chance.
+	private void breeding(Collision cc) {
+		if (Math.random() > 0.8) {
+			env.Breed(cc.getAgent(), (Agent) cc.getCollidedObject());
+			// Encourage agents to breed...
+			cc.getAgent().updateFitness(0.01);
 		}
 	}
 
@@ -543,20 +563,22 @@ public class Simulation extends PApplet {
 		double newAngle = normalAngle + (normalAngle - agentAngle - 180);
 		double oldHeading = ag.getViewHeading();
 		double thrust = ag.getMovingSpeed();
-		
+
 		ag.stop();
 		ag.changeViewHeading(newAngle - ag.getViewHeading());
 		ag.thrust(thrust);
 		ag.changeViewHeading(oldHeading - newAngle);
 		ag.updateHealth(thrust / -100);
+		ag.updateFitness(thrust / -100);
 	}
 
 	private void eatFood(Collision cc) {
 		Food fd = (Food) cc.getCollidedObject();
-		
+
 		env.removeFood(fd);
 		cc.getAgent().updateHealth(fd.getValue());
+		cc.getAgent().updateFitness(fd.getValue());
 	}
-	
+
 
 }
