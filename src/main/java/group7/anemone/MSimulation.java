@@ -47,6 +47,7 @@ public class MSimulation {
 	public void step() {
 		doCurrentEvents();
 		updateNeurons();
+		clearCurrentEvents();
 		addFutureEvents();
 		time++;
 	}
@@ -78,6 +79,12 @@ public class MSimulation {
 			n = s.getPostNeuron();
 			n.addCurrent(s.getWeight());
 		}
+	}
+
+	private void clearCurrentEvents() {
+		int h = config.eventHorizon;
+		
+		events.get(time % h).clear();
 	}
 
 	private void addFutureEvents() {
