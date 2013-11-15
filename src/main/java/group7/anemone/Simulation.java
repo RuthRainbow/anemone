@@ -50,6 +50,7 @@ public class Simulation extends PApplet {
 	public void setup() {
 		frameRate(30);
 		size(screen.width, screen.height, P3D);
+		textMode(SCREEN);
 		setupUI();
 
 		width = screen.width - 250;
