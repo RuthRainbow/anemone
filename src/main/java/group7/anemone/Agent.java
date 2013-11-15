@@ -279,6 +279,8 @@ public class Agent extends SimulationObject{
 	double getFOV(){return fov;}
 	double getChangeX(){return speed.x;}
 	double getChangeY(){return speed.y;}
+	int getNumSegments(){return configNumSegments;}
+	
 	double getMovingAngle(){
 		double angle = 0;
 		if(getChangeX() == 0){

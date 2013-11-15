@@ -1,6 +1,10 @@
 package group7.anemone;
 
+import group7.anemone.UI.Utilities;
+
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Line2D.Double;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
@@ -67,7 +71,8 @@ public class Environment {
     		result.addAll(checkFOV(new ArrayList<SimulationObject>(food),ag));
     		result.addAll(checkFOV(new ArrayList<SimulationObject>(fishes),ag));
     		result.addAll(checkFOV(new ArrayList<SimulationObject>(sharks),ag));
-    		result.addAll(checkFOV(new ArrayList<SimulationObject> (wall),ag));
+
+    		result.addAll(checkFOVWalls(wall,ag));
 
     		
     		//return updated list
@@ -75,55 +80,97 @@ public class Environment {
 		}
     }
     
-    private ArrayList<SightInformation> checkFOV(ArrayList<SimulationObject> objects, Agent ag) {
+    private ArrayList<SightInformation> checkFOVWalls( ArrayList<Wall> walls, Agent ag) {
+    	
+    	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
+		for(Wall wl : walls){
+			//check if the wall is within the agent's viewable distance
+			if (wl.getLine().ptLineDist(ag.getCoordinates()) < ag.getFOV()){
+				
+				double increment = (ag.getFOV()*2)/ag.getNumSegments();
+				double headBelow = ag.getViewHeading() - ag.getFOV();
+				//get the lines which make up the first segment 
+				Line2D.Double currentSegmentLine1 = Utilities.generateLine(ag.getCoordinates(),ag.getVisionRange(),headBelow);
+				Line2D.Double currentSegmentLine2 = Utilities.generateLine(ag.getCoordinates(),ag.getVisionRange(),(headBelow + increment));
+				
+				for(int i=1;i<=ag.getNumSegments();i++){
+					//check if the wall intersects both lines indicating it passes through
+					boolean intersectsLine1 = currentSegmentLine1.intersectsLine(wl.getLine());
+					boolean intersectsLine2 = currentSegmentLine2.intersectsLine(wl.getLine());
+					
+					if(intersectsLine1 && intersectsLine2){
+						//find the intersection points for each line with the wall
+						Point2D.Double lineIntersection1 = Utilities.findIntersection(currentSegmentLine1, wl.getLine());
+						Point2D.Double lineIntersection2 = Utilities.findIntersection(currentSegmentLine2, wl.getLine());
+						//get the midpoint
+						Point2D.Double midPoint = new Point2D.Double((lineIntersection1.getX()+lineIntersection2.getX())/2,(lineIntersection1.y+lineIntersection2.y)/2);
+						//now it is simply a point pass to checkObject method 
+						result.add(checkObject(new Wall(midPoint,midPoint),ag));
+						//NB creating a wall object here so that the object type is stored
+
+					}
+					//generate lines for next segment
+					currentSegmentLine1 = currentSegmentLine2;
+					currentSegmentLine2 = Utilities.generateLine(ag.getCoordinates(), ag.getVisionRange(), headBelow + increment * (i+1));
+				}
+				
+			}
+			
+		}
+    	
+		return result;
+	}
+
+	private ArrayList<SightInformation> checkFOV(ArrayList<SimulationObject> objects, Agent ag) {
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
     	
+		for (SimulationObject ob : objects) { 
+			result.add(checkObject(ob,ag));
+		}
+		return result;
+	}
+
+	private SightInformation checkObject(SimulationObject ob, Agent ag) {
+		
     	//angle of the top and bottom of the agent's field of view
 		double headBelow = ag.getViewHeading() - ag.getFOV();
 		double headAbove = ag.getViewHeading() + ag.getFOV();
-		
-		
-		for (SimulationObject ob : objects) { 
-    		//check if the food is within viewable distance
-    		double distance = ag.getCoordinates().distance(ob.getCoordinates());
-    		if(distance <= ag.getVisionRange()){
-    			//get angle of food in relation to agent
-    			double angleBetween = Math.atan((ob.getCoordinates().y - ag.getCoordinates().y) / (ob.getCoordinates().x - ag.getCoordinates().x));
-    			angleBetween = angleBetween * 180 / Math.PI;
-    			//adjust angles depending on quadrant to be represented in 0-360 rather than -180-180
-    			if(ob.getX() > ag.getX()) {
-    				if (ob.getY() < ag.getY()) angleBetween = 360 + angleBetween;
-    			}else{
-    				if (ob.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
-    				else angleBetween += 180;
-    			}    
-    			//check if the food falls within field of view
-    			if(angleBetween >= headBelow && angleBetween <= headAbove){
-    				result.add(new SightInformation(ag, ob, distance, (angleBetween - headBelow) / (ag.getFOV() * 2)));
-    				if(ob instanceof Wall) {
+		//check if the object is within viewable distance
+		double distance = ag.getCoordinates().distance(ob.getCoordinates());
+		if(distance <= ag.getVisionRange()){
+			//get angle of object in relation to agent
+			double angleBetween = Math.atan((ob.getCoordinates().y - ag.getCoordinates().y) / (ob.getCoordinates().x - ag.getCoordinates().x));
+			angleBetween = angleBetween * 180 / Math.PI;
+			//adjust angles depending on quadrant to be represented in 0-360 rather than -180-180
+			if(ob.getX() > ag.getX()) {
+				if (ob.getY() < ag.getY()) angleBetween = 360 + angleBetween;
+			}else{
+				if (ob.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
+				else angleBetween += 180;
+			}    
+			//check if the object falls within field of view
+			if(angleBetween >= headBelow && angleBetween <= headAbove){
+				return(new SightInformation(ag, ob, distance, (angleBetween - headBelow) / (ag.getFOV() * 2)));
+				
+			//special cases where field of view crosses 0/360 divide	
+			}else if(headBelow < 0){
+				if(angleBetween >= 360 + headBelow) {
+					if(ob instanceof Wall) {
     					System.out.println("Found a wall "+distance +" away.");
     				}
-    				
-    			//special cases where field of view crosses 0/360 divide	
-    			}else if(headBelow < 0){
-    				if(angleBetween >= 360 + headBelow) {
-    					if(ob instanceof Wall) {
-        					System.out.println("Found a wall "+distance +" away.");
-        				}
-    					result.add(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove ? angleBetween + 360 : angleBetween ) - (360 + headBelow)) / (ag.getFOV() * 2)));
+					return(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove ? angleBetween + 360 : angleBetween ) - (360 + headBelow)) / (ag.getFOV() * 2)));
+				}
+			}else if(headAbove > 360){
+				if(angleBetween <= headAbove - 360) {
+					if(ob instanceof Wall) {
+    					System.out.println("Found a wall "+distance +" away.");
     				}
-    			}else if(headAbove > 360){
-    				if(angleBetween <= headAbove - 360) {
-    					if(ob instanceof Wall) {
-        					System.out.println("Found a wall "+distance +" away.");
-        				}
-    					result.add(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove-360 ? angleBetween + 360 : angleBetween ) - headBelow) / (ag.getFOV() * 2)));
-    				}
-    			}
-    			
-    		}
+					return(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove-360 ? angleBetween + 360 : angleBetween ) - headBelow) / (ag.getFOV() * 2)));
+				}
+			}
+			
 		}
-		return result;
+		return null;
 	}
 
 	protected ArrayList<Collision> getCollisions(){

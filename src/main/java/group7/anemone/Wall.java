@@ -18,6 +18,7 @@ public class Wall extends SimulationObject{
 
 	public Double getStart() {return start;}
 	public Double getEnd() {return end;}
-	public Line2D.Double getLine() {return line;}
+	public Line2D.Double getLine() {return line;
+	}
 	
 }

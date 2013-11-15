@@ -1,5 +1,8 @@
 package group7.anemone.UI;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+
 import processing.core.PApplet;
 
 public class Utilities {
@@ -27,5 +30,38 @@ public class Utilities {
 	}
 	public static boolean isPointInBox(int x, int y, int rx, int ry, int w, int h){
 		return (x >= rx && x <= rx + w && y >= ry && y <= ry + h);
+	}
+	
+	//assumes that the lines do intersect 
+	public static Point2D.Double findIntersection(Line2D.Double line1, Line2D.Double line2){
+		Point2D.Double intersection = new Point2D.Double();
+		//get gradients and y intercepts
+		double m1 = (line1.y2-line1.y1)/(line1.x2-line1.x1);
+		double c1 = line1.y1 - m1 * line1.x1;
+		double m2 = (line2.y2-line2.y1)/(line2.x2-line2.x1);
+		double c2 = line2.y1 - m2 * line2.x1;
+		
+		//if the lines aren't parallel
+		if(m1 != m2){
+			//get x value of intersection
+			double intersectX = -(c1-c2)/(m1-m2);
+			//check it lies within both segments
+			boolean withinLine1 = Math.min(line1.x1,line1.x2) < intersectX && intersectX < Math.max(line1.x1, line1.x2);
+			boolean withinLine2 = Math.min(line2.x1,line2.x2) < intersectX && intersectX < Math.max(line2.x1, line2.x2);
+			if(withinLine1  && withinLine2) {
+				//calculate y value of intersection
+				double intersectY = m1*intersectX + c1;
+				intersection = new Point2D.Double(intersectX, intersectY);
+			}
+		}
+		
+		return intersection;
+	}
+	
+	public static Line2D.Double generateLine(Point2D.Double point, double length, double angle){
+		double endX = length * Math.cos(angle*(Math.PI/180)) + point.x;
+		double endY = length * Math.sin(angle*(Math.PI/180)) + point.y;
+		
+		return new Line2D.Double(point,new Point2D.Double(endX,endY));
 	}
 }
