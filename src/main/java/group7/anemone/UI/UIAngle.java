@@ -3,7 +3,7 @@ package group7.anemone.UI;
 import processing.core.PApplet;
 
 public class UIAngle extends UIObject{
-	private double angle = 0;
+	protected double angle = 0;
 
 	public UIAngle(PApplet c, int x, int y, int r){
 		super(c, x, y, r, r);

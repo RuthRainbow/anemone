@@ -14,6 +14,9 @@ public class SightInformation extends Collision{
 	public double getDistance(){
 		return distance;
 	}
+	public double getNormalisedDistance(){
+		return distance / getAgent().getVisionRange();
+	}
 	public double getDistanceFromLower(){
 		return distanceFromLower;
 	}

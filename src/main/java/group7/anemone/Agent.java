@@ -284,13 +284,16 @@ public class Agent extends SimulationObject{
 		coords.y = y;
 	}
 
-	double getHealth(){return health;}
-	double getViewHeading(){return viewHeading;}
-	double getVisionRange(){return visionRange;}
-	double getFOV(){return fov;}
-	double getChangeX(){return speed.x;}
-	double getChangeY(){return speed.y;}
-	double getMovingAngle(){
+	public double getHealth(){return health;}
+	public double getViewHeading(){return viewHeading;}
+	public double getVisionRange(){return visionRange;}
+	public ArrayList<SightInformation> getAllViewingObjects(){
+		return canSee;
+	}
+	public double getFOV(){return fov;}
+	public double getChangeX(){return speed.x;}
+	public double getChangeY(){return speed.y;}
+	public double getMovingAngle(){
 		double angle = 0;
 		if(getChangeX() == 0){
 			if(getChangeY() < 0) angle = -90;
@@ -305,7 +308,7 @@ public class Agent extends SimulationObject{
 		}
 		return angle;
 	}
-	double getMovingSpeed(){
+	public double getMovingSpeed(){
 		return Math.sqrt(Math.pow((float) (getChangeX()), 2) + Math.pow((float) (getChangeY()), 2));
 	}
 	MNetwork getNetwork(){

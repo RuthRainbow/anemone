@@ -1,17 +1,6 @@
 package group7.anemone;
 
-import group7.anemone.UI.UIAction;
-import group7.anemone.UI.UIAngle;
-import group7.anemone.UI.UIButton;
-import group7.anemone.UI.UIColorWheel;
-import group7.anemone.UI.UIDrawable3D;
-import group7.anemone.UI.UIDropdown;
-import group7.anemone.UI.UILabel;
-import group7.anemone.UI.UIProgress;
-import group7.anemone.UI.UISlider;
-import group7.anemone.UI.UITheme;
-import group7.anemone.UI.UIWindow;
-import group7.anemone.UI.Utilities;
+import group7.anemone.UI.*;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -40,7 +29,7 @@ public class Simulation extends PApplet {
 
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
 	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust;
-	UIAngle agentHeading;
+	UIVision agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed;
 	UIDropdown themeDrop;
 	UIColorWheel themeColorWheel;
@@ -241,7 +230,8 @@ public class Simulation extends PApplet {
 		winStats.setVisible(selectedAgent != null);
 
 		if(selectedAgent != null){
-			agentHeading.setAngle(selectedAgent.getViewHeading());
+			//agentHeading.setAngle(selectedAgent.getViewHeading());
+			agentHeading.setAgent(selectedAgent);
 			progHealth.setValue(selectedAgent.getHealth());
 			progHealth.setColor((int) (255 - 255 * selectedAgent.getHealth()), (int) (255 * selectedAgent.getHealth()), 0);
 			sliderX.setValue((double) selectedAgent.getX() / width);
@@ -258,6 +248,16 @@ public class Simulation extends PApplet {
 		}
 	}
 	private void setupUI(){
+		//Set colors of each element of simulation
+		theme = new UITheme();
+		theme.setColor("Background", color(0));
+		theme.setColor("Sidepanel", color(50));
+		theme.setColor("Food", color(0, 255, 0));
+		theme.setColor("Agent", color(255, 127, 0));
+		theme.setColor("Neuron", color(200));
+		theme.setColor("NeuronFired", color(0, 255, 0));
+		
+		//setup main window for UI elements
 		win = new UIWindow(this, 0, 0, screen.width, screen.height);
 		sidePanel = new UIWindow(this, 250, 0, 250, screen.height);
 		sidePanel.setIsLeft(false);
@@ -285,7 +285,8 @@ public class Simulation extends PApplet {
 		sidePanel.addObject(winStats);
 
 		//control to change the selected agents heading
-		agentHeading = new UIAngle(this, 10, 30, 50);
+		agentHeading = new UIVision(this, 10, 30, 50);
+		agentHeading.setTheme(theme);
 		agentHeading.setEventHandler(new UIAction(){
 			public void change(UIAngle ang){
 				if(selectedAgent != null){
@@ -423,7 +424,7 @@ public class Simulation extends PApplet {
 			    	line((int) (n1.x + offsetX), (int) n1.y, 0, (int) (n2.x + offsetX), (int) n2.y, 0);
 			    }
 
-			    //neuralRotation -= 0.02;
+			    neuralRotation -= 0.02;
 			}
 			private void addNode(int level, int max, MNeuron node){
 				Point2D.Double n1 = new Point2D.Double(level * 20, max);
@@ -451,14 +452,6 @@ public class Simulation extends PApplet {
 		lblSpeed = addStatLabel("X", 230);
 
 		//Themes window
-		theme = new UITheme();
-		theme.setColor("Background", color(0));
-		theme.setColor("Sidepanel", color(50));
-		theme.setColor("Food", color(0, 255, 0));
-		theme.setColor("Agent", color(255, 127, 0));
-		theme.setColor("Neuron", color(200));
-		theme.setColor("NeuronFired", color(0, 255, 0));
-
 		winTheme = new UIWindow(this, 0, 485, 200, 200);
 		winTheme.setIsTop(false);
 		sidePanel.addObject(winTheme);
