@@ -105,7 +105,8 @@ public class Environment {
 						//get the midpoint
 						Point2D.Double midPoint = new Point2D.Double((lineIntersection1.getX()+lineIntersection2.getX())/2,(lineIntersection1.y+lineIntersection2.y)/2);
 						//now it is simply a point pass to checkObject method 
-						result.add(checkObject(new Wall(midPoint,midPoint),ag));
+						SightInformation temp = checkObject(new Wall(midPoint,midPoint),ag);
+						if(temp != null) result.add(temp);
 						//NB creating a wall object here so that the object type is stored
 
 					}
@@ -125,7 +126,9 @@ public class Environment {
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
     	
 		for (SimulationObject ob : objects) { 
-			result.add(checkObject(ob,ag));
+			SightInformation temp = checkObject(ob,ag);
+			if(temp!= null)
+			result.add(temp);
 		}
 		return result;
 	}
