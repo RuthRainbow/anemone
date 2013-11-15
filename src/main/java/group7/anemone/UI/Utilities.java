@@ -52,13 +52,21 @@ public class Utilities {
 		double m2 = (line2.y2-line2.y1)/(line2.x2-line2.x1);
 		double c2 = line2.y1 - m2 * line2.x1;
 		
+		//if((m1 == Double.POSITIVE_INFINITY || m1 == Double.NEGATIVE_INFINITY) && (c1 == Double.POSITIVE_INFINITY || c1 == Double.NEGATIVE_INFINITY)) m1 = 0;
+		
+
+		
+		
 		//if the lines aren't parallel
 		if(m1 != m2){
 			//get x value of intersection
 			double intersectX = -(c1-c2)/(m1-m2);
+			if((m2 == Double.POSITIVE_INFINITY || m2 == Double.NEGATIVE_INFINITY) && (c2 == Double.POSITIVE_INFINITY || c2 == Double.NEGATIVE_INFINITY)) intersectX = line2.x1;
+			
 			//check it lies within both segments
 			boolean withinLine1 = Math.min(line1.x1,line1.x2) < intersectX && intersectX < Math.max(line1.x1, line1.x2);
 			boolean withinLine2 = Math.min(line2.x1,line2.x2) < intersectX && intersectX < Math.max(line2.x1, line2.x2);
+			if((m2 == Double.POSITIVE_INFINITY || m2 == Double.NEGATIVE_INFINITY) && (c2 == Double.POSITIVE_INFINITY || c2 == Double.NEGATIVE_INFINITY)) withinLine2 = true;
 			if(withinLine1  && withinLine2) {
 				//calculate y value of intersection
 				double intersectY = m1*intersectX + c1;
