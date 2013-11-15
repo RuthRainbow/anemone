@@ -280,7 +280,7 @@ public class Simulation extends PApplet {
 		btnGroupModes.selectButton(btnSelectAgent);
 
 		//Statistics window for the currently selected agent
-		winStats = new UIWindow(this, 0, 300, 300, 250);
+		winStats = new UIWindow(this, 0, 165, 300, 250);
 		winStats.setBackground(30);
 		winStats.setFixedBackground(true);
 		sidePanel.addObject(winStats);
@@ -453,7 +453,7 @@ public class Simulation extends PApplet {
 		lblSpeed = addStatLabel("X", 230);
 
 		//Themes window
-		winTheme = new UIWindow(this, 0, 485, 200, 200);
+		winTheme = new UIWindow(this, 0, 485, 250, 200);
 		winTheme.setIsTop(false);
 		sidePanel.addObject(winTheme);
 
