@@ -85,7 +85,7 @@ public class Environment {
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
 		for(Wall wl : walls){
 			//check if the wall is within the agent's viewable distance
-			if (wl.getLine().ptLineDist(ag.getCoordinates()) < ag.getFOV()){
+			if (wl.getLine().ptLineDist(ag.getCoordinates()) < ag.getVisionRange()){
 				
 				double increment = (ag.getFOV()*2)/ag.getNumSegments();
 				double headBelow = ag.getViewHeading() - ag.getFOV();
