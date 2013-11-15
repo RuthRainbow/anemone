@@ -15,6 +15,7 @@ public class UIObject {
 	protected int height = 0;
 	protected PApplet canvas;
 	protected boolean isVisible = true;
+	protected UITheme theme;
 
 	protected short r = 255;
 	protected short g = 255;
@@ -52,6 +53,9 @@ public class UIObject {
 	}
 	public void setBackground(int col){
 		this.bgColor = col;
+	}
+	public void setTheme(UITheme thm){
+		theme = thm;
 	}
 	public void setEventHandler(UIAction f){
 		events = f;

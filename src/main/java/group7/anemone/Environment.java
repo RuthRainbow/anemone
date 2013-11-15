@@ -34,33 +34,33 @@ public class Environment {
     // Method to get all collisions that occurred in the environment
     public ArrayList<Collision> updateCollisions() {
     	collisions = new ArrayList<Collision>();
-    	
+
     	for (Agent ag: fishes) { //for each agent, check for any collision
-    		
+
     		for (Agent aa: fishes) { // check if collides to any other agent
         		if(ag == aa) continue;
-        		
+
         		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
         			collisions.add(new Collision(ag, aa));
         		}
     		}
-    		
+
     		for (Food fd: food) { //check collisions to food
         		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
         			collisions.add(new Collision(ag, fd));
         		}
     		}
-    		
+
     		for (Wall wl: wall) {
     			if (wl.getLine().ptLineDist(ag.getCoordinates()) < 10){
     				collisions.add(new Collision(ag, wl));
     			}
     		}
 		}
-    	
+
     	return collisions;
     }
-    
+
     public void updateAgentsSight() {
     	//update what each agent can see
     	for (Agent ag: fishes) { 
@@ -74,11 +74,11 @@ public class Environment {
 
     		result.addAll(checkFOVWalls(wall,ag));
 
-    		
     		//return updated list
     		ag.updateCanSee(result);
 		}
     }
+
     
     private ArrayList<SightInformation> checkFOVWalls( ArrayList<Wall> walls, Agent ag) {
     	
@@ -183,13 +183,13 @@ public class Environment {
     // Method to get collisions for a specific agent
     protected ArrayList<Collision> GetCollision(Agent agent) {
     	ArrayList<Collision> result = new ArrayList<Collision>();
-    	
+
     	for (Collision cc: result) {
     		if(cc.getAgent() == agent){
     			result.add(cc);
     		}
 		}
-    	
+
     	return result;
     }
 
@@ -218,7 +218,7 @@ public class Environment {
 			genome[first][2] = 31;
 			genome[first][3] = 1;
 		}
-		
+
 		//Creates an agent with a generic genome for a network that has no hidden nodes
 		fishes.add(new Agent(coords, heading, parent, genome));
 	}
@@ -226,11 +226,11 @@ public class Environment {
 	void addFood(Point2D.Double coords){
 		food.add(new Food(coords));
 	}
-	
+
 	void addWall(Point2D.Double start, Point2D.Double end){
 		wall.add(new Wall(start, end));
 	}
-	
+
 	protected void removeAgent(Agent ag){
 		fishes.remove(ag);
 	}
@@ -258,6 +258,11 @@ public class Environment {
 		return food;
 	}
 
-
+	protected void Breed(Agent mother, Agent father) {
+		ArrayList<String> children = god.CreateOffspring(mother, father);
+		for (String child : children) {
+			//TODO add new agent to env.
+		}
+	}
 
 }

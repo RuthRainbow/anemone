@@ -25,8 +25,19 @@ public class Utilities {
 
 		return angle;
 	}
-	public static void circle(PApplet canvas, int x, int y, int r){
-		canvas.arc(x, y, r, r, 0, (float) (2*Math.PI));
+	public static void line(PApplet canvas, int x1, int y1, int len, double angle){
+		canvas.pushMatrix();
+		canvas.translate(x1, y1);
+		canvas.rotate((float) ((angle - 90) * Math.PI / 180));
+		canvas.line(0, 0, 0, len);
+		canvas.popMatrix();
+	}
+	public static void pointAtAngle(PApplet canvas, double x, double y, double dist, double angle){
+		canvas.pushMatrix();
+		canvas.translate((int) x, (int) y);
+		canvas.rotate((float) ((angle - 90) * Math.PI / 180));
+		canvas.point(0, (int) dist);
+		canvas.popMatrix();
 	}
 	public static boolean isPointInBox(int x, int y, int rx, int ry, int w, int h){
 		return (x >= rx && x <= rx + w && y >= ry && y <= ry + h);
