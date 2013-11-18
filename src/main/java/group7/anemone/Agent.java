@@ -1,5 +1,7 @@
 package group7.anemone;
 
+import group7.anemone.MNetwork.*;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 

@@ -1,5 +1,8 @@
 package group7.anemone;
 
+import group7.anemone.MNetwork.MNetwork;
+import group7.anemone.MNetwork.MNeuron;
+import group7.anemone.MNetwork.MSynapse;
 import group7.anemone.UI.*;
 
 import java.awt.event.MouseWheelEvent;
