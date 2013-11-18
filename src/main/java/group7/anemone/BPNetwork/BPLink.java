@@ -1,4 +1,4 @@
-package group7.anemone;
+package group7.anemone.BPNetwork;
 
 public class BPLink extends BasicLink{
 

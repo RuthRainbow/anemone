@@ -1,4 +1,4 @@
-package group7.anemone;
+package group7.anemone.MNetwork;
 
 /**
  * Izhikevich neuron parameters. Setting these to various configurations

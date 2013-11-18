@@ -1,4 +1,4 @@
-package group7.anemone;
+package group7.anemone.MNetwork;
 
 import java.util.ArrayList;
 
@@ -10,16 +10,16 @@ public class MNetwork {
 	private ArrayList<MNeuron> neurons;
 	private ArrayList<MSynapse> synapses;
 
-	MNetwork(ArrayList<MNeuron> neurons, ArrayList<MSynapse> synapses) {
+	public MNetwork(ArrayList<MNeuron> neurons, ArrayList<MSynapse> synapses) {
 		this.neurons = neurons;
 		this.synapses = synapses;
 	}
 
-	ArrayList<MNeuron> getNeurons() {
+	public ArrayList<MNeuron> getNeurons() {
 		return neurons;
 	}
 
-	ArrayList<MSynapse> getSynapses() {
+	public ArrayList<MSynapse> getSynapses() {
 		return synapses;
 	}
 }

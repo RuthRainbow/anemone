@@ -1,4 +1,4 @@
-package group7.anemone;
+package group7.anemone.BPNetwork;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

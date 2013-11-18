@@ -1,4 +1,4 @@
-package group7.anemone;
+package group7.anemone.MNetwork;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ public class MNeuron {
 	/* Pre and post synapses. */
 	private ArrayList<MSynapse> preSynapses, postSynapses;
 
-	MNeuron(MNeuronParams params, MNeuronState state, int nid) {
+	public MNeuron(MNeuronParams params, MNeuronState state, int nid) {
 		/* Initialise parameters and state. */
 		this.params = new MNeuronParams();
 		this.state = new MNeuronState();
@@ -60,11 +60,11 @@ public class MNeuron {
 		state.u += params.a*(params.b*state.v - state.u);
 	}
 
-	void addCurrent(double I) {
+	public void addCurrent(double I) {
 		state.I += I;
 	}
 
-	boolean isFiring() {
+	public boolean isFiring() {
 		if (state.v >= 30.0) {
 			return true;
 		}
@@ -73,15 +73,15 @@ public class MNeuron {
 		}
 	}
 
-	int getID() {
+	public int getID() {
 		return nid;
 	}
 
-	ArrayList<MSynapse> getPreSynapses() {
+	public ArrayList<MSynapse> getPreSynapses() {
 		return preSynapses;
 	}
 
-	ArrayList<MSynapse> getPostSynapses() {
+	public ArrayList<MSynapse> getPostSynapses() {
 		return postSynapses;
 	}
 }

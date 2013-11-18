@@ -1,4 +1,4 @@
-package group7.anemone;
+package group7.anemone.MNetwork;
 
 import java.util.ArrayList;
 
@@ -25,7 +25,7 @@ public class MSimulation {
 	 * @param	network 	the neural network to be simulated
 	 * @oaram 	config 		the parameters for the simulation
 	 */
-	MSimulation(MNetwork network, MSimulationConfig config) {
+	public MSimulation(MNetwork network, MSimulationConfig config) {
 		/* Initialise the simulation configuration. */
 		this.config = new MSimulationConfig();
 

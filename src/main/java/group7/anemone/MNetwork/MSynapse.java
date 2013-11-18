@@ -1,4 +1,4 @@
-package group7.anemone;
+package group7.anemone.MNetwork;
 
 /**
  * The MSynapse class represents one synapse. We allow an MSynapse to
@@ -15,30 +15,30 @@ public class MSynapse {
 	private double weight;
 	private int delay;
 
-	MSynapse(MNeuron pre, MNeuron post, double weight, int delay) {
+	public MSynapse(MNeuron pre, MNeuron post, double weight, int delay) {
 		this.pre = pre;
 		this.post = post;
 		this.weight = weight;
 		this.delay = delay;
 	}
 
-	MNeuron getPreNeuron() {
+	public MNeuron getPreNeuron() {
 		return pre;
 	}
 
-	MNeuron getPostNeuron() {
+	public MNeuron getPostNeuron() {
 		return post;
 	}
 
-	double getWeight() {
+	public double getWeight() {
 		return weight;
 	}
 
-	int getDelay() {
+	public int getDelay() {
 		return delay;
 	}
 
-	void doPSP() {
+	public void doPSP() {
 		post.addCurrent(weight);
 	}
 }
