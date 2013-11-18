@@ -10,7 +10,6 @@ public class Agent extends SimulationObject{
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
-	private String stringRep = "";
 	private double fitness = 0;
 	private double health = 1;
 	private int age = 0; // Age of agent in number of updates.
@@ -37,16 +36,21 @@ public class Agent extends SimulationObject{
 	private MSimulation msimulation;
 	private NInterface ninterface;
 
-	Agent(Point2D.Double coords, double viewHeading, PApplet p, int[][] newGenome) {
+	public Agent(Point2D.Double coords, double viewHeading, PApplet p, int[][] newGenome) {
 		super(coords);
 		ninterface = new NInterface(10);
 		canSee = new ArrayList<SightInformation>();
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
-		genome=newGenome;
+		this.genome=newGenome;
 		constructNetwork();
 		createSimpleNetwork();
+	}
+
+	public Agent(int[][] newGenome) {
+		super(new Point2D.Double());
+		this.genome = newGenome;
 	}
 
 	public void constructNetwork() {
@@ -69,12 +73,6 @@ public class Agent extends SimulationObject{
 
 	public void stepNetwork() {
 		netSim.step();
-	}
-
-	// TODO make this so we can create a new agent from a string rep.
-	public Agent(String string) {
-		super(new Point2D.Double(0, 0));
-		this.stringRep = string;
 	}
 
 	private void createSimpleNetwork() {
@@ -155,8 +153,8 @@ public class Agent extends SimulationObject{
 		msimulation.step();
 	}
 
-	protected String getStringRep() {
-		return this.stringRep;
+	protected int[][] getStringRep() {
+		return this.genome;
 	}
 
 	protected double getFitness() {

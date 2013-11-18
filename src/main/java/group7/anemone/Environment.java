@@ -62,10 +62,10 @@ public class Environment {
 
     public void updateAgentsSight() {
     	//update what each agent can see
-    	for (Agent ag: fishes) { 
-    		
+    	for (Agent ag: fishes) {
+
     		ArrayList<SightInformation> result = new ArrayList<SightInformation>();
-    		
+
     		//check for objects within FOV
     		result.addAll(checkFOV(new ArrayList<SimulationObject>(food),ag));
     		result.addAll(checkFOV(new ArrayList<SimulationObject>(fishes),ag));
@@ -78,32 +78,32 @@ public class Environment {
 		}
     }
 
-    
+
     private ArrayList<SightInformation> checkFOVWalls( ArrayList<Wall> walls, Agent ag) {
-    	
+
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
 		for(Wall wl : walls){
 			//check if the wall is within the agent's viewable distance
 			if (wl.getLine().ptLineDist(ag.getCoordinates()) < ag.getVisionRange()){
-				
+
 				double increment = (ag.getFOV()*2)/ag.getNumSegments();
 				double headBelow = ag.getViewHeading() - ag.getFOV();
-				//get the lines which make up the first segment 
+				//get the lines which make up the first segment
 				Line2D.Double currentSegmentLine1 = Utilities.generateLine(ag.getCoordinates(),ag.getVisionRange(),headBelow);
 				Line2D.Double currentSegmentLine2 = Utilities.generateLine(ag.getCoordinates(),ag.getVisionRange(),(headBelow + increment));
-				
+
 				for(int i=1;i<=ag.getNumSegments();i++){
 					//check if the wall intersects both lines indicating it passes through
 					boolean intersectsLine1 = currentSegmentLine1.intersectsLine(wl.getLine());
 					boolean intersectsLine2 = currentSegmentLine2.intersectsLine(wl.getLine());
-					
+
 					if(intersectsLine1 && intersectsLine2){
 						//find the intersection points for each line with the wall
 						Point2D.Double lineIntersection1 = Utilities.findIntersection(currentSegmentLine1, wl.getLine());
 						Point2D.Double lineIntersection2 = Utilities.findIntersection(currentSegmentLine2, wl.getLine());
 						//get the midpoint
 						Point2D.Double midPoint = new Point2D.Double((lineIntersection1.getX()+lineIntersection2.getX())/2,(lineIntersection1.y+lineIntersection2.y)/2);
-						//now it is simply a point pass to checkObject method 
+						//now it is simply a point pass to checkObject method
 						SightInformation temp = checkObject(new Wall(midPoint,midPoint),ag);
 						if(temp != null) result.add(temp);
 						//NB creating a wall object here so that the object type is stored
@@ -113,18 +113,18 @@ public class Environment {
 					currentSegmentLine1 = currentSegmentLine2;
 					currentSegmentLine2 = Utilities.generateLine(ag.getCoordinates(), ag.getVisionRange(), headBelow + increment * (i+1));
 				}
-				
+
 			}
-			
+
 		}
-    	
+
 		return result;
 	}
 
 	private ArrayList<SightInformation> checkFOV(ArrayList<SimulationObject> objects, Agent ag) {
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
-    	
-		for (SimulationObject ob : objects) { 
+
+		for (SimulationObject ob : objects) {
 			SightInformation temp = checkObject(ob,ag);
 			if(temp!= null)
 			result.add(temp);
@@ -133,7 +133,7 @@ public class Environment {
 	}
 
 	private SightInformation checkObject(SimulationObject ob, Agent ag) {
-		
+
     	//angle of the top and bottom of the agent's field of view
 		double headBelow = ag.getViewHeading() - ag.getFOV();
 		double headAbove = ag.getViewHeading() + ag.getFOV();
@@ -149,12 +149,12 @@ public class Environment {
 			}else{
 				if (ob.getY() >= ag.getY()) angleBetween = 180 + angleBetween;
 				else angleBetween += 180;
-			}    
+			}
 			//check if the object falls within field of view
 			if(angleBetween >= headBelow && angleBetween <= headAbove){
 				return(new SightInformation(ag, ob, distance, (angleBetween - headBelow) / (ag.getFOV() * 2)));
-				
-			//special cases where field of view crosses 0/360 divide	
+
+			//special cases where field of view crosses 0/360 divide
 			}else if(headBelow < 0){
 				if(angleBetween >= 360 + headBelow) {
 					if(ob instanceof Wall) {
@@ -170,7 +170,7 @@ public class Environment {
 					return(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove-360 ? angleBetween + 360 : angleBetween ) - headBelow) / (ag.getFOV() * 2)));
 				}
 			}
-			
+
 		}
 		return null;
 	}
@@ -258,8 +258,8 @@ public class Environment {
 	}
 
 	protected void Breed(Agent mother, Agent father) {
-		ArrayList<String> children = god.CreateOffspring(mother, father);
-		for (String child : children) {
+		ArrayList<int[][]> children = god.CreateOffspring(mother, father);
+		for (int[][] child : children) {
 			//TODO add new agent to env.
 		}
 	}

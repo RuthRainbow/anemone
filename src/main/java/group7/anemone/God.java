@@ -17,8 +17,8 @@ public class God {
 	}
 
 	// Method to create offspring from 2 given parents.
-	public ArrayList<String> CreateOffspring(Agent mother, Agent father) {
-		ArrayList<String> children = new ArrayList<String>();
+	public ArrayList<int[][]> CreateOffspring(Agent mother, Agent father) {
+		ArrayList<int[][]> children = new ArrayList<int[][]>();
 		children.add(crossover(mother.getStringRep(), father.getStringRep()));
 		if (getRandom() < mutation_chance) {
 			children.add(crossover(mother.getStringRep(), father.getStringRep()));
@@ -33,45 +33,59 @@ public class God {
 	}
 
 	// Method for crossover - return crossover method you want.
-	public String crossover(String mother, String father) {
+	public int[][] crossover(int[][] mother, int[][] father) {
 		return SinglePointCrossover(mother, father);
 	}
 
 	// Crossover by simply picking the first half from the mother and second half from father.
-	public String SinglePointCrossover(String mother, String father) {
-		int crossover = (int) Math.floor(mother.length()/2);
-		StringBuilder child_builder = new StringBuilder();
-		child_builder.append(mother.substring(0, crossover));
-		child_builder.append(father.substring(crossover));
-		return child_builder.toString();
+	public int[][] SinglePointCrossover(int[][] mother, int[][] father) {
+		int crossover = (int) Math.floor(mother.length/2);
+		int[][] child = new int[mother.length][mother[0].length];
+		// THIS ASSUMES MOTHER AND FATHER'S GENOMES ARE THE SAME LENGTH
+		for (int y = 0; y < mother[0].length; y++) {
+			for (int x = 0; x < crossover; x++) {
+				child[x][y] = mother[x][y];
+			}
+		}
+		for (int y = 0; y < mother[0].length; y++) {
+			for (int x = crossover; x < mother.length; x++) {
+				child[x][y] = father[x][y];
+			}
+		}
+		return child;
+	}
+
+	private void Print(int[][] array) {
+		for (int y = 0; y < array[0].length; y++) {
+			for (int x = 0; x < array.length; x++) {
+				System.out.print(array[x][y] + " ");
+			}
+			System.out.println();
+		}
 	}
 
 	// Crossover where each gene is taken at random from either mother or father.
-	public String UniformCrossover(String mother, String father) {
-		StringBuilder child_builder = new StringBuilder();
-		char[] mother_arr = mother.toCharArray();
-		char[] father_arr = father.toCharArray();
-		for (int i = 0; i < mother.length(); i++) {
-			double crossover_chance = getRandom();
-			if (crossover_chance < 0.5) {
-				child_builder.append(mother_arr[i]);
-			} else {
-				child_builder.append(father_arr[i]);
+	public int[][] UniformCrossover(int[][] mother, int[][] father) {
+		int[][] child = new int[mother.length][mother[0].length];
+		for (int y = 0; y < mother[0].length; y++) {
+			for (int x = 0; x < mother.length; x++) {
+				double crossover_chance = getRandom();
+				if (crossover_chance < 0.5) {
+					child[x][y] = mother[x][y];
+				} else {
+					child[x][y] = father[x][y];
+				}
 			}
 		}
-		return child_builder.toString();
+		Print(child);
+		return child;
 	}
 
 	// Mutate a single gene in the child by replacing with a '!' character
-	public String mutate(String child) {
-		int mutationPoint = (int) Math.floor(getRandom() * child.length());
-		char[] child_arr = child.toCharArray();
-		child_arr[mutationPoint] = '!';
-		StringBuilder result = new StringBuilder();
-		for (char c : child_arr) {
-			result.append(c);
-		}
-		return result.toString();
+	public int[][] mutate(int[][] child) {
+		int mutationPoint = (int) Math.floor(getRandom() * child.length*child[0].length);
+		child[mutationPoint % child.length][mutationPoint % child[0].length] = 9;
+		return child;
 	}
 
 	protected ArrayList<Agent> Selection(ArrayList<Agent> agents) {
@@ -99,7 +113,7 @@ public class God {
 	}
 
 	// Method to breed the entire population
-	protected ArrayList<String> BreedPopulation(ArrayList<Agent> agents) {
+	protected ArrayList<int[][]> BreedPopulation(ArrayList<Agent> agents) {
 		// Selection
 		ArrayList<Agent> selectedAgents = Selection(agents);
 
@@ -120,8 +134,8 @@ public class God {
 	}
 
 	// Packing social disaster - all elite individuals randomised except 1
-	protected ArrayList<String> SocialDisasterPacking(ArrayList<Agent> agents) {
-		ArrayList<String> children = new ArrayList<String>();
+	protected ArrayList<int[][]> SocialDisasterPacking(ArrayList<Agent> agents) {
+		ArrayList<int[][]> children = new ArrayList<int[][]>();
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
 			if (agent.getFitness() == best_fitness) {
@@ -139,8 +153,8 @@ public class God {
 
 	// Judgement day social disaster - all individuals randomised except 1 elite
 	// (might be SUPER EXPENSIVE)
-	protected ArrayList<String> SocialDisasterJudgement(ArrayList<Agent> agents) {
-		ArrayList<String> children = new ArrayList<String>();
+	protected ArrayList<int[][]> SocialDisasterJudgement(ArrayList<Agent> agents) {
+		ArrayList<int[][]> children = new ArrayList<int[][]>();
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
 			if (agent.getFitness() == best_fitness && !elite_agent_in) {
@@ -152,9 +166,9 @@ public class God {
 		return children;
 	}
 
-	protected ArrayList<String> GenerateChildren(ArrayList<Agent> selectedAgents) {
+	protected ArrayList<int[][]> GenerateChildren(ArrayList<Agent> selectedAgents) {
 		// Crossover - should select partner randomly (unless we are having genders).
-		ArrayList<String> children = new ArrayList<String>();
+		ArrayList<int[][]> children = new ArrayList<int[][]>();
 		while (selectedAgents.size() > 1) {
 			Agent mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
 			selectedAgents.remove(mother);
@@ -169,7 +183,7 @@ public class God {
 		}
 
 		// Random mutation
-		for (String child : children) {
+		for (int[][] child : children) {
 			if (getRandom() < 0.05) {
 				child = mutate(child);
 			}
@@ -179,7 +193,7 @@ public class God {
 	}
 
 	// Return the string representation of a new agent.
-	protected String RandomlyGenerate() {
+	protected int[][] RandomlyGenerate() {
 		throw new NotImplementedException();
 	}
 
