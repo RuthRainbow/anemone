@@ -92,8 +92,6 @@ public class MSimulation {
 			if (n.isFiring()) {
 				/* Add this neuron's postsynapses to the event table. */
 				queueNeuronSynapses(n);
-
-				System.out.println("Neuron "+n.getID()+" is firing!");
 			}
 		}
 	}
