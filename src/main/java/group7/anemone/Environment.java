@@ -210,13 +210,9 @@ public class Environment {
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
-		int[][] genome = new int[32][4];
-		for (int first=0; first<32; first++) {
-			genome[first][0] = first;
-			genome[first][1] = first;
-			genome[first][2] = 31;
-			genome[first][3] = 1;
-		}
+		Gene[] genome = new Gene[2];
+		genome[0] = new Gene(1, new int[] {1,3},1.0,1);
+		genome[1] = new Gene(2, new int[] {2,3},1.0,1);
 
 		//Creates an agent with a generic genome for a network that has no hidden nodes
 		fishes.add(new Agent(coords, heading, parent, genome));
