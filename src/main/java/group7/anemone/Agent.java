@@ -98,23 +98,40 @@ public class Agent extends SimulationObject{
 		/* Create the neurons. */
 		MNeuron sn1 = new MNeuron(nparams, nstate, 0);
 		MNeuron sn2 = new MNeuron(nparams, nstate, 1);
-		MNeuron mn = new MNeuron(nparams, nstate, 2);
+		MNeuron snL = new MNeuron(nparams, nstate, 2);
+		MNeuron snR = new MNeuron(nparams, nstate, 3);
+		MNeuron mn = new MNeuron(nparams, nstate, 4);
+		MNeuron mnL = new MNeuron(nparams, nstate, 5);
+		MNeuron mnR = new MNeuron(nparams, nstate, 6);
 
 		neurons.add(sn1);
 		neurons.add(sn2);
+		neurons.add(snL);
+		neurons.add(snR);
 		neurons.add(mn);
+		neurons.add(mnL);
+		neurons.add(mnR);
 
 		/* Create the synapses. */
-		MSynapse ss1 = new MSynapse(sn1, mn, 1.0, 1);
-		MSynapse ss2 = new MSynapse(sn2, mn, 1.0, 1);
+		MSynapse ss1 = new MSynapse(sn1, mn, 4.0, 1);
+		MSynapse ss2 = new MSynapse(sn2, mn, 4.0, 1);
+		MSynapse ssL = new MSynapse(snL, mnL, 4.0, 1);
+		MSynapse ssR = new MSynapse(snR, mnR, 4.0, 1);
+
 		synapses.add(ss1);
 		synapses.add(ss2);
+		synapses.add(ssL);
+		synapses.add(ssR);
 
 		/* This should probably be done by MNetwork. */
 		sn1.getPostSynapses().add(ss1);
 		sn2.getPostSynapses().add(ss2);
+		snL.getPostSynapses().add(ssL);
+		snR.getPostSynapses().add(ssR);
 		mn.getPreSynapses().add(ss1);
 		mn.getPreSynapses().add(ss2);
+		mnL.getPreSynapses().add(ssL);
+		mnR.getPreSynapses().add(ssR);
 
 		/* Create the network. */
 		this.mnetwork = new MNetwork(neurons, synapses);
@@ -141,10 +158,28 @@ public class Agent extends SimulationObject{
 					//System.out.println("Adding current "+ninterface.affectors.vFood[5]);
 					n.addCurrent(ninterface.affectors.vFood[5]);
 					break;
-				/* Motor neuron. */
 				case 2:
+					System.out.println("Adding current "+ninterface.affectors.vFood[0]);
+					n.addCurrent(ninterface.affectors.vFood[0]);
+					break;
+				case 3:
+					System.out.println("Adding current "+ninterface.affectors.vFood[9]);
+					n.addCurrent(ninterface.affectors.vFood[9]);
+					break;
+				/* Motor neuron. */
+				case 4:
 					if (n.isFiring()) {
 						thrust(2);
+					}
+					break;
+				case 5:
+					if (n.isFiring()) {
+						changeViewHeading(-20.0);
+					}
+					break;
+				case 6:
+					if (n.isFiring()) {
+						changeViewHeading(20.0);
 					}
 					break;
 				default:
