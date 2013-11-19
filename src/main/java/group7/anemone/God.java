@@ -19,6 +19,9 @@ public class God {
 	// Method to create offspring from 2 given parents.
 	public ArrayList<int[][]> CreateOffspring(Agent mother, Agent father) {
 		ArrayList<int[][]> children = new ArrayList<int[][]>();
+		
+		/*
+		ArrayList<int[][]> children = new ArrayList<int[][]>();
 		children.add(crossover(mother.getStringRep(), father.getStringRep()));
 		if (getRandom() < mutation_chance) {
 			children.add(crossover(mother.getStringRep(), father.getStringRep()));
@@ -29,6 +32,7 @@ public class God {
 			}
 		}
 
+		*/
 		return children;
 	}
 
@@ -136,6 +140,8 @@ public class God {
 	// Packing social disaster - all elite individuals randomised except 1
 	protected ArrayList<int[][]> SocialDisasterPacking(ArrayList<Agent> agents) {
 		ArrayList<int[][]> children = new ArrayList<int[][]>();
+		
+		/*
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
 			if (agent.getFitness() == best_fitness) {
@@ -148,6 +154,8 @@ public class God {
 				children.add(agent.getStringRep());
 			}
 		}
+		*/
+		
 		return children;
 	}
 
@@ -155,6 +163,8 @@ public class God {
 	// (might be SUPER EXPENSIVE)
 	protected ArrayList<int[][]> SocialDisasterJudgement(ArrayList<Agent> agents) {
 		ArrayList<int[][]> children = new ArrayList<int[][]>();
+		
+		/*
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
 			if (agent.getFitness() == best_fitness && !elite_agent_in) {
@@ -163,12 +173,16 @@ public class God {
 		    	children.add(RandomlyGenerate());
 			}
 		}
+		*/
+		
 		return children;
 	}
 
 	protected ArrayList<int[][]> GenerateChildren(ArrayList<Agent> selectedAgents) {
 		// Crossover - should select partner randomly (unless we are having genders).
 		ArrayList<int[][]> children = new ArrayList<int[][]>();
+		
+		/*
 		while (selectedAgents.size() > 1) {
 			Agent mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
 			selectedAgents.remove(mother);
@@ -181,6 +195,7 @@ public class God {
 				children.add(crossover(mother.getStringRep(), father.getStringRep()));
 			}
 		}
+		*/
 
 		// Random mutation
 		for (int[][] child : children) {

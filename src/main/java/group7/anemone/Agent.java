@@ -19,7 +19,6 @@ public class Agent extends SimulationObject{
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
-	private MSimulation netSim;
 
 	/*
 	 * GENOME LAYOUT:
@@ -30,7 +29,7 @@ public class Agent extends SimulationObject{
 	 * 		* VALUE 3: Node that a link connects to
 	 * 		* VALUE 4: Enabled/disabled gene
 	 */
-	private int[][] genome;
+	private Gene[] genome;
 
 	private int configNumSegments = 10;
 
@@ -38,7 +37,7 @@ public class Agent extends SimulationObject{
 	private MSimulation msimulation;
 	private NInterface ninterface;
 
-	public Agent(Point2D.Double coords, double viewHeading, PApplet p, int[][] newGenome) {
+	public Agent(Point2D.Double coords, double viewHeading, PApplet p, Gene[] newGenome) {
 		super(coords);
 		ninterface = new NInterface(10);
 		canSee = new ArrayList<SightInformation>();
@@ -46,35 +45,12 @@ public class Agent extends SimulationObject{
 		this.viewHeading = viewHeading;
 		thrust(1);
 		this.genome=newGenome;
-		constructNetwork();
 		createSimpleNetwork();
 	}
 
-	public Agent(int[][] newGenome) {
+	public Agent(Gene[] newGenome) {
 		super(new Point2D.Double());
 		this.genome = newGenome;
-	}
-
-	public void constructNetwork() {
-		MSimulationConfig config = new MSimulationConfig();
-		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
-		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
-
-		config.eventHorizon=100;
-
-		for (int x=0; x<genome.length; x++) { //For every gene in the genome
-			if (genome[x][3]==1) {	//If the gene is active...
-				//Create node described at index 1
-				//Create node described at index 2
-				//Create link between pre and post nodes
-			}
-		}
-		MNetwork network = new MNetwork(neurons,synapses);
-		netSim = new MSimulation(network, config); //Create the simulator with this network class
-	}
-
-	public void stepNetwork() {
-		netSim.step();
 	}
 
 	private void createSimpleNetwork() {
@@ -96,6 +72,8 @@ public class Agent extends SimulationObject{
 		nstate.I = 0.0;
 
 		/* Create the neurons. */
+		
+		/*
 		MNeuron sn1 = new MNeuron(nparams, nstate, 0);
 		MNeuron sn2 = new MNeuron(nparams, nstate, 1);
 		MNeuron snL = new MNeuron(nparams, nstate, 2);
@@ -112,7 +90,7 @@ public class Agent extends SimulationObject{
 		neurons.add(mnL);
 		neurons.add(mnR);
 
-		/* Create the synapses. */
+		// Create the synapses. 
 		MSynapse ss1 = new MSynapse(sn1, mn, 4.0, 1);
 		MSynapse ss2 = new MSynapse(sn2, mn, 4.0, 1);
 		MSynapse ssL = new MSynapse(snL, mnL, 4.0, 1);
@@ -123,7 +101,7 @@ public class Agent extends SimulationObject{
 		synapses.add(ssL);
 		synapses.add(ssR);
 
-		/* This should probably be done by MNetwork. */
+		// This should probably be done by MNetwork.
 		sn1.getPostSynapses().add(ss1);
 		sn2.getPostSynapses().add(ss2);
 		snL.getPostSynapses().add(ssL);
@@ -132,6 +110,33 @@ public class Agent extends SimulationObject{
 		mn.getPreSynapses().add(ss2);
 		mnL.getPreSynapses().add(ssL);
 		mnR.getPreSynapses().add(ssR);
+		*/
+		
+		for (int x=0; x<genome.length; x++) {
+			int preNodeID = genome[x].linkedNodes[0];
+			int postNodeID = genome[x].linkedNodes[1];
+			
+			
+			int maxNeuron = Math.max(preNodeID, postNodeID); //Finds the max neuron to make sure that there are enough neurons in the arraylist
+			maxNeuron++;
+			if (maxNeuron>neurons.size()) {	
+				int initialSize = neurons.size();
+				//If the neuron linked to is beyond the current scope of the network, you know you'll need at least that many, so we had better make them now
+				int difference = maxNeuron-initialSize;
+				for(int y=0; y<difference; y++) {
+					int newNeuronID = initialSize+y;
+					System.out.println("Adding neuron ID: " + newNeuronID);
+					neurons.add(new MNeuron(nparams, nstate, newNeuronID)); 
+				}
+			}
+			
+			//Now that we are sure there are enough neurons in the arraylist for links to be made for this gene, we can make the synapse.
+			MSynapse newSyn = new MSynapse(neurons.get(preNodeID), neurons.get(postNodeID), genome[x].weight, genome[x].delay);
+			synapses.add(newSyn);
+			
+			neurons.get(preNodeID).getPostSynapses().add(newSyn);
+			neurons.get(postNodeID).getPreSynapses().add(newSyn);
+		}
 
 		/* Create the network. */
 		this.mnetwork = new MNetwork(neurons, synapses);
@@ -190,7 +195,7 @@ public class Agent extends SimulationObject{
 		msimulation.step();
 	}
 
-	protected int[][] getStringRep() {
+	protected Gene[] getStringRep() {
 		return this.genome;
 	}
 
