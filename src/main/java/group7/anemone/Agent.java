@@ -156,6 +156,9 @@ public class Agent extends SimulationObject{
 
 	private void updateMNetwork() {
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
+		int thrustNeuronID = neurons.size()-3;
+		int turnNegativeNeuronID = neurons.size()-2;
+		int turnPositiveNeuronID = neurons.size()-1;
 
 		/* Apply inputs from sensors to network. */
 		for (MNeuron n : neurons) {
@@ -170,31 +173,32 @@ public class Agent extends SimulationObject{
 					n.addCurrent(ninterface.affectors.vFood[5]);
 					break;
 				case 2:
-					System.out.println("Adding current "+ninterface.affectors.vFood[0]);
+					//System.out.println("Adding current "+ninterface.affectors.vFood[0]);
 					n.addCurrent(ninterface.affectors.vFood[0]);
 					break;
 				case 3:
-					System.out.println("Adding current "+ninterface.affectors.vFood[9]);
+					//System.out.println("Adding current "+ninterface.affectors.vFood[9]);
 					n.addCurrent(ninterface.affectors.vFood[9]);
 					break;
 				/* Motor neuron. */
-				case 4:
-					if (n.isFiring()) {
-						thrust(2);
-					}
-					break;
-				case 5:
-					if (n.isFiring()) {
-						changeViewHeading(-20.0);
-					}
-					break;
-				case 6:
-					if (n.isFiring()) {
-						changeViewHeading(20.0);
-					}
-					break;
 				default:
 					break;
+			}
+			
+			if (n.getID()==thrustNeuronID) {
+				if (n.isFiring()) {
+					thrust(2);
+				}
+			}
+			if (n.getID()==turnNegativeNeuronID) {
+				if (n.isFiring()) {
+					changeViewHeading(-5.0);
+				}
+			}
+			if (n.getID()==turnPositiveNeuronID) {
+				if (n.isFiring()) {
+					changeViewHeading(5.0);
+				}
 			}
 		}
 
