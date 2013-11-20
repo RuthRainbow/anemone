@@ -1,95 +1,32 @@
 package group7.anemone;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class God {
 
-	private double mutation_chance = 0.001f;
+	// NEAT uses an absolutely massive mutation chance
+	private double mutation_chance = 0.03f;
 	private final double twin_chance = 0.05f;
 
 	private double best_fitness = 0;
 	private double worst_fitness = 1;
 	private int no_improvement_count = 0;
 
+	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
+	private int next_marker = 5;
+	private ArrayList<Gene> newGenes;
+
 	// This is inside it's own method to make unittesting easier.
 	public double getRandom() {
 		return Math.random();
 	}
 
-	// Method to create offspring from 2 given parents.
-	public ArrayList<int[][]> CreateOffspring(Agent mother, Agent father) {
-		ArrayList<int[][]> children = new ArrayList<int[][]>();
-		
-		/*
-		ArrayList<int[][]> children = new ArrayList<int[][]>();
-		children.add(crossover(mother.getStringRep(), father.getStringRep()));
-		if (getRandom() < mutation_chance) {
-			children.add(crossover(mother.getStringRep(), father.getStringRep()));
-		}
-		for (int i = 0; i < children.size(); i++) {
-			if (getRandom() < twin_chance) {
-				children.set(i, mutate(children.get(i)));
-			}
-		}
-
-		*/
-		return children;
-	}
-
-	// Method for crossover - return crossover method you want.
-	public int[][] crossover(int[][] mother, int[][] father) {
-		return SinglePointCrossover(mother, father);
-	}
-
-	// Crossover by simply picking the first half from the mother and second half from father.
-	public int[][] SinglePointCrossover(int[][] mother, int[][] father) {
-		int crossover = (int) Math.floor(mother.length/2);
-		int[][] child = new int[mother.length][mother[0].length];
-		// THIS ASSUMES MOTHER AND FATHER'S GENOMES ARE THE SAME LENGTH
-		for (int y = 0; y < mother[0].length; y++) {
-			for (int x = 0; x < crossover; x++) {
-				child[x][y] = mother[x][y];
-			}
-		}
-		for (int y = 0; y < mother[0].length; y++) {
-			for (int x = crossover; x < mother.length; x++) {
-				child[x][y] = father[x][y];
-			}
-		}
-		return child;
-	}
-
-	private void Print(int[][] array) {
-		for (int y = 0; y < array[0].length; y++) {
-			for (int x = 0; x < array.length; x++) {
-				System.out.print(array[x][y] + " ");
-			}
-			System.out.println();
-		}
-	}
-
-	// Crossover where each gene is taken at random from either mother or father.
-	public int[][] UniformCrossover(int[][] mother, int[][] father) {
-		int[][] child = new int[mother.length][mother[0].length];
-		for (int y = 0; y < mother[0].length; y++) {
-			for (int x = 0; x < mother.length; x++) {
-				double crossover_chance = getRandom();
-				if (crossover_chance < 0.5) {
-					child[x][y] = mother[x][y];
-				} else {
-					child[x][y] = father[x][y];
-				}
-			}
-		}
-		Print(child);
-		return child;
-	}
-
-	// Mutate a single gene in the child by replacing with a '!' character
-	public int[][] mutate(int[][] child) {
-		int mutationPoint = (int) Math.floor(getRandom() * child.length*child[0].length);
-		child[mutationPoint % child.length][mutationPoint % child[0].length] = 9;
-		return child;
+	// Method to breed the entire population
+	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents) {
+		newGenes = new ArrayList<Gene>();
+		ArrayList<Agent> selectedAgents = Selection(agents);
+		return GenerateChildren(selectedAgents);
 	}
 
 	protected ArrayList<Agent> Selection(ArrayList<Agent> agents) {
@@ -116,32 +53,164 @@ public class God {
 		return selectedAgents;
 	}
 
-	// Method to breed the entire population
-	protected ArrayList<int[][]> BreedPopulation(ArrayList<Agent> agents) {
-		// Selection
-		ArrayList<Agent> selectedAgents = Selection(agents);
+	protected ArrayList<Gene[]> GenerateChildren(ArrayList<Agent> selectedAgents) {
+		// Crossover - should select partner randomly (unless we are having genders).
+		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 
-		// If not enough genetic diversity increase the chance of mutation.
-		// If plenty of genetic diversity reset the change of mutation.
-		if (best_fitness - worst_fitness < 0.1 || no_improvement_count > 10) {
-			mutation_chance *= 2;
-		} else if (best_fitness - worst_fitness > 0.3 || no_improvement_count == 0) {
-			mutation_chance = 0.001;
+		while (selectedAgents.size() > 1) {
+			Agent mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
+			selectedAgents.remove(mother);
+			Agent father = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
+			selectedAgents.remove(father);
+			// If mother and father are the same, just mutate.
+			if (mother.getStringRep().equals(father.getStringRep())) {
+				children.add(mutate(mother.getStringRep()));
+			} else {
+				children.add(crossover(father, mother));
+			}
 		}
 
-		// If no improvement for many generations, start a social disaster.
-		if (no_improvement_count > 100) {
-			return SocialDisasterPacking(agents);
-		} else { // Else generate children normally...
-			return GenerateChildren(selectedAgents);
+		// Put every child through mutation process
+		for (Gene[] child : children) {
+			child = mutate(child);
+		}
+
+		return children;
+	}
+
+	// Method to create offspring from 2 given parents.
+	protected ArrayList<Gene[]> CreateOffspring(Agent mother, Agent father) {
+		newGenes = new ArrayList<Gene>();
+		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+
+		children.add(crossover(mother, father));
+		if (getRandom() < twin_chance) {
+			children.add(crossover(mother, father));
+		}
+		for (int i = 0; i < children.size(); i++) {
+			children.set(i, mutate(children.get(i)));
+		}
+		return children;
+	}
+
+	protected Gene[] crossover(Agent mother, Agent father) {
+		if (mother.getFitness() > father.getFitness()) {
+			return crossover(mother.getStringRep(), father.getStringRep());
+		} else {
+			return crossover(father.getStringRep(), mother.getStringRep());
 		}
 	}
 
+	// Method for crossover - return crossover method you want.
+	// The mother should always be the parent with the highest fitness.
+	// TODO may be a problem if they have equal fitness that one is always dominant
+	private Gene[] crossover(Gene[] dominant, Gene[] recessive) {
+		// TODO this is horrid and won't work with mutation
+		int length = dominant.length > recessive.length? dominant.length : recessive.length;
+		Gene[] child = new Gene[length];
+		int childIndex = 0;
+
+		// "Match" genes...
+		HashMap<Gene, Gene> matches = new HashMap<Gene, Gene>();
+		int marker = 0;
+		for (int i = 0; i < dominant.length; i++) {
+			for (int j = marker; j < recessive.length; j++) {
+				if (dominant[i].historicalMarker == recessive[j].historicalMarker) {
+					marker = j + 1;
+					matches.put(dominant[i], recessive[j]);
+				}
+			}
+		}
+
+		// Generate the child
+		for (int i = 0; i < dominant.length; i++) {
+			Gene gene = dominant[i];
+			if (matches.containsKey(gene)) {
+				// Randomly select matched gene from either parent
+				if (getRandom() < 0.5) {
+					child[childIndex] = gene;
+				} else {
+					child[childIndex] = matches.get(gene);
+				}
+			} else { //Else it didn't match, take it from the dominant
+				child[childIndex] = gene;
+			}
+			childIndex++;
+		}
+
+		return child;
+	}
+
+	private Gene[] mutate(Gene[] child) {
+		child = structuralMutation(child);
+		return weightMutation(child);
+	}
+
+	// Mutate a single gene in the child by replacing with a '!' character
+	public Gene[] structuralMutation(Gene[] child) {
+		ArrayList<Gene> mutatedChild = new ArrayList<Gene>();
+		for (Gene gene:child) {
+			mutatedChild.add(gene);
+		}
+
+		if (getRandom() < 0.7) {
+			// Add connection
+			if (getRandom() < 0.5) {
+				int left = (int) Math.floor(getRandom() * child.length);
+				int right = (int) Math.floor(getRandom() * child.length);
+				boolean connected = false;
+				for (Gene gene : mutatedChild) {
+					//if (gene.in == child[left].in || gene.in == child[right].in)
+				}
+				// Ensure you are connecting previously unconnected nodes... TODO
+				while (child[left].in == child[right].in) {
+					right = (int) Math.floor(getRandom() * child.length);
+				}
+				// If this mutated gene has already been created this gen, don't create another
+				Gene newGene = new Gene(next_marker, child[left].in, child[right].in, 4.0, 1);
+				for (Gene gene : newGenes) {
+					if (newGene.equals(gene)) {
+						newGene = gene;
+					}
+				}
+				mutatedChild.add(newGene);
+				if (!newGenes.contains(newGene)) {
+					next_marker++;
+				}
+			}
+			// Add node
+			if (getRandom() < 0.5) {
+				int left = (int) Math.floor(getRandom() * child.length);
+				int right = (int) Math.floor(getRandom() * child.length);
+				// Ensure you are connecting two different nodes...
+				while (child[left].in == child[right].in) {
+					right = (int) Math.floor(getRandom() * child.length);
+				}
+			}
+		}
+
+		//TODO mutate
+		return child;
+	}
+
+	// Each weight is subject to random mutation.
+	public Gene[] weightMutation(Gene[] child) {
+		for (Gene gene : child) {
+			if (getRandom() < 0.3) {
+				if (getRandom() < 0.5) {
+					gene.weight += getRandom();
+				} else {
+					gene.weight -= getRandom();
+				}
+			}
+		}
+		return child;
+	}
+
 	// Packing social disaster - all elite individuals randomised except 1
-	protected ArrayList<int[][]> SocialDisasterPacking(ArrayList<Agent> agents) {
-		ArrayList<int[][]> children = new ArrayList<int[][]>();
-		
-		/*
+	protected ArrayList<Gene[]> SocialDisasterPacking(ArrayList<Agent> agents) {
+		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
 			if (agent.getFitness() == best_fitness) {
@@ -150,57 +219,26 @@ public class God {
 				} else {
 					children.add(RandomlyGenerate());
 				}
-		    } else {
+			} else {
 				children.add(agent.getStringRep());
 			}
 		}
-		*/
-		
+
 		return children;
 	}
 
 	// Judgement day social disaster - all individuals randomised except 1 elite
 	// (might be SUPER EXPENSIVE)
-	protected ArrayList<int[][]> SocialDisasterJudgement(ArrayList<Agent> agents) {
-		ArrayList<int[][]> children = new ArrayList<int[][]>();
-		
-		/*
+	protected ArrayList<Gene[]> SocialDisasterJudgement(ArrayList<Agent> agents) {
+		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+
+
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
 			if (agent.getFitness() == best_fitness && !elite_agent_in) {
 				children.add(agent.getStringRep());
-		    } else {
-		    	children.add(RandomlyGenerate());
-			}
-		}
-		*/
-		
-		return children;
-	}
-
-	protected ArrayList<int[][]> GenerateChildren(ArrayList<Agent> selectedAgents) {
-		// Crossover - should select partner randomly (unless we are having genders).
-		ArrayList<int[][]> children = new ArrayList<int[][]>();
-		
-		/*
-		while (selectedAgents.size() > 1) {
-			Agent mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
-			selectedAgents.remove(mother);
-			Agent father = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
-			selectedAgents.remove(father);
-			// If mother and father are the same, randomise the child to give more genetic diversity.
-			if (mother == father) {
-				children.add(RandomlyGenerate());
 			} else {
-				children.add(crossover(mother.getStringRep(), father.getStringRep()));
-			}
-		}
-		*/
-
-		// Random mutation
-		for (int[][] child : children) {
-			if (getRandom() < 0.05) {
-				child = mutate(child);
+				children.add(RandomlyGenerate());
 			}
 		}
 
@@ -208,7 +246,7 @@ public class God {
 	}
 
 	// Return the string representation of a new agent.
-	protected int[][] RandomlyGenerate() {
+	protected Gene[] RandomlyGenerate() {
 		throw new NotImplementedException();
 	}
 

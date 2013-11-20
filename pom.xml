@@ -91,6 +91,6 @@
       <artifactId>powermock-api-mockito</artifactId>
       <version>${powermock.version}</version>
       <scope>test</scope>
-   </dependency>       
+   </dependency>    
   </dependencies>
 </project>

@@ -211,11 +211,11 @@ public class Environment {
 
 	protected void addFish(Point2D.Double coords, int heading){
 		Gene[] genome = new Gene[4];
-		genome[0] = new Gene(1, new int[] {0,4},4.0,1);
-		genome[1] = new Gene(2, new int[] {1,4},4.0,1);
-		genome[2] = new Gene(3, new int[] {2,5},4.0,1);
-		genome[3] = new Gene(4, new int[] {3,6},4.0,1);
-		
+		genome[0] = new Gene(1, 0,4,4.0,1);
+		genome[1] = new Gene(2, 1,4,4.0,1);
+		genome[2] = new Gene(3, 2,5,4.0,1);
+		genome[3] = new Gene(4, 3,6,4.0,1);
+
 
 		//Creates an agent with a generic genome for a network that has no hidden nodes
 		fishes.add(new Agent(coords, heading, parent, genome));
@@ -257,10 +257,10 @@ public class Environment {
 	}
 
 	protected void Breed(Agent mother, Agent father) {
-		ArrayList<int[][]> children = god.CreateOffspring(mother, father);
-		for (int[][] child : children) {
+		/*ArrayList<Gene[]> children = god.CreateOffspring(mother, father);
+		for (Gene[] child : children) {
 			//TODO add new agent to env.
-		}
+		}*/
 	}
 
 }

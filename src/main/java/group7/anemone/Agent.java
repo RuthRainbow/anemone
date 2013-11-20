@@ -1,6 +1,12 @@
 package group7.anemone;
 
-import group7.anemone.MNetwork.*;
+import group7.anemone.MNetwork.MNetwork;
+import group7.anemone.MNetwork.MNeuron;
+import group7.anemone.MNetwork.MNeuronParams;
+import group7.anemone.MNetwork.MNeuronState;
+import group7.anemone.MNetwork.MSimulation;
+import group7.anemone.MNetwork.MSimulationConfig;
+import group7.anemone.MNetwork.MSynapse;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -72,7 +78,7 @@ public class Agent extends SimulationObject{
 		nstate.I = 0.0;
 
 		/* Create the neurons. */
-		
+
 		/*
 		MNeuron sn1 = new MNeuron(nparams, nstate, 0);
 		MNeuron sn2 = new MNeuron(nparams, nstate, 1);
@@ -90,7 +96,7 @@ public class Agent extends SimulationObject{
 		neurons.add(mnL);
 		neurons.add(mnR);
 
-		// Create the synapses. 
+		// Create the synapses.
 		MSynapse ss1 = new MSynapse(sn1, mn, 4.0, 1);
 		MSynapse ss2 = new MSynapse(sn2, mn, 4.0, 1);
 		MSynapse ssL = new MSynapse(snL, mnL, 4.0, 1);
@@ -111,29 +117,29 @@ public class Agent extends SimulationObject{
 		mnL.getPreSynapses().add(ssL);
 		mnR.getPreSynapses().add(ssR);
 		*/
-		
+
 		for (int x=0; x<genome.length; x++) {
-			int preNodeID = genome[x].linkedNodes[0];
-			int postNodeID = genome[x].linkedNodes[1];
-			
-			
+			int preNodeID = genome[x].in;
+			int postNodeID = genome[x].out;
+
+
 			int maxNeuron = Math.max(preNodeID, postNodeID); //Finds the max neuron to make sure that there are enough neurons in the arraylist
 			maxNeuron++;
-			if (maxNeuron>neurons.size()) {	
+			if (maxNeuron>neurons.size()) {
 				int initialSize = neurons.size();
 				//If the neuron linked to is beyond the current scope of the network, you know you'll need at least that many, so we had better make them now
 				int difference = maxNeuron-initialSize;
 				for(int y=0; y<difference; y++) {
 					int newNeuronID = initialSize+y;
 					System.out.println("Adding neuron ID: " + newNeuronID);
-					neurons.add(new MNeuron(nparams, nstate, newNeuronID)); 
+					neurons.add(new MNeuron(nparams, nstate, newNeuronID));
 				}
 			}
-			
+
 			//Now that we are sure there are enough neurons in the arraylist for links to be made for this gene, we can make the synapse.
 			MSynapse newSyn = new MSynapse(neurons.get(preNodeID), neurons.get(postNodeID), genome[x].weight, genome[x].delay);
 			synapses.add(newSyn);
-			
+
 			neurons.get(preNodeID).getPostSynapses().add(newSyn);
 			neurons.get(postNodeID).getPreSynapses().add(newSyn);
 		}
