@@ -2,6 +2,10 @@ package group7.anemone;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class God {
 
@@ -105,13 +109,10 @@ public class God {
 	// The mother should always be the parent with the highest fitness.
 	// TODO may be a problem if they have equal fitness that one is always dominant
 	private Gene[] crossover(Gene[] dominant, Gene[] recessive) {
-		// TODO this is horrid and won't work with mutation
-		int length = dominant.length > recessive.length? dominant.length : recessive.length;
-		Gene[] child = new Gene[length];
-		int childIndex = 0;
+		List<Gene> child = new ArrayList<Gene>();
 
 		// "Match" genes...
-		HashMap<Gene, Gene> matches = new HashMap<Gene, Gene>();
+		Map<Gene, Gene> matches = new HashMap<Gene, Gene>();
 		int marker = 0;
 		for (int i = 0; i < dominant.length; i++) {
 			for (int j = marker; j < recessive.length; j++) {
@@ -128,17 +129,16 @@ public class God {
 			if (matches.containsKey(gene)) {
 				// Randomly select matched gene from either parent
 				if (getRandom() < 0.5) {
-					child[childIndex] = gene;
+					child.add(gene);
 				} else {
-					child[childIndex] = matches.get(gene);
+					child.add(matches.get(gene));
 				}
 			} else { //Else it didn't match, take it from the dominant
-				child[childIndex] = gene;
+				child.add(gene);
 			}
-			childIndex++;
 		}
 
-		return child;
+		return (Gene[]) child.toArray();
 	}
 
 	private Gene[] mutate(Gene[] child) {
@@ -146,25 +146,46 @@ public class God {
 		return weightMutation(child);
 	}
 
-	// Mutate a single gene in the child by replacing with a '!' character
+	// Mutate a gene structurally
 	public Gene[] structuralMutation(Gene[] child) {
-		ArrayList<Gene> mutatedChild = new ArrayList<Gene>();
+		List<Gene> mutatedChild = new ArrayList<Gene>();
+		Set<Integer> historicalMarkersSet = new HashSet<Integer>();
+		List<IntPair> edges = new ArrayList<IntPair>();
+		int max = 0;
 		for (Gene gene:child) {
 			mutatedChild.add(gene);
+			historicalMarkersSet.add(gene.in);
+			historicalMarkersSet.add(gene.out);
+			max = Math.max(gene.in, max);
+			max = Math.max(gene.out, max);
+			edges.add(new IntPair(gene.in, gene.out));
 		}
 
+		List<Integer> historicalMarkersList = new ArrayList<Integer>();
+		historicalMarkersList.addAll(historicalMarkersSet);
+
+		// TODO make these mutation chances not magical numbers!
 		if (getRandom() < 0.7) {
 			// Add connection
 			if (getRandom() < 0.5) {
-				int left = (int) Math.floor(getRandom() * child.length);
-				int right = (int) Math.floor(getRandom() * child.length);
-				boolean connected = false;
-				for (Gene gene : mutatedChild) {
-					//if (gene.in == child[left].in || gene.in == child[right].in)
-				}
-				// Ensure you are connecting previously unconnected nodes... TODO
-				while (child[left].in == child[right].in) {
-					right = (int) Math.floor(getRandom() * child.length);
+				int left = 0;
+				int right = 0;
+				boolean connected = true;
+				int count = 0;
+				// Put a good effort into finding two unconnected nodes in the network (it may be
+				// impossible).
+				while (connected && count < max * max) {
+					count++;
+					left = historicalMarkersList.get(
+							(int) Math.floor(getRandom()*historicalMarkersList.size()));
+					right = historicalMarkersList.get(
+							(int) Math.floor(getRandom()*historicalMarkersList.size()));
+					//Check if the connected left <-> is already within a gene
+					// ASSUMES EDGES ARE BIDIRECTIONAL. IS THIS RIGHT??????
+					IntPair newPair = new IntPair(left, right);
+					if (!edges.contains(newPair)) {
+						connected = false;
+					}
 				}
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(next_marker, child[left].in, child[right].in, 4.0, 1);
@@ -178,19 +199,36 @@ public class God {
 					next_marker++;
 				}
 			}
-			// Add node
+
+			// Add a new node between two old connections
 			if (getRandom() < 0.5) {
-				int left = (int) Math.floor(getRandom() * child.length);
-				int right = (int) Math.floor(getRandom() * child.length);
-				// Ensure you are connecting two different nodes...
-				while (child[left].in == child[right].in) {
-					right = (int) Math.floor(getRandom() * child.length);
+				// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
+				Gene toMutate = mutatedChild.get(
+						(int) Math.floor(getRandom() * mutatedChild.size()));
+				mutatedChild.remove(toMutate);
+				Gene newLeftGene = new Gene(next_marker, toMutate.in, max+1, 4.0, 1);
+				for (Gene gene : newGenes) {
+					if (newLeftGene.equals(gene)) {
+						newLeftGene = gene;
+					}
 				}
+				if (!newGenes.contains(newLeftGene)) {
+					next_marker++;
+				}
+				mutatedChild.add(newLeftGene);
+				Gene newRightGene = new Gene(next_marker, max+1, toMutate.out, 4.0, 1);
+				for (Gene gene : newGenes) {
+					if (newRightGene.equals(gene)) {
+						newRightGene = gene;
+					}
+				}
+				if (!newGenes.contains(newRightGene)) {
+					next_marker++;
+				}
+				mutatedChild.add(newRightGene);
 			}
 		}
-
-		//TODO mutate
-		return child;
+		return (Gene[]) mutatedChild.toArray();
 	}
 
 	// Each weight is subject to random mutation.
@@ -255,5 +293,34 @@ public class God {
 		private static final long serialVersionUID = 1L;
 
 		public NotImplementedException(){}
+	}
+
+	public class IntPair {
+	    private int first;
+	    private int second;
+
+	    public IntPair(int first, int second) {
+	    	this.first = first;
+	    	this.second = second;
+	    }
+
+	    public boolean equals(Object other) {
+	    	if (!(other instanceof IntPair)) {
+	    		return false;
+	    	} else {
+	    		IntPair otherPair = (IntPair) other;
+	    		if (this.first == otherPair.first && this.second == otherPair.second ||
+	    				this.first == otherPair.second && this.second == otherPair.first) {
+	    			return true;
+	    		} else {
+	    			return false;
+	    		}
+	    	}
+	    }
+
+	    public String toString()
+	    {
+	           return "(" + first + ", " + second + ")";
+	    }
 	}
 }

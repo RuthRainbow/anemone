@@ -1,6 +1,9 @@
 package group7.anemone;
 
-
+/*
+ * Class to hold genes, which make up the representation of the neural network. Each is roughly an
+ * edge/connector within the network, with a single input and output.
+ */
 public class Gene {
 	public int historicalMarker;
 	public int in;
