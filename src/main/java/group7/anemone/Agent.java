@@ -131,7 +131,7 @@ public class Agent extends SimulationObject{
 				int difference = maxNeuron-initialSize;
 				for(int y=0; y<difference; y++) {
 					int newNeuronID = initialSize+y;
-					System.out.println("Adding neuron ID: " + newNeuronID);
+					//System.out.println("Adding neuron ID: " + newNeuronID);
 					neurons.add(new MNeuron(nparams, nstate, newNeuronID));
 				}
 			}
