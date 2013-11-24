@@ -9,6 +9,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -68,7 +69,7 @@ public class Simulation extends PApplet {
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 100; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			env.addFood(new Point2D.Double(x, y));
@@ -76,8 +77,8 @@ public class Simulation extends PApplet {
 
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(width,0));
 		env.addWall(new Point2D.Double(width,0), new Point2D.Double(width,height));
-		env.addWall(new Point2D.Double(width,height), new Point2D.Double(0,height));
-		env.addWall(new Point2D.Double(0,height), new Point2D.Double(0,0));
+		env.addWall(new Point2D.Double(0,height), new Point2D.Double(width,height));
+		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0,height));
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
@@ -549,6 +550,12 @@ public class Simulation extends PApplet {
 			// Encourage agents to breed...
 			cc.getAgent().updateFitness(0.01);
 		}
+		Agent agent1 = cc.getAgent();
+		Agent agent2 = (Agent) cc.getCollidedObject();
+		Point2D.Double midpoint = new Point2D.Double((agent1.coords.x+agent2.coords.x)/2,(agent1.coords.y+agent2.coords.y)/2);
+		Wall bisector = new Wall(Utilities.generateLine(midpoint, 10, Utilities.angleBetweenPoints(agent1.coords.x, agent1.coords.y, agent2.coords.x, agent2.coords.y)+90)); 
+		bounceAgent(new Collision(agent1,bisector));
+		bounceAgent(new Collision(agent2, bisector));
 	}
 
 	private void bounceAgent(Collision cc) {
@@ -560,7 +567,49 @@ public class Simulation extends PApplet {
 		double newAngle = normalAngle + (normalAngle - agentAngle - 180);
 		double oldHeading = ag.getViewHeading();
 		double thrust = ag.getMovingSpeed();
+		
+		Wall wl = (Wall) cc.getCollidedObject();
+		boolean leftWall = wl.getLine().ptLineDist(new Point2D.Double(0,height/2)) == 0;
+		boolean rightWall = wl.getLine().ptLineDist(new Point2D.Double(width,height/2)) == 0;
+		boolean topWall = wl.getLine().ptLineDist(new Point2D.Double(width/2,0)) == 0;
+		boolean bottomWall = wl.getLine().ptLineDist(new Point2D.Double(width/2,height)) == 0;
+		
+		/*double m = (line.y2-line.y1)/(line.x2-line.x1);
+		double c = line.y1 - m*line.x1;
+		boolean mInvalid = (m == java.lang.Double.POSITIVE_INFINITY || m == java.lang.Double.NEGATIVE_INFINITY || java.lang.Double.isNaN(m));
+		boolean cInvalid = (c == java.lang.Double.POSITIVE_INFINITY || c == java.lang.Double.NEGATIVE_INFINITY || java.lang.Double.isNaN(c));
+		
+		double r = 10;
+		double a = ag.coords.x;
+		double b = ag.coords.y;
+		double x = 1 + m;
+		double y = 2*m*(c-b);
+		double z = (c-b)*(c-b) + a*a +2*a - r*r;
+		double[] Xcoord = Utilities.quadratic(x, y, z);
+		double[] Ycoord = new double[2];
+		Ycoord[0] = m*Xcoord[0] + c;
+		Ycoord[1] = m*Xcoord[1] + c;*/
+		System.out.println("***************************************************************************");
+		if(leftWall) System.out.println("Collided with left wall"); 
+		else if (rightWall) System.out.println("Collided with right wall");
+		else if (topWall) System.out.println("Collided with top wall");
+		else if (bottomWall) System.out.println("Collided with bottom wall");
+		else System.out.println("Collided with agent");
+		System.out.println("Original position: "+ag.coords.x+" "+ag.coords.y);
+		Point2D.Double closestWallPoint = Utilities.getClosestPoint(line, ag.coords);
+		System.out.println("Closest wall point: "+closestWallPoint.x+" "+closestWallPoint.y);
+		double wallToNewPositionAngle = Utilities.angleBetweenPoints(closestWallPoint.x, closestWallPoint.y, ag.coords.x, ag.coords.y);
+		Point2D.Double newAgentPosition = (Double) Utilities.generateLine(closestWallPoint, 10, wallToNewPositionAngle).getP2();
+		ag.coords = newAgentPosition;
+		System.out.println("New position: "+ag.coords.x+" "+ag.coords.y);
 
+		/*System.out.println("Distance to wall after: "+wl.getLine().ptLineDist(ag.getCoordinates()));
+		if(leftWall) ag.coords.x += (10 - distanceToWall); 
+		else if (rightWall) ag.coords.x -= (10 - distanceToWall);
+		else if (topWall) ag.coords.y += (10 - distanceToWall);
+		else if (bottomWall) ag.coords.y -= (10 - distanceToWall);*/
+			
+		
 		ag.stop();
 		ag.changeViewHeading(newAngle - ag.getViewHeading());
 		ag.thrust(thrust);

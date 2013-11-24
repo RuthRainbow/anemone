@@ -2,6 +2,7 @@ package group7.anemone.UI;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
 import processing.core.PApplet;
 
@@ -52,9 +53,8 @@ public class Utilities {
 		double m2 = (line2.y2-line2.y1)/(line2.x2-line2.x1);
 		double c2 = line2.y1 - m2 * line2.x1;
 		
-		boolean m2Invalid = (m2 == Double.POSITIVE_INFINITY || m2 == Double.NEGATIVE_INFINITY || Double.isNaN(m2));
-		boolean c2Invalid = (c2 == Double.POSITIVE_INFINITY || c2 == Double.NEGATIVE_INFINITY || Double.isNaN(c2));
-		boolean c2NaN = c2 == Double.NaN;
+		boolean m2Invalid = (m2 == java.lang.Double.POSITIVE_INFINITY || m2 == java.lang.Double.NEGATIVE_INFINITY || java.lang.Double.isNaN(m2));
+		boolean c2Invalid = (c2 == java.lang.Double.POSITIVE_INFINITY || c2 == java.lang.Double.NEGATIVE_INFINITY || java.lang.Double.isNaN(c2));
 		
 		
 		//if the lines aren't parallel
@@ -82,5 +82,19 @@ public class Utilities {
 		double endY = length * Math.sin(angle*(Math.PI/180)) + point.y;
 		
 		return new Line2D.Double(point,new Point2D.Double(endX,endY));
+	}
+	
+	public static Point2D.Double getClosestPoint(Line2D.Double line, Point2D.Double point) {
+		double opp = line.ptLineDist(point);
+		double hyp = point.distance(line.getP1());
+		double theta = Math.asin(opp/hyp);
+		double agt = opp / Math.tan(theta);
+		Line2D.Double horizontal = new Line2D.Double(new Point2D.Double(), new Point2D.Double(100,0));
+		
+		double alpha = Math.atan((line.y2-line.y1)/(line.x2-line.x1))*(Math.PI / 180);
+		Line2D.Double tmp = generateLine((Double) line.getP1(),agt,alpha);
+		
+		System.out.println("opp: "+opp+" hyp: "+hyp+" theta: "+theta+" agt: "+agt+" alpha: "+alpha);
+		return (Double) tmp.getP2();
 	}
 }
