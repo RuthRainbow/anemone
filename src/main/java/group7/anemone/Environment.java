@@ -361,6 +361,9 @@ public class Environment {
 	protected ArrayList<Food> getAllFood(){
 		return food;
 	}
+	protected ArrayList<Wall> getAllWalls(){
+		return wall;
+	}
 
 	protected void Breed(Agent mother, Agent father) {
 		/*ArrayList<Gene[]> children = god.CreateOffspring(mother, father);

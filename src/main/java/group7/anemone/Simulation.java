@@ -41,9 +41,21 @@ public class Simulation extends PApplet {
 	UISlider sliderX, sliderY;
 	UIDrawable3D neuralVisual;
 
-	int width = 0;
-	int height = 0;
+	//size of the simulation environment
+	int width = 1000;
+	int height = 750;
+	//size of the drawable region for the simulator
+	int draw_width = 0;
+	int draw_height = 0;
+	//offset of the simulation drawing
+	int offsetX = 50;
+	int offsetY = 50;
+	
 	float neuralRotation = 0;
+	float zoomLevel = 1;
+	boolean arrowsPressed[] = new boolean[4];
+	int moveSpeed = 15;
+	float minZoom = 0.2f;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -56,8 +68,8 @@ public class Simulation extends PApplet {
 		textMode(SCREEN);
 		setupUI();
 
-		width = screen.width - 250;
-		height = screen.height;
+		draw_width = screen.width - 250;
+		draw_height = screen.height;
 
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
@@ -84,39 +96,31 @@ public class Simulation extends PApplet {
 		Agent agent_clicked = null;
 
 		if(win.mousePressed()) return;
-		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, width, height)) return;
+		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
 
 		/*
 		 * Mouse Modes are as follows:
 		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
 		 * 1 = Food tool - Place food where you click
 		 */
+		
+		//coordinates of the mouse within the simulation environment
+		int simMouseX = (int) ((float) (mouseX - offsetX) / zoomLevel);
+		int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
 		switch(mouseMode){
-		case 0: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
-					Agent ag = agents.get(i);
-					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
-						agent_clicked = ag;
-						break;
-					}
-				}
+		case 0: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
 				if(agent_clicked != null){ //agent was clicked so update selected
 					selectedAgent = agent_clicked;
 				}
 				break;
 
-		case 1: env.addFood(new Point2D.Double(mouseX, mouseY));
+		case 1: env.addFood(new Point2D.Double(simMouseX, simMouseY));
 				break;
 
 		case 2: int heading = (int) Math.floor(Math.random() * 360);
-				env.addFish(new Point2D.Double(mouseX, mouseY), heading);
+				env.addFish(new Point2D.Double(simMouseX, simMouseY), heading);
 				break;
-		case 3: for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
-					Agent ag = agents.get(i);
-					if(Math.sqrt(Math.pow(mouseX - ag.getX(), 2) + Math.pow(mouseY - ag.getY(), 2)) < 10){
-						agent_clicked = ag;
-						break;
-					}
-				}
+		case 3: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
 				if(agent_clicked != null){ //agent was clicked so update selected
 					agent_clicked.thrust(2);
 				}
@@ -137,7 +141,12 @@ public class Simulation extends PApplet {
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
-
+		
+		if(zoomLevel > minZoom || event.getWheelRotation() > 0){
+			zoomLevel = Math.max(minZoom, (zoomLevel + 0.1f * event.getWheelRotation()));
+			offsetX -= (int) (((mouseX - offsetX) * (0.1f * event.getWheelRotation()))) / zoomLevel;
+			offsetY -= (int) (((mouseY - offsetY) * (0.1f * event.getWheelRotation()))) / zoomLevel;
+		}
 	}
 	public void keyReleased(){	//Hotkeys for buttons
 		if(win.keyReleased()) return;
@@ -156,6 +165,29 @@ public class Simulation extends PApplet {
 					btnGroupModes.selectButton(btnAddFood);
 					break;
 		}
+		
+		switch(keyCode) {
+			case(UP):	arrowsPressed[0] = false;
+						break;
+			case(DOWN):	arrowsPressed[1] = false;
+						break;
+			case(LEFT):	arrowsPressed[2] = false;
+						break;
+			case(RIGHT):arrowsPressed[3] = false;
+						break;
+		}
+	}
+	public void keyPressed(){	//Hotkeys for buttons
+		switch(keyCode) {
+			case(UP):	arrowsPressed[0] = true;
+						break;
+			case(DOWN):	arrowsPressed[1] = true;
+						break;
+			case(LEFT):	arrowsPressed[2] = true;
+						break;
+			case(RIGHT):arrowsPressed[3] = true;
+						break;
+		}
 	}
 
 	public void draw(){
@@ -169,11 +201,27 @@ public class Simulation extends PApplet {
 		handleCollisions();
 		checkDeaths();
 		updateUI();
+		
+		//move drawn region
+		if(arrowsPressed[0] && !arrowsPressed[1]) offsetY -= moveSpeed * zoomLevel; //UP
+		if(arrowsPressed[1] && !arrowsPressed[0]) offsetY += moveSpeed * zoomLevel; //DOWN
+		if(arrowsPressed[2] && !arrowsPressed[3]) offsetX -= moveSpeed * zoomLevel; //LEFT
+		if(arrowsPressed[3] && !arrowsPressed[2]) offsetX += moveSpeed * zoomLevel; //RIGHT
 
 		win.draw();
-
+		
+		fill(255);
+		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
+	}
+	
+	private void drawSimulation(PApplet canvas){
+		pushMatrix();
+		translate(offsetX, offsetY);
+		scale(zoomLevel);
+		
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
+		ArrayList<Wall> walls = env.getAllWalls();		//Returns an arraylist of all walls
 
 		for(int i = 0; i < agents.size(); i++){ //Runs through arraylist of agents, will draw them on the canvas
 			Agent ag = agents.get(i);
@@ -209,24 +257,17 @@ public class Simulation extends PApplet {
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
+		
+		stroke(theme.getColor("Wall"));
+		noFill();
+		for(Wall wl : walls){ //Runs through arraylist of walls, will draw them on the canvas
+			line((float) wl.getStart().x, (float) wl.getStart().y, (float) wl.getEnd().x, (float) wl.getEnd().y);
+		}
 
-		fill(255);
-		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
-
-		/*if(selectedAgent != null){	//If an agent is seleted, display its coordinates in the top left hand corner, under the framerate
-			fill(255);
-			textFont(f);
-
-			String tmp = "";
-			for(SightInformation si : selectedAgent.getCanSee()) tmp += ", "+si.getType();
-
-			text("Selected agent x = "+selectedAgent.getX(), 10, 25);
-			text("Selected agent y = "+selectedAgent.getY(), 10, 40);
-			text("Selected agent health = "+selectedAgent.getHealth(), 10, 55);
-			text("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
-			text("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
-		}*/
-
+		popMatrix();
+		
+		fill(0);
+		//rect(draw_width - 50, 0, 250, draw_height);
 	}
 
 	private void updateUI(){
@@ -258,6 +299,7 @@ public class Simulation extends PApplet {
 		theme.setColor("Sidepanel", color(50));
 		theme.setColor("Food", color(0, 255, 0));
 		theme.setColor("Agent", color(255, 127, 0));
+		theme.setColor("Wall", color(255));
 		theme.setColor("Neuron", color(200));
 		theme.setColor("NeuronFired", color(0, 255, 0));
 		
@@ -267,6 +309,18 @@ public class Simulation extends PApplet {
 		sidePanel.setIsLeft(false);
 		sidePanel.setBackground(50);
 		sidePanel.setFixedBackground(true);
+		
+		
+		//Simulation draw region
+		UIDrawable sim = new UIDrawable(this, 0, 0, draw_width, draw_height);
+		sim.setBackground(color(255));
+		sim.setFixedBackground(true);
+		sim.setEventHandler(new UIAction(){
+			public void draw(PApplet canvas){
+				drawSimulation(canvas);
+			}
+		});
+		win.addObject(sim);
 		win.addObject(sidePanel);
 
 		//Buttons to change the current mode
@@ -577,5 +631,15 @@ public class Simulation extends PApplet {
 		cc.getAgent().updateFitness(fd.getValue());
 	}
 
-
+	private Agent getClickedAgent(ArrayList<Agent> agents, int mx, int my){
+		Agent agent_clicked = null;
+		for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
+			Agent ag = agents.get(i);
+			if(Math.sqrt(Math.pow(mx - ag.getX(), 2) + Math.pow(my - ag.getY(), 2)) < 10){
+				agent_clicked = ag;
+				break;
+			}
+		}
+		return agent_clicked;
+	}
 }
