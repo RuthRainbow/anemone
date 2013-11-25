@@ -85,16 +85,30 @@ public class Utilities {
 	}
 	
 	public static Point2D.Double getClosestPoint(Line2D.Double line, Point2D.Double point) {
-		double opp = line.ptLineDist(point);
+		/*double opp = line.ptLineDist(point);
 		double hyp = point.distance(line.getP1());
 		double theta = Math.asin(opp/hyp);
 		double agt = opp / Math.tan(theta);
-		Line2D.Double horizontal = new Line2D.Double(new Point2D.Double(), new Point2D.Double(100,0));
 		
 		double alpha = Math.atan((line.y2-line.y1)/(line.x2-line.x1))*(Math.PI / 180);
 		Line2D.Double tmp = generateLine((Double) line.getP1(),agt,alpha);
 		
 		System.out.println("opp: "+opp+" hyp: "+hyp+" theta: "+theta+" agt: "+agt+" alpha: "+alpha);
-		return (Double) tmp.getP2();
+		return (Double) tmp.getP2();*/
+		double A1 = line.y2 - line.y1; 
+	    double B1 = line.x1 - line.x2; 
+	    double C1 = (line.y2 - line.y1)*line.x1 + (line.x1 - line.x2)*line.y1; 
+	    double C2 = -B1*point.x + A1*point.y; 
+	    double det = A1*A1 - -B1*B1; 
+	    double cx = 0; 
+	    double cy = 0; 
+	    if(det != 0){ 
+	    	cx = (A1*C1 - B1*C2)/det; 
+	     	cy = (A1*C2 - -B1*C1)/det; 
+	    }else{ 
+	    	cx = point.x; 
+	    	cy = point.y; 
+	    } 
+	    return new Point2D.Double(cx, cy); 
 	}
 }
