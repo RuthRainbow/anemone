@@ -385,4 +385,13 @@ public class Environment {
 		}*/
 	}
 
+	public void killOutsideAgents(double width, double height) {
+		for(Agent fish: fishes){
+			if(fish.coords.x < 0 || fish.coords.x > width || fish.coords.y < 0 || fish.coords.y > height){
+				fish.updateHealth(-1);
+			}
+		}
+		
+	}
+
 }
