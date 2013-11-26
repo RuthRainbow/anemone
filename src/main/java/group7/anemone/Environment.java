@@ -158,14 +158,12 @@ public class Environment {
 			}else if(headBelow < 0){
 				if(angleBetween >= 360 + headBelow) {
 					if(ob instanceof Wall) {
-    					System.out.println("Found a wall "+distance +" away.");
     				}
 					return(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove ? angleBetween + 360 : angleBetween ) - (360 + headBelow)) / (ag.getFOV() * 2)));
 				}
 			}else if(headAbove > 360){
 				if(angleBetween <= headAbove - 360) {
 					if(ob instanceof Wall) {
-    					System.out.println("Found a wall "+distance +" away.");
     				}
 					return(new SightInformation(ag, ob, distance, ((angleBetween <= headAbove-360 ? angleBetween + 360 : angleBetween ) - headBelow) / (ag.getFOV() * 2)));
 				}

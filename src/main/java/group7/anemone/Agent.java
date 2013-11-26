@@ -25,6 +25,7 @@ public class Agent extends SimulationObject{
 	private double visionRange = 100; //how far they can see into the distance
 	private double fov = 25; //field of view, +-
 	private ArrayList<SightInformation> canSee;
+	private double maxSpeed = 15;
 
 	/*
 	 * GENOME LAYOUT:
@@ -232,6 +233,14 @@ public class Agent extends SimulationObject{
 
 		if(speed.y > 0) speed.y -= drag.y;
 		else if(speed.y < 0) speed.y += drag.y;
+		
+		if(this.getMovingSpeed() > maxSpeed){
+			System.out.println("Exceeded max speed. Speed: "+this.getMovingSpeed()+", Max: "+maxSpeed);
+			double ratio = maxSpeed / this.getMovingSpeed(); 
+			speed.x = speed.x * ratio;
+			speed.y = speed.y * ratio;
+			System.out.println("New speed: "+this.getMovingSpeed());
+		}
 	}
 
 	/*
