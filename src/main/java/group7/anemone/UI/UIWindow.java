@@ -52,6 +52,12 @@ public class UIWindow extends UIObject{
 		}
 		return false;
 	}
+	public boolean keyPressed(){
+		for(int i = objects.size() - 1; i >= 0; i--){
+			if(objects.get(i).isVisible && objects.get(i).keyPressed()) return true;
+		}
+		return false;
+	}
 
 	public void setFocusedObject(UIObject obj){
 		focusedObject = obj;

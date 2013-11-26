@@ -100,5 +100,6 @@ public class UIObject {
 	public boolean mouseReleased(){return false;}
 	public boolean mouseDragged(){return false;}
 	public boolean mouseWheel(MouseWheelEvent event){return false;}
+	public boolean keyPressed(){return false;}
 	public boolean keyReleased(){return false;}
 }

@@ -15,7 +15,7 @@ public class UIDrawable3D extends UIObject{
 
 		canvas.lights();
 		canvas.pushMatrix();
-		canvas.translate(x + width/2, y + height/2, 50);
+		canvas.translate(x + width/2 - 25, y + height/2, 50);
 
 		if(events != null){
 			events.draw(canvas);

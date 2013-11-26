@@ -3,6 +3,7 @@ package group7.anemone;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MSynapse;
+import group7.anemone.MNetwork.MVec3f;
 import group7.anemone.UI.UIAction;
 import group7.anemone.UI.UIAngle;
 import group7.anemone.UI.UIButton;
@@ -197,6 +198,7 @@ public class Simulation extends PApplet {
 		}
 	}
 	public void keyPressed(){	//Hotkeys for buttons
+		if(win.keyPressed()) return;
 		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
 		
 		switch(keyCode) {
@@ -249,7 +251,7 @@ public class Simulation extends PApplet {
 			Agent ag = agents.get(i);
 
 			//draw the field of view for the agent
-			stroke(128, (float) ag.getHealth()*200+55);
+			stroke(128); //, (float) ag.getHealth()*200+55
 			noFill();
 			double range = ag.getVisionRange() * 2;
 
@@ -332,6 +334,8 @@ public class Simulation extends PApplet {
 		sidePanel.setBackground(50);
 		sidePanel.setFixedBackground(true);
 
+		neuralVisual = new UIDrawable3D(this, 0, 250, 250, 250);
+		sidePanel.addObject(neuralVisual);
 
 		//Simulation draw region
 		UIDrawable sim = new UIDrawable(this, 0, 0, draw_width, draw_height);
@@ -439,29 +443,27 @@ public class Simulation extends PApplet {
 		winStats.addObject(btnSelectKill);
 
 		//3D neural network visual
-		neuralVisual = new UIDrawable3D(this, 0, 250, 250, 250);
+		
 		neuralVisual.setIsTop(false);
 		neuralVisual.setBackground(30);
 		neuralVisual.setFixedBackground(true);
 		neuralVisual.setEventHandler(new UIAction(){
-			private HashMap<MNeuron, Point2D.Double> placed;
+			private HashMap<MNeuron, MVec3f> placed;
 		    private HashMap<Integer, Integer> maxInLevel;
 		    private int maxLevel = 0;
 		    private int maxHeight = 0;
-		    private float zoom = 0.3f;
+		    private float zoom = 1f;
 		    private int offX = 0;
-		    private int offY = 0;
+		    private int offY = -50;
 		    boolean arrows[] = new boolean[4];
 			public void draw(PApplet canvas){
 				if(selectedAgent == null) return;
 				
-				if(arrows[0] && !arrows[1]) offY -= moveSpeed * zoom; //UP
-				if(arrows[1] && !arrows[0]) offY += moveSpeed * zoom; //DOWN
-				if(arrows[2] && !arrows[3]) offX -= moveSpeed * zoom; //LEFT
-				if(arrows[3] && !arrows[2]) offX += moveSpeed * zoom; //RIGHT
+				if(arrows[0] && !arrows[1]) offY -= moveSpeed/3; //UP
+				if(arrows[1] && !arrows[0]) offY += moveSpeed/3; //DOWN
 
 				MNetwork net = selectedAgent.getNetwork();
-				placed = new HashMap<MNeuron, Point2D.Double>(); //store coordinates of placed neurons
+				placed = new HashMap<MNeuron, MVec3f>(); //store coordinates of placed neurons
 			    maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
 			    maxInLevel.put(0, 0);
 			    maxLevel = 0;
@@ -493,6 +495,8 @@ public class Simulation extends PApplet {
                         int max = maxValue(level);
 			    		addNode(level, max, post);
 			    	}
+			    	
+			    	if(placed.get(pre).x == placed.get(post).x) placed.get(pre).z += 20;
 			    }
 
 			    
@@ -504,24 +508,24 @@ public class Simulation extends PApplet {
 			    	if(n.isFiring()) fill(theme.getColor("NeuronFired"));
 			    	else fill(theme.getColor("Neuron"));
 
-		    		translate((float) placed.get(n).x + offsetX + offX, (float) placed.get(n).y + offsetY + offY, 0);
+		    		translate((float) placed.get(n).x + offsetX + offX, (float) placed.get(n).y + offsetY + offY, placed.get(n).z);
 			    	sphere(3);
-			    	translate((float) -(placed.get(n).x + offsetX + offX), (float) -(placed.get(n).y + offsetY + offY), 0);
+			    	translate((float) -(placed.get(n).x + offsetX + offX), (float) -(placed.get(n).y + offsetY + offY), -placed.get(n).z);
 			    }
 
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
-			    	Point2D.Double n1 = placed.get(s.getPreNeuron());
-			    	Point2D.Double n2 = placed.get(s.getPostNeuron());
+			    	MVec3f n1 = placed.get(s.getPreNeuron());
+			    	MVec3f n2 = placed.get(s.getPostNeuron());
 
 			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
 			    	else stroke(255, 20);
-			    	line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), 0, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), 0);
+			    	line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), (int) n1.z, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), (int) n2.z);
 			    }
 
 			    neuralRotation -= 0.02;
 			}
 			private void addNode(int level, int max, MNeuron node){
-				Point2D.Double n1 = new Point2D.Double(level * 20, max);
+				MVec3f n1 = new MVec3f(level * 20, max, 0);
 				maxInLevel.put(level, max + 20);
 				placed.put(node, n1);
 			}
@@ -566,19 +570,19 @@ public class Simulation extends PApplet {
 				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
 				
 				switch(keyCode) {
-					case(UP):	arrowsPressed[0] = true;
+					case(UP):	arrows[0] = true;
 								return true;
-					case(DOWN):	arrowsPressed[1] = true;
+					case(DOWN):	arrows[1] = true;
 								return true;
-					case(LEFT):	arrowsPressed[2] = true;
+					case(LEFT):	arrows[2] = true;
 								return true;
-					case(RIGHT):arrowsPressed[3] = true;
+					case(RIGHT):arrows[3] = true;
 								return true;
 				}
 				return false;
 			}
 		});
-		sidePanel.addObject(neuralVisual);
+		
 
 		//printout of selected agents stats
 		lblStatTitle = addStatLabel("Selected Agent", 5);
