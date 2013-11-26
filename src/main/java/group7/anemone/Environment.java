@@ -206,6 +206,10 @@ public class Environment {
 			tick = 0;
 		}*/
 	}
+	
+	protected void spawnAgent(Point2D.Double coords, int heading, Gene[] newGenome) {
+		fishes.add(new Agent(coords, heading, parent, newGenome));
+	}
 
 	protected void addFish(Point2D.Double coords, int heading){
 		
