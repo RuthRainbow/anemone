@@ -113,7 +113,7 @@ public class Simulation extends PApplet {
 
 		/*
 		 * Mouse Modes are as follows:
-		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
+		 * 0 = Click tool - Select agents to see information on them in the top left hand corner
 		 * 1 = Food tool - Place food where you click
 		 */
 
@@ -212,6 +212,7 @@ public class Simulation extends PApplet {
 		env.updateCollisions(); //update the environment with the new collisions
 		env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 		handleCollisions();
+		env.killOutsideAgents(width, height);
 		checkDeaths();
 		updateUI();
 
