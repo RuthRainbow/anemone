@@ -5,7 +5,6 @@ import group7.anemone.UI.Utilities;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import processing.core.PApplet;
 
@@ -199,18 +198,26 @@ public class Environment {
 			shark.update();
 		}
 		tick++;
-		if (tick % 50 == 0) {
+		if (tick % 200 == 0) {
 			ArrayList<Gene[]> nextGen = god.BreedPopulation(fishes);
-			System.out.println("BREEDING!");
 			for (Gene[] gene : nextGen) {
-				System.out.println(Arrays.toString(gene));
+				// TODO unhardcode these
+				int x = (int) Math.floor(Math.random() * 1000);
+				int y = (int) Math.floor(Math.random() * 750);
+				int heading = (int) Math.floor(Math.random() * 360);
+				spawnAgent(new Point2D.Double(x,y), heading, gene);
+			}
+			for(int i = 0; i < fishes.size()/2; i++){
+				int x = (int) Math.floor(Math.random() * 1000);
+				int y = (int) Math.floor(Math.random() * 750);
+				addFood(new Point2D.Double(x, y));
 			}
 			//god.BreedPopulation(sharks);
 			// Reset tick until next generation
 			tick = 0;
 		}
 	}
-	
+
 	protected void spawnAgent(Point2D.Double coords, int heading, Gene[] newGenome) {
 		fishes.add(new Agent(coords, heading, parent, newGenome));
 	}

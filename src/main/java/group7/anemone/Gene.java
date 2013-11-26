@@ -22,10 +22,10 @@ public class Gene {
 	@Override
 	public String toString() {
 		return "MARKER: " + historicalMarker +
-				"\nIN: " + in +
-				"\nOUT: " + out +
-				"\nWEIGHT: " + weight +
-				"\nDELAY: " + delay;
+				" IN: " + in +
+				" OUT: " + out +
+				" WEIGHT: " + weight +
+				" DELAY: " + delay;
 	}
 
 	@Override

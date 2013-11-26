@@ -19,7 +19,7 @@ public class God {
 	private int no_improvement_count = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
-	private int next_marker = 5;
+	private int next_marker = 89;
 	private ArrayList<Gene> newGenes;
 
 	// This is inside it's own method to make unittesting easier.
@@ -42,9 +42,8 @@ public class God {
 		for (Agent agent : agents) {
 			double fitness = agent.getFitness();
 			average_fitness += fitness;
-			System.out.println("looking at agent with fitness " + fitness);
 			// This number is completely arbitrary, depends on fitness function
-			if (fitness * getRandom() > average_fitness) {
+			if (fitness * getRandom() > last_average) {
 				selectedAgents.add(agent);
 			}
 			if (agent.getFitness() > best_fitness) {
@@ -80,12 +79,13 @@ public class God {
 			}
 		}
 
+		ArrayList<Gene[]> mutatedChildren = new ArrayList<Gene[]>();
 		// Put every child through mutation process
 		for (Gene[] child : children) {
-			child = mutate(child);
+			mutatedChildren.add(mutate(child));
 		}
 
-		return children;
+		return mutatedChildren;
 	}
 
 	// Method to create offspring from 2 given parents.
