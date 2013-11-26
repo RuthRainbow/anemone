@@ -9,10 +9,16 @@ import java.util.ArrayList;
 public class MNetwork {
 	private ArrayList<MNeuron> neurons;
 	private ArrayList<MSynapse> synapses;
+	private final float width, height, depth;
 
-	public MNetwork(ArrayList<MNeuron> neurons, ArrayList<MSynapse> synapses) {
+	public MNetwork(ArrayList<MNeuron> neurons, ArrayList<MSynapse> synapses,
+		float width, float height, float depth)
+	{
 		this.neurons = neurons;
 		this.synapses = synapses;
+		this.width = width;
+		this.height = height;
+		this.depth = depth;
 	}
 
 	public ArrayList<MNeuron> getNeurons() {
@@ -21,5 +27,17 @@ public class MNetwork {
 
 	public ArrayList<MSynapse> getSynapses() {
 		return synapses;
+	}
+
+	public float getWidth() {
+		return width;
+	}
+
+	public float getHeight() {
+		return height;
+	}
+
+	public float getDepth() {
+		return depth;
 	}
 }

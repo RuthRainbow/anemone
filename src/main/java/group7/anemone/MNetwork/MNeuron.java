@@ -65,16 +65,19 @@ public class MNeuron {
 	}
 
 	public boolean isFiring() {
-		if (state.v >= 30.0) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return state.v >= 30.0;
 	}
 
 	public int getID() {
 		return nid;
+	}
+
+	public MNeuronState getState() {
+		return state;
+	}
+
+	public MNeuronParams getParams() {
+		return params;
 	}
 
 	public ArrayList<MSynapse> getPreSynapses() {

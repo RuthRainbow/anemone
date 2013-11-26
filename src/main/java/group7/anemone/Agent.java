@@ -146,7 +146,7 @@ public class Agent extends SimulationObject{
 		}
 
 		/* Create the network. */
-		this.mnetwork = new MNetwork(neurons, synapses);
+		this.mnetwork = new MNetwork(neurons, synapses, 0.0f, 0.0f, 0.0f);
 
 		/* Set the simulation configuration parameters. */
 		simConfig.eventHorizon = 20;
