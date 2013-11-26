@@ -11,7 +11,7 @@ import java.util.Arrays;
  * be read by a neural network.
  */
 class NIAffectors {
-	public double[] vFood, vAlly, vEnemy;
+	public double[] vFood, vAlly, vEnemy, vWall;
 	public double mFront, mRight, mBack, mLeft;
 
 	int visionDim;
@@ -28,6 +28,7 @@ class NIAffectors {
 		vFood = new double[visionDim];
 		vAlly = new double[visionDim];
 		vEnemy = new double[visionDim];
+		vWall = new double[visionDim];
 	}
 
 	/**
@@ -40,6 +41,7 @@ class NIAffectors {
 	public String toString() {
 		return "Affectors: [vFood: "+Arrays.toString(vFood)+", vAlly: "+
 			Arrays.toString(vAlly)+", vEnemy: "+Arrays.toString(vEnemy)+
+			", vWall: "+Arrays.toString(vWall)+
 			", mFront: "+mFront+", mRight: "+mRight+", mBack: "+mBack+
 			", mLeft: "+mLeft+"]";
 	}
