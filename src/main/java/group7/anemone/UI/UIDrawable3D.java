@@ -1,5 +1,7 @@
 package group7.anemone.UI;
 
+import java.awt.event.MouseWheelEvent;
+
 import processing.core.PApplet;
 
 public class UIDrawable3D extends UIObject{
@@ -21,5 +23,18 @@ public class UIDrawable3D extends UIObject{
 
 		canvas.popMatrix();
 		canvas.camera();
+	}
+	
+	public boolean mouseWheel(MouseWheelEvent event){
+		if(events != null) return events.mouseWheel(event);
+		return false;
+	}
+	public boolean keyPressed(){
+		if(events != null) return events.keyPressed();
+		return false;
+	}
+	public boolean keyReleased(){
+		if(events != null) return events.keyReleased();
+		return false;
 	}
 }

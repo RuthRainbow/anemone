@@ -67,7 +67,7 @@ public class Simulation extends PApplet {
 	float neuralRotation = 0;
 	float zoomLevel = 1;
 	boolean arrowsPressed[] = new boolean[4];
-	int moveSpeed = 15;
+	int moveSpeed = 50;
 	float minZoom = 0.2f;
 
 	public static void main(String args[]){
@@ -93,7 +93,7 @@ public class Simulation extends PApplet {
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
 
-		for(int i = 0; i < 100; i++){
+		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			env.addFood(new Point2D.Double(x, y));
@@ -120,6 +120,8 @@ public class Simulation extends PApplet {
 		//coordinates of the mouse within the simulation environment
 		int simMouseX = (int) ((float) (mouseX - offsetX) / zoomLevel);
 		int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
+		if(!Utilities.isPointInBox(simMouseX, simMouseY, 0, 0, width, height)) return;
+		
 		switch(mouseMode){
 		case 0: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
 				if(agent_clicked != null){ //agent was clicked so update selected
@@ -154,7 +156,9 @@ public class Simulation extends PApplet {
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
-
+		
+		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
+		
 		if(zoomLevel > minZoom || event.getWheelRotation() > 0){
 			zoomLevel = Math.max(minZoom, (zoomLevel + 0.1f * event.getWheelRotation()));
 			offsetX -= (int) (((mouseX - offsetX) * (0.1f * event.getWheelRotation()))) / zoomLevel;
@@ -163,6 +167,8 @@ public class Simulation extends PApplet {
 	}
 	public void keyReleased(){	//Hotkeys for buttons
 		if(win.keyReleased()) return;
+		
+		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
 
 		switch(key) {
 		case('e'):	mouseMode=2;
@@ -191,6 +197,8 @@ public class Simulation extends PApplet {
 		}
 	}
 	public void keyPressed(){	//Hotkeys for buttons
+		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
+		
 		switch(keyCode) {
 			case(UP):	arrowsPressed[0] = true;
 						break;
@@ -439,14 +447,25 @@ public class Simulation extends PApplet {
 			private HashMap<MNeuron, Point2D.Double> placed;
 		    private HashMap<Integer, Integer> maxInLevel;
 		    private int maxLevel = 0;
+		    private int maxHeight = 0;
+		    private float zoom = 0.3f;
+		    private int offX = 0;
+		    private int offY = 0;
+		    boolean arrows[] = new boolean[4];
 			public void draw(PApplet canvas){
 				if(selectedAgent == null) return;
+				
+				if(arrows[0] && !arrows[1]) offY -= moveSpeed * zoom; //UP
+				if(arrows[1] && !arrows[0]) offY += moveSpeed * zoom; //DOWN
+				if(arrows[2] && !arrows[3]) offX -= moveSpeed * zoom; //LEFT
+				if(arrows[3] && !arrows[2]) offX += moveSpeed * zoom; //RIGHT
 
 				MNetwork net = selectedAgent.getNetwork();
 				placed = new HashMap<MNeuron, Point2D.Double>(); //store coordinates of placed neurons
 			    maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
 			    maxInLevel.put(0, 0);
 			    maxLevel = 0;
+			    maxHeight = 0;
 
 			    rotateY(neuralRotation);
 
@@ -476,15 +495,18 @@ public class Simulation extends PApplet {
 			    	}
 			    }
 
+			    
 			    int offsetX = -maxLevel * 10;
+			    int offsetY = -maxHeight * 10;
 			    noStroke();
+			    scale(zoom, zoom, zoom);
 			    for(MNeuron n : placed.keySet()){ //draw the neurons
 			    	if(n.isFiring()) fill(theme.getColor("NeuronFired"));
 			    	else fill(theme.getColor("Neuron"));
 
-		    		translate((float) placed.get(n).x + offsetX, (float) placed.get(n).y, 0);
+		    		translate((float) placed.get(n).x + offsetX + offX, (float) placed.get(n).y + offsetY + offY, 0);
 			    	sphere(3);
-			    	translate((float) -(placed.get(n).x + offsetX), (float) -placed.get(n).y, 0);
+			    	translate((float) -(placed.get(n).x + offsetX + offX), (float) -(placed.get(n).y + offsetY + offY), 0);
 			    }
 
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
@@ -492,8 +514,8 @@ public class Simulation extends PApplet {
 			    	Point2D.Double n2 = placed.get(s.getPostNeuron());
 
 			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
-			    	else stroke(255);
-			    	line((int) (n1.x + offsetX), (int) n1.y, 0, (int) (n2.x + offsetX), (int) n2.y, 0);
+			    	else stroke(255, 20);
+			    	line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), 0, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), 0);
 			    }
 
 			    neuralRotation -= 0.02;
@@ -509,7 +531,51 @@ public class Simulation extends PApplet {
 					maxInLevel.put(level, 0);
 					maxLevel++;
 				}else max = maxInLevel.get(level);
+				maxHeight = Math.max(maxHeight, (max/20));
 				return max;
+			}
+			
+			public boolean mouseWheel(MouseWheelEvent event){
+				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
+				
+				if(zoom > minZoom || event.getWheelRotation() > 0){
+					zoom = Math.max(minZoom, (zoom + 0.1f * event.getWheelRotation()));
+					//offX -= (int) (((mouseX - offX) * (0.1f * event.getWheelRotation()))) / zoom;
+					//offY -= (int) (((mouseY - offY) * (0.1f * event.getWheelRotation()))) / zoom;
+				}
+				
+				return true;
+			}
+			
+			public boolean keyReleased(){	//Hotkeys for buttons
+				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
+				
+				switch(keyCode) {
+					case(UP):	arrows[0] = false;
+								return true;
+					case(DOWN):	arrows[1] = false;
+								return true;
+					case(LEFT):	arrows[2] = false;
+								return true;
+					case(RIGHT):arrows[3] = false;
+								return true;
+				}
+				return false;
+			}
+			public boolean keyPressed(){	//Hotkeys for buttons
+				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
+				
+				switch(keyCode) {
+					case(UP):	arrowsPressed[0] = true;
+								return true;
+					case(DOWN):	arrowsPressed[1] = true;
+								return true;
+					case(LEFT):	arrowsPressed[2] = true;
+								return true;
+					case(RIGHT):arrowsPressed[3] = true;
+								return true;
+				}
+				return false;
 			}
 		});
 		sidePanel.addObject(neuralVisual);
