@@ -39,6 +39,7 @@ public class God {
 		ArrayList<Agent> selectedAgents = new ArrayList<Agent>();
 		double last_best = best_fitness;
 		double last_average = average_fitness;
+		average_fitness = 0;
 		for (Agent agent : agents) {
 			double fitness = agent.getFitness();
 			average_fitness += fitness;
@@ -193,9 +194,9 @@ public class God {
 					//Check if the connected left <-> is already within a gene
 					// ASSUMES EDGES ARE BIDIRECTIONAL. IS THIS RIGHT??????
 					IntPair newPair = new IntPair(left, right);
-					if (!edges.contains(newPair)) {
+					//if (!edges.contains(newPair)) {
 						connected = false;
-					}
+					//}
 				}
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(next_marker, child[left].in, child[right].in, 4.0, 1);
@@ -252,7 +253,7 @@ public class God {
 				if (getRandom() < 0.5) {
 					gene.weight += getRandom();
 				} else {
-					gene.weight -= getRandom();
+					gene.weight = Math.abs(gene.weight - getRandom());
 				}
 			}
 		}
