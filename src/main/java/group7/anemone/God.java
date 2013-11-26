@@ -15,6 +15,7 @@ public class God {
 
 	private double best_fitness = 0;
 	private double worst_fitness = 1;
+	private double average_fitness = 0.1;
 	private int no_improvement_count = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
@@ -30,16 +31,20 @@ public class God {
 	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<Agent> selectedAgents = Selection(agents);
+		System.out.println("selecting " + selectedAgents.size());
 		return GenerateChildren(selectedAgents);
 	}
 
 	protected ArrayList<Agent> Selection(ArrayList<Agent> agents) {
 		ArrayList<Agent> selectedAgents = new ArrayList<Agent>();
 		double last_best = best_fitness;
+		double last_average = average_fitness;
 		for (Agent agent : agents) {
 			double fitness = agent.getFitness();
+			average_fitness += fitness;
+			System.out.println("looking at agent with fitness " + fitness);
 			// This number is completely arbitrary, depends on fitness function
-			if (fitness * getRandom() > 0.7) {
+			if (fitness * getRandom() > average_fitness) {
 				selectedAgents.add(agent);
 			}
 			if (agent.getFitness() > best_fitness) {
@@ -48,6 +53,7 @@ public class God {
 				worst_fitness = agent.getFitness();
 			}
 		}
+		average_fitness = average_fitness / agents.size();
 		// Keep track of the number of generations without improvement.
 		if (last_best >= best_fitness) {
 			no_improvement_count++;
@@ -138,7 +144,11 @@ public class God {
 			}
 		}
 
-		return (Gene[]) child.toArray();
+		Gene[] childGene = new Gene[child.size()];
+		for (int i = 0; i < child.size(); i++) {
+			childGene[i] = child.get(i);
+		}
+		return childGene;
 	}
 
 	private Gene[] mutate(Gene[] child) {
@@ -228,7 +238,11 @@ public class God {
 				mutatedChild.add(newRightGene);
 			}
 		}
-		return (Gene[]) mutatedChild.toArray();
+		Gene[] mutatedGene = new Gene[mutatedChild.size()];
+		for (int i = 0; i < mutatedChild.size(); i++) {
+			mutatedGene[i] = mutatedChild.get(i);
+		}
+		return mutatedGene;
 	}
 
 	// Each weight is subject to random mutation.

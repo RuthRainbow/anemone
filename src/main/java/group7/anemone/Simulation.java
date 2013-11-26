@@ -3,13 +3,25 @@ package group7.anemone;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MSynapse;
-import group7.anemone.UI.*;
+import group7.anemone.UI.UIAction;
+import group7.anemone.UI.UIAngle;
+import group7.anemone.UI.UIButton;
+import group7.anemone.UI.UIColorWheel;
+import group7.anemone.UI.UIDrawable;
+import group7.anemone.UI.UIDrawable3D;
+import group7.anemone.UI.UIDropdown;
+import group7.anemone.UI.UILabel;
+import group7.anemone.UI.UIProgress;
+import group7.anemone.UI.UISlider;
+import group7.anemone.UI.UITheme;
+import group7.anemone.UI.UIVision;
+import group7.anemone.UI.UIWindow;
+import group7.anemone.UI.Utilities;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -51,7 +63,7 @@ public class Simulation extends PApplet {
 	//offset of the simulation drawing
 	int offsetX = 50;
 	int offsetY = 50;
-	
+
 	float neuralRotation = 0;
 	float zoomLevel = 1;
 	boolean arrowsPressed[] = new boolean[4];
@@ -104,7 +116,7 @@ public class Simulation extends PApplet {
 		 * 0 = Click tool - Select agents to see infromation on them in the top left hand corner
 		 * 1 = Food tool - Place food where you click
 		 */
-		
+
 		//coordinates of the mouse within the simulation environment
 		int simMouseX = (int) ((float) (mouseX - offsetX) / zoomLevel);
 		int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
@@ -142,7 +154,7 @@ public class Simulation extends PApplet {
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
-		
+
 		if(zoomLevel > minZoom || event.getWheelRotation() > 0){
 			zoomLevel = Math.max(minZoom, (zoomLevel + 0.1f * event.getWheelRotation()));
 			offsetX -= (int) (((mouseX - offsetX) * (0.1f * event.getWheelRotation()))) / zoomLevel;
@@ -166,7 +178,7 @@ public class Simulation extends PApplet {
 					btnGroupModes.selectButton(btnAddFood);
 					break;
 		}
-		
+
 		switch(keyCode) {
 			case(UP):	arrowsPressed[0] = false;
 						break;
@@ -202,7 +214,7 @@ public class Simulation extends PApplet {
 		handleCollisions();
 		checkDeaths();
 		updateUI();
-		
+
 		//move drawn region
 		if(arrowsPressed[0] && !arrowsPressed[1]) offsetY -= moveSpeed * zoomLevel; //UP
 		if(arrowsPressed[1] && !arrowsPressed[0]) offsetY += moveSpeed * zoomLevel; //DOWN
@@ -210,16 +222,16 @@ public class Simulation extends PApplet {
 		if(arrowsPressed[3] && !arrowsPressed[2]) offsetX += moveSpeed * zoomLevel; //RIGHT
 
 		win.draw();
-		
+
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 	}
-	
+
 	private void drawSimulation(PApplet canvas){
 		pushMatrix();
 		translate(offsetX, offsetY);
 		scale(zoomLevel);
-		
+
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
 		ArrayList<Wall> walls = env.getAllWalls();		//Returns an arraylist of all walls
@@ -258,7 +270,7 @@ public class Simulation extends PApplet {
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
-		
+
 		stroke(theme.getColor("Wall"));
 		noFill();
 		for(Wall wl : walls){ //Runs through arraylist of walls, will draw them on the canvas
@@ -266,7 +278,7 @@ public class Simulation extends PApplet {
 		}
 
 		popMatrix();
-		
+
 		fill(0);
 		//rect(draw_width - 50, 0, 250, draw_height);
 	}
@@ -303,15 +315,15 @@ public class Simulation extends PApplet {
 		theme.setColor("Wall", color(255));
 		theme.setColor("Neuron", color(200));
 		theme.setColor("NeuronFired", color(0, 255, 0));
-		
+
 		//setup main window for UI elements
 		win = new UIWindow(this, 0, 0, screen.width, screen.height);
 		sidePanel = new UIWindow(this, 250, 0, 250, screen.height);
 		sidePanel.setIsLeft(false);
 		sidePanel.setBackground(50);
 		sidePanel.setFixedBackground(true);
-		
-		
+
+
 		//Simulation draw region
 		UIDrawable sim = new UIDrawable(this, 0, 0, draw_width, draw_height);
 		sim.setBackground(color(255));
@@ -608,7 +620,7 @@ public class Simulation extends PApplet {
 		Agent agent2 = (Agent) cc.getCollidedObject();
 		bounceAgents(agent1, agent2);
 		/*Point2D.Double midpoint = new Point2D.Double((agent1.coords.x+agent2.coords.x)/2,(agent1.coords.y+agent2.coords.y)/2);
-		Wall bisector = new Wall(Utilities.generateLine(midpoint, 10, Utilities.angleBetweenPoints(agent1.coords.x, agent1.coords.y, agent2.coords.x, agent2.coords.y)+90)); 
+		Wall bisector = new Wall(Utilities.generateLine(midpoint, 10, Utilities.angleBetweenPoints(agent1.coords.x, agent1.coords.y, agent2.coords.x, agent2.coords.y)+90));
 		bounceAgent(new Collision(agent1,bisector));
 		bounceAgent(new Collision(agent2, bisector));*/
 	}
@@ -616,46 +628,46 @@ public class Simulation extends PApplet {
 	private void bounceAgents(Agent agent1, Agent agent2) {
 		Point2D.Double midpoint = new Point2D.Double((agent1.coords.x+agent2.coords.x)/2,(agent1.coords.y+agent2.coords.y)/2);
 		double dist = agent1.coords.distance(agent2.coords);
-		
+
 		double changeX1 = agent1.coords.x - agent2.coords.x;
 		double changeY1 = agent1.coords.y - agent2.coords.y;
 		double changeX2 = agent2.coords.x - agent1.coords.x;
 		double changeY2 = agent2.coords.y - agent1.coords.y;
-		
+
 		agent1.coords.x = midpoint.x + 10 * (changeX1 / dist);
 		agent1.coords.y = midpoint.y + 10 * (changeY1 / dist);
 		agent2.coords.x = midpoint.x + 10 * (changeX2 / dist);
 		agent2.coords.y = midpoint.y + 10 * (changeY2 / dist);
-		
+
 		/*Line2D.Double line = new Line2D.Double(agent1.coords,new Point2D.Double(agent1.coords.x+agent1.getChangeX(),agent1.coords.y+agent1.getChangeY()));
 
-		
+
 		Point2D.Double closestPoint = Utilities.getClosestPoint(line, agent2.coords);
 		double closestDistSq = Math.pow(agent2.coords.x - closestPoint.x, 2) + Math.pow((agent2.coords.y - closestPoint.y), 2);
-		
+
 		double backdist = Math.sqrt(Math.pow(20, 2) - closestDistSq);
 		double movementvectorlength = Math.sqrt(Math.pow(agent1.getChangeX(), 2) + Math.pow(agent1.getChangeY(), 2));
 		double c_x = closestPoint.x - backdist * (agent1.getChangeX() / movementvectorlength);
 		double c_y = closestPoint.y - backdist * (agent1.getChangeY() / movementvectorlength);
-		
+
 		double collisiondist = Math.sqrt(Math.pow(agent2.coords.x - c_x, 2) + Math.pow(agent2.coords.y - c_y, 2));
 		double n_x = (agent2.coords.x - c_x) / collisiondist;
 		double n_y = (agent2.coords.y - c_y) / collisiondist;
 		double p = 2 * (agent1.getChangeX() * n_x + agent1.getChangeY() * n_y) / (10);
 		double w_x = agent1.getChangeX() - p * 5 * n_x - p * 5 * n_x;
 		double w_y = agent2.getChangeY() - p * 5 * n_y - p * 5 * n_y;
-		
-		
+
+
 		agent1.stop();
 		double previousHeading = agent1.getViewHeading();
-		double thrust = Math.sqrt(w_x*w_x + w_y*w_y); 
+		double thrust = Math.sqrt(w_x*w_x + w_y*w_y);
 		double newAngle = Math.atan(w_y/w_x)* Math.PI / 180;
 		agent1.changeViewHeading(newAngle - agent1.getViewHeading());
 		agent1.thrust(thrust);
 		agent1.changeViewHeading(previousHeading - newAngle);
 		agent1.updateHealth(thrust / -100);
 		agent1.updateFitness(thrust / -100);*/
-		
+
 	}
 
 	private void bounceAgent(Collision cc) {
@@ -667,21 +679,21 @@ public class Simulation extends PApplet {
 		double newAngle = normalAngle + (normalAngle - agentAngle - 180);
 		double oldHeading = ag.getViewHeading();
 		double thrust = ag.getMovingSpeed();
-		
-		
+
+
 		Wall wl = (Wall) cc.getCollidedObject();
 		double distanceToWall = wl.getLine().ptLineDist(ag.coords);
-		double thrustIncrease = (10-distanceToWall)/100 + 1; 
+		double thrustIncrease = (10-distanceToWall)/100 + 1;
 		boolean leftWall = wl.getLine().ptLineDist(new Point2D.Double(0,height/2)) == 0;
 		boolean rightWall = wl.getLine().ptLineDist(new Point2D.Double(width,height/2)) == 0;
 		boolean topWall = wl.getLine().ptLineDist(new Point2D.Double(width/2,0)) == 0;
 		boolean bottomWall = wl.getLine().ptLineDist(new Point2D.Double(width/2,height)) == 0;
-		
+
 		/*double m = (line.y2-line.y1)/(line.x2-line.x1);
 		double c = line.y1 - m*line.x1;
 		boolean mInvalid = (m == java.lang.Double.POSITIVE_INFINITY || m == java.lang.Double.NEGATIVE_INFINITY || java.lang.Double.isNaN(m));
 		boolean cInvalid = (c == java.lang.Double.POSITIVE_INFINITY || c == java.lang.Double.NEGATIVE_INFINITY || java.lang.Double.isNaN(c));
-		
+
 		double r = 10;
 		double a = ag.coords.x;
 		double b = ag.coords.y;
@@ -693,7 +705,7 @@ public class Simulation extends PApplet {
 		Ycoord[0] = m*Xcoord[0] + c;
 		Ycoord[1] = m*Xcoord[1] + c;
 		System.out.println("***************************************************************************");
-		if(leftWall) System.out.println("Collided with left wall"); 
+		if(leftWall) System.out.println("Collided with left wall");
 		else if (rightWall) System.out.println("Collided with right wall");
 		else if (topWall) System.out.println("Collided with top wall");
 		else if (bottomWall) System.out.println("Collided with bottom wall");
@@ -707,13 +719,13 @@ public class Simulation extends PApplet {
 		System.out.println("New position: "+ag.coords.x+" "+ag.coords.y);
 		System.out.println("Distance to wall after: "+wl.getLine().ptLineDist(ag.getCoordinates()));*/
 
-	
-		if(leftWall) ag.coords.x += (10 - distanceToWall); 
+
+		if(leftWall) ag.coords.x += (10 - distanceToWall);
 		else if (rightWall) ag.coords.x -= (10 - distanceToWall);
 		else if (topWall) ag.coords.y += (10 - distanceToWall);
 		else if (bottomWall) ag.coords.y -= (10 - distanceToWall);
-			
-		
+
+
 		ag.stop();
 		ag.changeViewHeading(newAngle - ag.getViewHeading());
 		ag.thrust(thrustIncrease * thrust);

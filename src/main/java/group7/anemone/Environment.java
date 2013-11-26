@@ -5,6 +5,7 @@ import group7.anemone.UI.Utilities;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import processing.core.PApplet;
 
@@ -198,17 +199,20 @@ public class Environment {
 			shark.update();
 		}
 		tick++;
-		/* Method not implemented yet:
-		if (tick % 5 == 0) {
-			god.BreedPopulation(fishes);
-			god.BreedPopulation(sharks);
-			// Reset tick (in case of overflow)
+		if (tick % 50 == 0) {
+			ArrayList<Gene[]> nextGen = god.BreedPopulation(fishes);
+			System.out.println("BREEDING!");
+			for (Gene[] gene : nextGen) {
+				System.out.println(Arrays.toString(gene));
+			}
+			//god.BreedPopulation(sharks);
+			// Reset tick until next generation
 			tick = 0;
-		}*/
+		}
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
-		
+
 		/*
 		Gene[] genome = new Gene[4];
 		genome[0] = new Gene(1, 0,4,4.0,1);
@@ -224,10 +228,10 @@ public class Environment {
 		 * Post Node
 		 * Weight
 		 * Delay
-		 * 
+		 *
 		 * */
 		Gene[] genome = new Gene[90];
-		 
+
 		genome[0] = new Gene(0,0,30,4.0,1);
 		genome[1] = new Gene(1,1,30,4.0,1);
 		genome[2] = new Gene(2,2,30,4.0,1);
