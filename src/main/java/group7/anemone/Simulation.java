@@ -452,10 +452,11 @@ public class Simulation extends PApplet {
 		    private HashMap<Integer, Integer> maxInLevel;
 		    private int maxLevel = 0;
 		    private int maxHeight = 0;
-		    private float zoom = 1f;
+		    private float zoom = 1.5f;
 		    private int offX = 0;
-		    private int offY = -50;
+		    private int offY = 200;
 		    boolean arrows[] = new boolean[4];
+		    private boolean rotating = true;
 			public void draw(PApplet canvas){
 				if(selectedAgent == null) return;
 				
@@ -505,9 +506,15 @@ public class Simulation extends PApplet {
 			    noStroke();
 			    scale(zoom, zoom, zoom);
 			    for(MNeuron n : placed.keySet()){ //draw the neurons
-			    	if(n.isFiring()) fill(theme.getColor("NeuronFired"));
-			    	else fill(theme.getColor("Neuron"));
+			    	int isFired = (n.isFiring() ? 255 : 60);
+			    	if(n.getID() <= 9) fill(theme.getColor("Food"), isFired);
+			    	else if(n.getID() >= net.getNeurons().size() - 3) fill(0, 255, 255, isFired);
+			    	else fill(theme.getColor("Neuron"), isFired);
 
+			    	
+			    	//clip node if off the display
+			    	if((placed.get(n).y + offsetY + offY) * zoom < -140) continue;
+			    	
 		    		translate((float) placed.get(n).x + offsetX + offX, (float) placed.get(n).y + offsetY + offY, placed.get(n).z);
 			    	sphere(3);
 			    	translate((float) -(placed.get(n).x + offsetX + offX), (float) -(placed.get(n).y + offsetY + offY), -placed.get(n).z);
@@ -516,13 +523,28 @@ public class Simulation extends PApplet {
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
 			    	MVec3f n1 = placed.get(s.getPreNeuron());
 			    	MVec3f n2 = placed.get(s.getPostNeuron());
-
+			    	
+			    	//clip edge if both nodes above clipping
+			    	if((n1.y + offsetY + offY) * zoom < -140
+			    			&& (n2.y + offsetY + offY) * zoom < -140) continue;
+			    	
 			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
 			    	else stroke(255, 20);
-			    	line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), (int) n1.z, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), (int) n2.z);
+			    	
+			    	//partial clipping when one node if above line
+			    	if((n1.y + offsetY + offY) * zoom < -140){
+			    		double t = (((-140.0/zoom)-offsetY-offY)-n2.y) / (n1.y - n2.y);
+			    		int x = (int) ((int) (n2.x + t * (n1.x - n2.x)) / zoom);
+			    		line((int) (x + offsetX + offX), (int) (-140 / zoom), 0, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), (int) n2.z);
+			    	}else if((n2.y + offsetY + offY) * zoom < -140){
+			    		double t = (((-140.0/zoom)-offsetY-offY)-(n1.y)) / (double) ((n2.y - n1.y));
+			    		int x = (int) (n1.x + t * (n2.x - n1.x));
+			    		line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), (int) n1.z, (int) (x + offsetX + offX), (int) (-140 / zoom), 0);
+			    	}else
+			    		line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), (int) n1.z, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), (int) n2.z);
 			    }
 
-			    neuralRotation -= 0.02;
+			    if(rotating) neuralRotation -= 0.02;
 			}
 			private void addNode(int level, int max, MNeuron node){
 				MVec3f n1 = new MVec3f(level * 20, max, 0);
@@ -544,10 +566,13 @@ public class Simulation extends PApplet {
 				
 				if(zoom > minZoom || event.getWheelRotation() > 0){
 					zoom = Math.max(minZoom, (zoom + 0.1f * event.getWheelRotation()));
-					//offX -= (int) (((mouseX - offX) * (0.1f * event.getWheelRotation()))) / zoom;
-					//offY -= (int) (((mouseY - offY) * (0.1f * event.getWheelRotation()))) / zoom;
 				}
 				
+				return true;
+			}
+			public boolean mousePressed(){
+				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
+				rotating = !rotating;
 				return true;
 			}
 			

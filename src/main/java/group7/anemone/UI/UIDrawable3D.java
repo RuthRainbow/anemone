@@ -37,4 +37,8 @@ public class UIDrawable3D extends UIObject{
 		if(events != null) return events.keyReleased();
 		return false;
 	}
+	public boolean mousePressed(){
+		if(events != null) return events.mousePressed();
+		return false;
+	}
 }
