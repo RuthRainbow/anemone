@@ -47,12 +47,12 @@ public class Simulation extends PApplet {
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
 	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust;
 	UIVision agentHeading;
-	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed;
+	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed, lblSimTPS;
 	UIDropdown themeDrop;
 	UIColorWheel themeColorWheel;
 	UITheme theme;
 	UIProgress progHealth;
-	UISlider sliderX, sliderY;
+	UISlider sliderX, sliderY, sliderTPS;
 	UIDrawable3D neuralVisual;
 
 	//size of the simulation environment
@@ -70,6 +70,8 @@ public class Simulation extends PApplet {
 	boolean arrowsPressed[] = new boolean[4];
 	int moveSpeed = 50;
 	float minZoom = 0.2f;
+	int SIM_TICKS = 1;
+	int SIM_TPS_MAX = 51;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -218,13 +220,16 @@ public class Simulation extends PApplet {
 		win.setBackground(theme.getColor("Background"));
 		sidePanel.setBackground(theme.getColor("Sidepanel"));
 
-		env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
-		env.updateCollisions(); //update the environment with the new collisions
-		env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
-		handleCollisions();
-		env.killOutsideAgents(width, height);
-		checkDeaths();
-		updateUI();
+		
+		for(int i = 0; i < SIM_TICKS; i++){
+			env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
+			env.updateCollisions(); //update the environment with the new collisions
+			env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
+			handleCollisions();
+			env.killOutsideAgents(width, height);
+			checkDeaths();
+			updateUI();
+		}
 
 		//move drawn region
 		if(arrowsPressed[0] && !arrowsPressed[1]) offsetY -= moveSpeed * zoomLevel; //UP
@@ -359,8 +364,22 @@ public class Simulation extends PApplet {
 		btnAddFood = addModeButton(1, "Food", 70, 84, 255, 159);
 		btnAddAgent = addModeButton(2, "Agent", 130, 255, 127, 0);
 		btnThrust = addModeButton(3, "Thrust", 190, 0, 231, 125);
-
+		
 		btnGroupModes.selectButton(btnSelectAgent);
+		
+		//Change number of ticks updated each frame
+		sliderTPS = new UISlider(this, 10, 85, 170, 30);
+		sliderTPS.setEventHandler(new UIAction(){
+			public void change(UISlider slider){
+				SIM_TICKS = (int) (slider.getValue() * SIM_TPS_MAX);
+				lblSimTPS.setText("Ticks: " + SIM_TICKS);
+			}
+		});
+		sliderTPS.setValue(1.0 / SIM_TPS_MAX);
+		btnGroupModes.addObject(sliderTPS);
+
+		lblSimTPS = new UILabel(this, 190, 92, "Ticks: " + SIM_TICKS);
+		btnGroupModes.addObject(lblSimTPS);
 
 		//Statistics window for the currently selected agent
 		winStats = new UIWindow(this, 0, 165, 300, 250);
@@ -441,7 +460,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(btnSelectKill);
-
+		
 		//3D neural network visual
 		
 		neuralVisual.setIsTop(false);
