@@ -21,6 +21,21 @@ public class God {
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
 	private int next_marker = 89;
 	private ArrayList<Gene> newGenes;
+	
+	// The ordered list of species, each represented by a member from the
+	// previous generation
+	private ArrayList<Gene[]> species;
+	
+	// Parameters for use in difference calcuation (can be tweaked).
+	private final double c1 = 0.5;
+	private final double c2 = 0.5;
+	private final double c3 = 0.5;
+	// Threshold for max distance between species member and representative.
+	private final double compatibilityThreshold = 5;
+	
+	public God() {
+		this.species = new ArrayList<Gene[]>();
+	}
 
 	// This is inside it's own method to make unittesting easier.
 	public double getRandom() {
@@ -33,6 +48,52 @@ public class God {
 		ArrayList<Agent> selectedAgents = Selection(agents);
 		System.out.println("selecting " + selectedAgents.size());
 		return GenerateChildren(selectedAgents);
+	}
+	
+	protected ArrayList<Gene[]> BreedWithSpecies(ArrayList<Agent> agents) {
+		newGenes = new ArrayList<Gene>();
+		HashMap<Gene[], ArrayList<Gene[]>> speciesMap =
+				new HashMap<Gene[], ArrayList<Gene[]>>();
+		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+		for (Gene[] gene : species) {
+			ArrayList<Gene[]> newSpecies = new ArrayList<Gene[]>();
+			speciesMap.put(gene, newSpecies);
+		}
+		// Put each agent given for reproduction into a species.
+		for (Agent agent : agents) {
+			Gene[] stringRep = agent.getStringRep();
+			boolean foundSpecies = false;
+			for (Gene[] gene : species) {
+				double dist = getDistance(stringRep, gene);
+				if (dist < compatibilityThreshold) {
+					foundSpecies = true;
+					speciesMap.get(gene).add(stringRep);
+				}
+			}
+			if (!foundSpecies) {
+				ArrayList<Gene[]> newSpecies = new ArrayList<Gene[]>();
+				speciesMap.put(stringRep, newSpecies);
+			}
+		}
+		
+		return children;
+	}
+	
+	// Return computability distance between two networks (see NEAT speciation).
+	protected double getDistance(Gene[] a, Gene[] b) {
+		int numExcess = Math.abs(a.length - b.length);
+		int numDisjoint = 0;
+		double weightDiff = 0.0;
+		int minLength = Math.min(a.length, b.length);
+		int maxLength = Math.max(a.length, b.length);
+		for (int i = 0; i < minLength; i++) {
+			if (a[i].historicalMarker != b[i].historicalMarker) {
+				numDisjoint++;
+			} else {
+				weightDiff += Math.abs(a[i].weight - b[i].weight);
+			}
+		}
+		return (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
 	}
 
 	protected ArrayList<Agent> Selection(ArrayList<Agent> agents) {
