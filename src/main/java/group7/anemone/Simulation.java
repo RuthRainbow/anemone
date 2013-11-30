@@ -45,7 +45,7 @@ public class Simulation extends PApplet {
 	UIWindow winTheme;
 
 	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
-	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust;
+	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust, btnToggleFocused;
 	UIVision agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed, lblSimTPS;
 	UIDropdown themeDrop;
@@ -72,6 +72,10 @@ public class Simulation extends PApplet {
 	float minZoom = 0.2f;
 	int SIM_TICKS = 1;
 	int SIM_TPS_MAX = 51;
+	
+	//agent tracking / focused settings
+	boolean agentFocused = false;
+	int trackingBounds = 100;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -118,6 +122,8 @@ public class Simulation extends PApplet {
 		 * Mouse Modes are as follows:
 		 * 0 = Click tool - Select agents to see information on them in the top left hand corner
 		 * 1 = Food tool - Place food where you click
+		 * 2 = Agent tool - Place agent where you click
+		 * 3 = Thrust tool - Thrusts the agent clicked on by 2
 		 */
 
 		//coordinates of the mouse within the simulation environment
@@ -256,7 +262,8 @@ public class Simulation extends PApplet {
 			Agent ag = agents.get(i);
 
 			//draw the field of view for the agent
-			stroke(128); //, (float) ag.getHealth()*200+55
+			if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) stroke(128);
+			else stroke(128, 25); //, (float) ag.getHealth()*200+55
 			noFill();
 			double range = ag.getVisionRange() * 2;
 
@@ -276,8 +283,21 @@ public class Simulation extends PApplet {
 
 			//draw our circle representation for the agent
 			noStroke();
-			fill(theme.getColor("Agent")); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
+			if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor("Agent"));
+			else fill(theme.getColor("Agent"), 25); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
+			
 			ellipse(ag.getX(), ag.getY(), 20, 20);
+			
+			if(agentFocused && ag == selectedAgent){ //keep agent on screen if in focused / tracking mode
+				int simAgX = (int) ((ag.getX() * zoomLevel) + offsetX);//screen coordinates of the selected agent
+				int simAgY = (int) ((ag.getY() * zoomLevel) + offsetY);
+				
+				if(simAgX < trackingBounds) offsetX += trackingBounds - simAgX;
+				else if(simAgX > draw_width - trackingBounds) offsetX -= simAgX - draw_width + trackingBounds;
+				
+				if(simAgY < trackingBounds) offsetY += trackingBounds - simAgY;
+				else if(simAgY > draw_height - trackingBounds) offsetY -= simAgY - draw_height + trackingBounds;
+			}
 		}
 
 		noStroke();
@@ -460,6 +480,18 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(btnSelectKill);
+		
+		//Toggle focused / tracking mode for selected agent
+		btnToggleFocused = new UIButton(this, 120, 5, 65, 15, (agentFocused ? "Unfocus" : "Focus"));
+		btnToggleFocused.setIsLeft(false);
+		btnToggleFocused.setColor(50, 100, 255);
+		btnToggleFocused.setEventHandler(new UIAction(){
+			public void click(UIButton btn){
+				agentFocused = !agentFocused;
+				btn.setText(agentFocused ? "Unfocus" : "Focus");
+			}
+		});
+		winStats.addObject(btnToggleFocused);
 		
 		//3D neural network visual
 		

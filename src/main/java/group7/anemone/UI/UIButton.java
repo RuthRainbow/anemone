@@ -28,6 +28,9 @@ public class UIButton extends UIObject{
 	public void setSelected(boolean select){
 		this.selected = select;
 	}
+	public void setText(String txt){
+		this.value = txt;
+	}
 
 	public void draw(){
 		int r = this.r;
