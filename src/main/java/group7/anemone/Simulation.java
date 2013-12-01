@@ -23,6 +23,11 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -191,6 +196,10 @@ public class Simulation extends PApplet {
 					break;
 		case('w'):	mouseMode=1;
 					btnGroupModes.selectButton(btnAddFood);
+					break;
+		case('s'):	saveEnvironment();
+					break;
+		case('o'):	restoreEnvironment();
 					break;
 		}
 
@@ -849,5 +858,55 @@ public class Simulation extends PApplet {
 			}
 		}
 		return agent_clicked;
+	}
+	
+	//Serialises the environment class to ~/anemone/env/save.ser
+	//TODO: dialog to save/restore multiple environments
+	private void saveEnvironment(){
+		setupSaveFolders();
+		
+		try{
+			String home = System.getProperty("user.home");
+			String path = home + "/anemone/save/env.ser";
+			System.out.println(home);
+			FileOutputStream output = new FileOutputStream(path);
+			ObjectOutputStream out = new ObjectOutputStream(output);
+			out.writeObject(env);
+			out.close();
+			output.close();
+			System.out.println("Environment saved to: " + path);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	//Deserialises the environment class from ~/anemone/env/save.ser if exists
+	private void restoreEnvironment(){
+		File file = new File(System.getProperty("user.home") + "/anemone/save/env.ser");
+		if(!file.exists()){
+			System.out.println("Save file does not exist" + file.getAbsolutePath());
+			return;
+		}
+		
+		try{
+			FileInputStream input = new FileInputStream(file);
+			ObjectInputStream in = new ObjectInputStream(input);
+			Environment en = (Environment) in.readObject();
+			in.close();
+			input.close();
+			if(en != null){
+				env = en;
+				env.parent = this;
+				for(Agent ag : env.getAllAgents()){
+					ag.parent = this;
+				}
+			}
+			System.out.println("Environment loaded");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	private void setupSaveFolders(){
+		File f = new File(System.getProperty("user.home") + "/anemone/save/");
+		f.mkdirs();
 	}
 }

@@ -1,12 +1,18 @@
 package group7.anemone;
 
+import java.io.Serializable;
+
 /**
  * NInterface (neural interface) is a data structure class that represents
  * the current state of an agent's afferent and efferent organs. Afferent
  * organs are updated by the simulation and read by the neural network.
  * Efferent organs are updated by the neural network and read by the simulation.
  */
-class NInterface {
+class NInterface implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6748348291714735362L;
 	public NIAffectors affectors;
 	public NIEffectors effectors;
 

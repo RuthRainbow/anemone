@@ -1,5 +1,6 @@
 package group7.anemone;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,8 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class God {
+public class God implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 619717007643693268L;
 	// NEAT uses an absolutely massive mutation chance
 	private double mutation_chance = 0.03f;
 	private final double twin_chance = 0.05f;

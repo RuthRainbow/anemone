@@ -1,12 +1,17 @@
 package group7.anemone.MNetwork;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * The MNetwork class encapsulates a set of neurons and a set of synapses
  * that together describe a network.
  */
-public class MNetwork {
+public class MNetwork implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6478084195441289384L;
 	private ArrayList<MNeuron> neurons;
 	private ArrayList<MSynapse> synapses;
 	private final float width, height, depth;

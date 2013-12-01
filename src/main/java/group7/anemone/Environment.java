@@ -4,13 +4,18 @@ import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
 
-public class Environment {
+public class Environment implements Serializable{
 
-	PApplet parent;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2740658645450395424L;
+	transient PApplet parent;
 	// God & clock needed for breeding every n generations
 	private God god;
 	private int tick = 0;

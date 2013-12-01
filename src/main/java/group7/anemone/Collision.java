@@ -1,8 +1,14 @@
 package group7.anemone;
 
+import java.io.Serializable;
+
 //Class to hold a collision between an agent and an object, which could be another agent or a wall.
 //(If we have breeding on collision, another agent vs wall matters).
-public class Collision {
+public class Collision implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1344240281159275276L;
 	public static final int TYPE_FOOD = 1;
 	public static final int TYPE_AGENT = 2;
 	public static final int TYPE_ENEMY = 3;

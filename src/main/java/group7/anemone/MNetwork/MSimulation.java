@@ -1,12 +1,18 @@
 package group7.anemone.MNetwork;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * The MSimulation class represents the state of one neural network
  * and provides methods for integrating (stepping) its simulation.
  */
-public class MSimulation {
+public class MSimulation implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6811313613723305104L;
+
 	/* Network configuration. */
 	MSimulationConfig config;
 

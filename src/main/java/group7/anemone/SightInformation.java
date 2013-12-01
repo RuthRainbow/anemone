@@ -1,6 +1,12 @@
 package group7.anemone;
 
-public class SightInformation extends Collision{
+import java.io.Serializable;
+
+public class SightInformation extends Collision implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -944300220441096787L;
 	private double distance;
 	private double distanceFromLower;
 	

@@ -1,5 +1,7 @@
 package group7.anemone.MNetwork;
 
+import java.io.Serializable;
+
 /**
  * The MSynapse class represents one synapse. We allow an MSynapse to
  * connect two neurons, a 'preneuron' and a 'postneuron'. An MSynapse
@@ -10,7 +12,11 @@ package group7.anemone.MNetwork;
  * TODO:
  * - STDP/Memory R and D
  */
-public class MSynapse {
+public class MSynapse implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8827613839693448412L;
 	private MNeuron pre, post;
 	private double weight;
 	private int delay;

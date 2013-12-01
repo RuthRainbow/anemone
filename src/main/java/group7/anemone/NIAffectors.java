@@ -1,5 +1,6 @@
 package group7.anemone;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -10,7 +11,11 @@ import java.util.Arrays;
  * The data encapsulated here should be updated by the simulation, to later
  * be read by a neural network.
  */
-class NIAffectors {
+class NIAffectors implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2922282260295687327L;
 	public double[] vFood, vAlly, vEnemy, vWall;
 	public double mFront, mRight, mBack, mLeft;
 

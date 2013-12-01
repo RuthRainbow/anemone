@@ -10,13 +10,18 @@ import group7.anemone.MNetwork.MSynapse;
 import group7.anemone.MNetwork.MVec3f;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import processing.core.PApplet;
 
-public class Agent extends SimulationObject{
-	PApplet parent;
+public class Agent extends SimulationObject implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6755516656827008579L;
+	transient PApplet parent;
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
