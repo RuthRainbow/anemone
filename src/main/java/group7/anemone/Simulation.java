@@ -31,6 +31,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -860,28 +863,30 @@ public class Simulation extends PApplet {
 		return agent_clicked;
 	}
 	
-	//Serialises the environment class to ~/anemone/env/save.ser
-	//TODO: dialog to save/restore multiple environments
+	//Serialises the environment class to chosen location
 	private void saveEnvironment(){
-		setupSaveFolders();
+		JFileChooser diag = getFileChooser(true);
+		if(diag.showSaveDialog(this) != diag.APPROVE_OPTION) return;
 		
 		try{
-			String home = System.getProperty("user.home");
-			String path = home + "/anemone/save/env.ser";
-			System.out.println(home);
-			FileOutputStream output = new FileOutputStream(path);
+			File file = new File(diag.getSelectedFile().getAbsoluteFile() + ".env");
+			FileOutputStream output = new FileOutputStream(file);
 			ObjectOutputStream out = new ObjectOutputStream(output);
 			out.writeObject(env);
 			out.close();
 			output.close();
-			System.out.println("Environment saved to: " + path);
+			System.out.println("Environment saved to: " + file.getAbsolutePath());
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
-	//Deserialises the environment class from ~/anemone/env/save.ser if exists
+	
+	//Deserialises the environment class selected by user
 	private void restoreEnvironment(){
-		File file = new File(System.getProperty("user.home") + "/anemone/save/env.ser");
+		JFileChooser diag = getFileChooser(false);
+		if(diag.showOpenDialog(this) != diag.APPROVE_OPTION) return;
+		
+		File file = diag.getSelectedFile();
 		if(!file.exists()){
 			System.out.println("Save file does not exist" + file.getAbsolutePath());
 			return;
@@ -893,7 +898,8 @@ public class Simulation extends PApplet {
 			Environment en = (Environment) in.readObject();
 			in.close();
 			input.close();
-			if(en != null){
+			
+			if(en != null){ //set all parent variables in environment to this class
 				env = en;
 				env.parent = this;
 				for(Agent ag : env.getAllAgents()){
@@ -905,8 +911,19 @@ public class Simulation extends PApplet {
 			e.printStackTrace();
 		}
 	}
-	private void setupSaveFolders(){
-		File f = new File(System.getProperty("user.home") + "/anemone/save/");
-		f.mkdirs();
+	
+	//Builds a file selection dialog box for saving / opening an environment
+	private JFileChooser getFileChooser(boolean isSave){
+		File file = new File(System.getProperty("user.home") + "/anemone/save/");
+		file.mkdirs();
+		
+		JFileChooser diag = new JFileChooser(file);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Environment (.env)", "env");
+		diag.setFileFilter(filter);
+		if(isSave) diag.setDialogTitle("Save Environment");
+		else diag.setDialogTitle("Open Environment");
+		diag.setMultiSelectionEnabled(false);
+		
+		return diag;
 	}
 }
