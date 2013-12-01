@@ -499,13 +499,9 @@ public class Simulation extends PApplet {
 		neuralVisual.setBackground(30);
 		neuralVisual.setFixedBackground(true);
 		neuralVisual.setEventHandler(new UIAction(){
-			private HashMap<MNeuron, MVec3f> placed;
-		    private HashMap<Integer, Integer> maxInLevel;
-		    private int maxLevel = 0;
-		    private int maxHeight = 0;
 		    private float zoom = 1.5f;
 		    private int offX = 0;
-		    private int offY = 200;
+		    private int offY = 190;
 		    boolean arrows[] = new boolean[4];
 		    private boolean rotating = true;
 			public void draw(PApplet canvas){
@@ -513,103 +509,57 @@ public class Simulation extends PApplet {
 				
 				if(arrows[0] && !arrows[1]) offY -= moveSpeed/3; //UP
 				if(arrows[1] && !arrows[0]) offY += moveSpeed/3; //DOWN
-
+				
 				MNetwork net = selectedAgent.getNetwork();
-				placed = new HashMap<MNeuron, MVec3f>(); //store coordinates of placed neurons
-			    maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
-			    maxInLevel.put(0, 0);
-			    maxLevel = 0;
-			    maxHeight = 0;
-
-			    rotateY(neuralRotation);
-
-			    //TODO: these positions of nodes can be precalculated when network is generated.
-			    for(MSynapse s : net.getSynapses()){ //determine the x, y coordinates for each node based on links
-			    	MNeuron pre = s.getPreNeuron();
-			    	MNeuron post = s.getPostNeuron();
-			    	int level = 0;
-
-			    	if(!placed.containsKey(pre)){
-			    		if(placed.containsKey(post)){ //pre node not placed but post is, place at level - 1
-			    			level = (int) (placed.get(post).x / 20) - 1;
-			    		}
-
-			    		int max = maxValue(level);
-			    		addNode(level, max, pre);
-			    	}
-
-			    	if(!placed.containsKey(post)){
-			    		if(placed.containsKey(pre)){ //post node not placed but pre is, place at level + 1
-			    			level = (int) (placed.get(pre).x / 20);
-			    		}
-			    		level++;
-
-                        int max = maxValue(level);
-			    		addNode(level, max, post);
-			    	}
-			    	
-			    	if(placed.get(pre).x == placed.get(post).x) placed.get(pre).z += 20;
-			    }
-
-			    
-			    int offsetX = -maxLevel * 10;
-			    int offsetY = -maxHeight * 10;
+				
 			    noStroke();
+			    pushMatrix();
+			    
+			    rotateY(neuralRotation);
 			    scale(zoom, zoom, zoom);
-			    for(MNeuron n : placed.keySet()){ //draw the neurons
+			    translate(offX, offY);
+			    for(MNeuron n : net.getNeurons()){ //draw the neurons
 			    	int isFired = (n.isFiring() ? 255 : 60);
 			    	if(n.getID() <= 9) fill(theme.getColor("Food"), isFired);
 			    	else if(n.getID() >= net.getNeurons().size() - 3) fill(0, 255, 255, isFired);
 			    	else fill(theme.getColor("Neuron"), isFired);
 
-			    	
+			    	MVec3f vec = n.getCoordinates();
 			    	//clip node if off the display
-			    	if((placed.get(n).y + offsetY + offY) * zoom < -140) continue;
+			    	if((vec.y + offY) * zoom < -135) continue;
 			    	
-		    		translate((float) placed.get(n).x + offsetX + offX, (float) placed.get(n).y + offsetY + offY, placed.get(n).z);
+		    		translate(vec.x, vec.y, vec.z);
 			    	sphere(3);
-			    	translate((float) -(placed.get(n).x + offsetX + offX), (float) -(placed.get(n).y + offsetY + offY), -placed.get(n).z);
+			    	translate(-vec.x, -vec.y, -vec.z);
 			    }
 
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
-			    	MVec3f n1 = placed.get(s.getPreNeuron());
-			    	MVec3f n2 = placed.get(s.getPostNeuron());
+			    	MVec3f n1 = s.getPreNeuron().getCoordinates();
+			    	MVec3f n2 = s.getPostNeuron().getCoordinates();
 			    	
 			    	//clip edge if both nodes above clipping
-			    	if((n1.y + offsetY + offY) * zoom < -140
-			    			&& (n2.y + offsetY + offY) * zoom < -140) continue;
+			    	if((n1.y + offY) * zoom < -135
+			    			&& (n2.y + offY) * zoom < -135) continue;
 			    	
 			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
 			    	else stroke(255, 20);
 			    	
 			    	//partial clipping when one node if above line
-			    	if((n1.y + offsetY + offY) * zoom < -140){
-			    		double t = (((-140.0/zoom)-offsetY-offY)-n2.y) / (n1.y - n2.y);
+			    	if((n1.y + offY) * zoom < -135){
+			    		double t = (((-135 / zoom) - offY)-n2.y) / (n1.y - n2.y);
 			    		int x = (int) ((int) (n2.x + t * (n1.x - n2.x)) / zoom);
-			    		line((int) (x + offsetX + offX), (int) (-140 / zoom), 0, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), (int) n2.z);
-			    	}else if((n2.y + offsetY + offY) * zoom < -140){
-			    		double t = (((-140.0/zoom)-offsetY-offY)-(n1.y)) / (double) ((n2.y - n1.y));
+			    		line((int) (x), (int) (-135 / zoom) - offY, 0, (int) (n2.x), (int) (n2.y), (int) n2.z);
+			    	}else if((n2.y + offY) * zoom < -135){
+			    		double t = (((-135.0 / zoom) - offY)-(n1.y)) / (double) ((n2.y - n1.y));
 			    		int x = (int) (n1.x + t * (n2.x - n1.x));
-			    		line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), (int) n1.z, (int) (x + offsetX + offX), (int) (-140 / zoom), 0);
-			    	}else
-			    		line((int) (n1.x + offsetX + offX), (int) (n1.y + offsetY + offY), (int) n1.z, (int) (n2.x + offsetX + offX), (int) (n2.y + offsetY + offY), (int) n2.z);
+			    		line((int) (n1.x), (int) (n1.y), (int) n1.z, (int) (x), (int) (-135 / zoom) - offY, 0);
+			    	}else{
+			    		line((int) n1.x, (int) n1.y, (int) n1.z, (int) n2.x, (int) n2.y, (int) n2.z);
+			    	}
 			    }
-
+			    
+			    popMatrix();
 			    if(rotating) neuralRotation -= 0.02;
-			}
-			private void addNode(int level, int max, MNeuron node){
-				MVec3f n1 = new MVec3f(level * 20, max, 0);
-				maxInLevel.put(level, max + 20);
-				placed.put(node, n1);
-			}
-			private int maxValue(int level){
-				int max = 0;
-				if(!maxInLevel.containsKey(level)) {
-					maxInLevel.put(level, 0);
-					maxLevel++;
-				}else max = maxInLevel.get(level);
-				maxHeight = Math.max(maxHeight, (max/20));
-				return max;
 			}
 			
 			public boolean mouseWheel(MouseWheelEvent event){

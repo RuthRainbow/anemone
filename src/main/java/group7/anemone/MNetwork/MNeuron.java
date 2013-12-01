@@ -79,6 +79,10 @@ public class MNeuron {
 	public MNeuronParams getParams() {
 		return params;
 	}
+	
+	public MVec3f getCoordinates() {
+		return params.spatialCoords;
+	}
 
 	public ArrayList<MSynapse> getPreSynapses() {
 		return preSynapses;

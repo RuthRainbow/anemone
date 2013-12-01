@@ -12,5 +12,5 @@ public class MNeuronParams {
 	public boolean isExcitatory;
 
 	/* 3D Spatial coordinates. */
-	public MVec3f spatialCoords;
+	public MVec3f spatialCoords = new MVec3f(0, 0, 0);
 }

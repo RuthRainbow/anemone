@@ -7,9 +7,11 @@ import group7.anemone.MNetwork.MNeuronState;
 import group7.anemone.MNetwork.MSimulation;
 import group7.anemone.MNetwork.MSimulationConfig;
 import group7.anemone.MNetwork.MSynapse;
+import group7.anemone.MNetwork.MVec3f;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import processing.core.PApplet;
 
@@ -53,6 +55,7 @@ public class Agent extends SimulationObject{
 		thrust(1);
 		this.genome=newGenome;
 		createSimpleNetwork();
+		calculateNetworkPositions();
 	}
 
 	public Agent(Gene[] newGenome) {
@@ -72,6 +75,9 @@ public class Agent extends SimulationObject{
 		nparams.b = 0.2;
 		nparams.c = -65.0;
 		nparams.d = 8.0;
+		
+		//Set default neuron coordinates
+		nparams.spatialCoords = new MVec3f(0, 0, 0);
 
 		/* Set the neurons to start in a resting state. */
 		nstate.v = -65.0;
@@ -305,6 +311,72 @@ public class Agent extends SimulationObject{
 		} else if (age > 200) {
 			fitness -= 0.001;
 		}
+	}
+	
+	//Pre-calculates the coordinates of each neuron in the network
+	private ArrayList<MNeuron> placed;
+    private HashMap<Integer, Integer> maxInLevel;
+    private int maxLevel = 0;
+    private int maxHeight = 0;
+	private void calculateNetworkPositions(){
+		placed = new ArrayList<MNeuron>(); //store coordinates of placed neurons
+	    maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
+	    maxInLevel.put(0, 0);
+	    maxLevel = 0;
+	    maxHeight = 0;
+
+	    //TODO: these positions of nodes can be precalculated when network is generated.
+	    for(MSynapse s : mnetwork.getSynapses()){ //determine the x, y coordinates for each node based on links
+	    	MNeuron pre = s.getPreNeuron();
+	    	MNeuron post = s.getPostNeuron();
+	    	int level = 0;
+
+	    	if(!placed.contains(pre)){
+	    		if(placed.contains(post)){ //pre node not placed but post is, place at level - 1
+	    			level = (int) (post.getCoordinates().x / 20) - 1;
+	    		}
+
+	    		int max = maxValue(level);
+	    		addNode(level, max, pre);
+	    	}
+
+	    	if(!placed.contains(post)){
+	    		if(placed.contains(pre)){ //post node not placed but pre is, place at level + 1
+	    			level = (int) (pre.getCoordinates().x / 20);
+	    		}
+	    		level++;
+
+                int max = maxValue(level);
+	    		addNode(level, max, post);
+	    	}
+	    	
+	    	if(pre.getCoordinates().x == post.getCoordinates().x) pre.getCoordinates().z += 20;
+	    }
+
+	    //TODO: offset add nodes by this
+	    int offsetX = -maxLevel * 10;
+	    int offsetY = -maxHeight * 10;
+	    for(MNeuron n : mnetwork.getNeurons()){
+	    	n.getCoordinates().x += offsetX;
+	    	n.getCoordinates().y += offsetY;
+	    }
+	}
+	private void addNode(int level, int max, MNeuron node){
+		//if(node.getCoordinates() == null)
+		node.getCoordinates().x = level * 20;
+		node.getCoordinates().y = max;
+		node.getCoordinates().z = 0;
+		maxInLevel.put(level, max + 20);
+		placed.add(node);
+	}
+	private int maxValue(int level){
+		int max = 0;
+		if(!maxInLevel.containsKey(level)) {
+			maxInLevel.put(level, 0);
+			maxLevel++;
+		}else max = maxInLevel.get(level);
+		maxHeight = Math.max(maxHeight, (max/20));
+		return max;
 	}
 
 	protected void updateCanSee(ArrayList<SightInformation> see){
