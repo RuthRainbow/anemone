@@ -29,11 +29,12 @@ public class Collision implements Serializable{
 		return collided;
 	}
 	public int getType(){
-		if(collided instanceof Food) return TYPE_FOOD;
-		if(collided instanceof Agent) return TYPE_AGENT;
-		/*TODO For when enemy class is implemented
-		if(collided instanceof Enemy) return TYPE_ENEMY;*/
+		if(!(agent instanceof Enemy) && collided instanceof Food) return TYPE_FOOD;
 		if(collided instanceof Wall) return TYPE_WALL;
+		if(agent instanceof Enemy && collided instanceof Agent) return TYPE_FOOD;
+		if(!(agent instanceof Enemy) && collided instanceof Enemy) return TYPE_ENEMY;
+		if(agent instanceof Agent && collided instanceof Agent) return TYPE_AGENT;
+		if(agent instanceof Enemy && collided instanceof Enemy) return TYPE_AGENT;
 		
 		return -1;
 	}

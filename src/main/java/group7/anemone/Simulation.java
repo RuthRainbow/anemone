@@ -103,7 +103,7 @@ public class Simulation extends PApplet {
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			int heading = (int) Math.floor(Math.random() * 360);
-			env.addFish(new Point2D.Double(x, y), heading);
+			env.addFish(new Point2D.Double(x, y), heading, i > 5);
 		}
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
@@ -150,7 +150,7 @@ public class Simulation extends PApplet {
 				break;
 
 		case 2: int heading = (int) Math.floor(Math.random() * 360);
-				env.addFish(new Point2D.Double(simMouseX, simMouseY), heading);
+				env.addFish(new Point2D.Double(simMouseX, simMouseY), heading, false);
 				break;
 		case 3: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
 				if(agent_clicked != null){ //agent was clicked so update selected
@@ -275,7 +275,7 @@ public class Simulation extends PApplet {
 
 			//draw the field of view for the agent
 			if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) stroke(128);
-			else stroke(128, 25); //, (float) ag.getHealth()*200+55
+			else stroke(128, 100); //, (float) ag.getHealth()*200+55
 			noFill();
 			double range = ag.getVisionRange() * 2;
 
@@ -295,8 +295,8 @@ public class Simulation extends PApplet {
 
 			//draw our circle representation for the agent
 			noStroke();
-			if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor("Agent"));
-			else fill(theme.getColor("Agent"), 25); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
+			if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor((ag instanceof Enemy ? "Enemy" : "Agent")));
+			else fill(theme.getColor((ag instanceof Enemy ? "Enemy" : "Agent")), 100); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
 			
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 			
@@ -360,6 +360,7 @@ public class Simulation extends PApplet {
 		theme.setColor("Sidepanel", color(50));
 		theme.setColor("Food", color(0, 255, 0));
 		theme.setColor("Agent", color(255, 127, 0));
+		theme.setColor("Enemy", color(255, 0, 0));
 		theme.setColor("Wall", color(255));
 		theme.setColor("Neuron", color(200));
 		theme.setColor("NeuronFired", color(0, 255, 0));
@@ -844,11 +845,27 @@ public class Simulation extends PApplet {
 	}
 
 	private void eatFood(Collision cc) {
-		Food fd = (Food) cc.getCollidedObject();
+		Object obj = cc.getCollidedObject();
 
-		env.removeFood(fd);
-		cc.getAgent().updateHealth(fd.getValue());
-		cc.getAgent().updateFitness(fd.getValue());
+		if(obj instanceof Food){
+			Food fd = (Food) obj;
+			env.removeFood(fd);
+			cc.getAgent().updateHealth(fd.getValue());
+			cc.getAgent().updateFitness(fd.getValue());
+		}else{
+			Agent ag = (Agent) cc.getCollidedObject();
+			killAgent(ag);
+			double val = ag.getHealth() / 2;
+			cc.getAgent().updateHealth(val);
+			cc.getAgent().updateFitness(val);
+		}
+	}
+	
+	private void killAgent(Agent ag){
+		env.removeAgent(ag);
+		if(selectedAgent == ag){
+			selectedAgent = null;
+		}
 	}
 
 	private Agent getClickedAgent(ArrayList<Agent> agents, int mx, int my){

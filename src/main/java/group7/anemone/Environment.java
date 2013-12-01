@@ -39,9 +39,9 @@ public class Environment implements Serializable{
     public ArrayList<Collision> updateCollisions() {
     	collisions = new ArrayList<Collision>();
 
-    	for (Agent ag: fishes) { //for each agent, check for any collision
+    	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
 
-    		for (Agent aa: fishes) { // check if collides to any other agent
+    		for (Agent aa: getAllAgents()) { // check if collides to any other agent
         		if(ag == aa) continue;
 
         		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
@@ -67,7 +67,7 @@ public class Environment implements Serializable{
 
     public void updateAgentsSight() {
     	//update what each agent can see
-    	for (Agent ag: fishes) {
+    	for (Agent ag: getAllAgents()) {
 
     		ArrayList<SightInformation> result = new ArrayList<SightInformation>();
 
@@ -227,7 +227,7 @@ public class Environment implements Serializable{
 		fishes.add(new Agent(coords, heading, parent, newGenome));
 	}
 
-	protected void addFish(Point2D.Double coords, int heading){
+	protected void addFish(Point2D.Double coords, int heading, boolean isEnemy){
 
 		/*
 		Gene[] genome = new Gene[4];
@@ -342,7 +342,8 @@ public class Environment implements Serializable{
 
 
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		fishes.add(new Agent(coords, heading, parent, genome));
+		if(isEnemy) sharks.add(new Enemy(coords, heading, parent, genome));
+		else  fishes.add(new Agent(coords, heading, parent, genome));
 	}
 
 	void addFood(Point2D.Double coords){
@@ -354,7 +355,8 @@ public class Environment implements Serializable{
 	}
 
 	protected void removeAgent(Agent ag){
-		fishes.remove(ag);
+		if(ag instanceof Enemy) sharks.remove(ag);
+		else fishes.remove(ag);
 	}
 	protected void removeFood(Food fd){
 		food.remove(fd);
@@ -391,7 +393,7 @@ public class Environment implements Serializable{
 	}
 
 	public void killOutsideAgents(double width, double height) {
-		for(Agent fish: fishes){
+		for(Agent fish: getAllAgents()){
 			if(fish.coords.x < 0 || fish.coords.x > width || fish.coords.y < 0 || fish.coords.y > height){
 				fish.updateHealth(-1);
 			}

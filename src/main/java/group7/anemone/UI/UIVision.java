@@ -41,6 +41,7 @@ public class UIVision extends UIAngle{
 				switch(see.getType()){
 					case SightInformation.TYPE_FOOD: canvas.stroke(theme.getColor("Food")); break;
 					case SightInformation.TYPE_AGENT: canvas.stroke(theme.getColor("Agent")); break;
+					case SightInformation.TYPE_ENEMY: canvas.stroke(theme.getColor("Enemy")); break;
 					case SightInformation.TYPE_WALL: canvas.stroke(r, g, b); break;
 					default: canvas.stroke(r, g, b);
 				}
