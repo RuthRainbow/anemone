@@ -31,7 +31,7 @@ public class Collision implements Serializable{
 	public int getType(){
 		if(!(agent instanceof Enemy) && collided instanceof Food) return TYPE_FOOD;
 		if(collided instanceof Wall) return TYPE_WALL;
-		if(agent instanceof Enemy && collided instanceof Agent) return TYPE_FOOD;
+		if(agent instanceof Enemy && !(collided instanceof Enemy) && collided instanceof Agent) return TYPE_FOOD;
 		if(!(agent instanceof Enemy) && collided instanceof Enemy) return TYPE_ENEMY;
 		if(agent instanceof Agent && collided instanceof Agent) return TYPE_AGENT;
 		if(agent instanceof Enemy && collided instanceof Enemy) return TYPE_AGENT;
