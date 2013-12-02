@@ -12,7 +12,7 @@ import processing.core.PApplet;
 public class Environment implements Serializable{
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2740658645450395424L;
 	transient PApplet parent;
@@ -195,47 +195,63 @@ public class Environment implements Serializable{
     	return result;
     }
 
-	protected void updateAllAgents(){
-		for (Agent fish: fishes) { //drawing the ikkle fishes
-			fish.update();
-		}
-		for (Agent shark:sharks) {
-			shark.update();
-		}
-		tick++;
-		if (tick % 200 == 0) {
-			ArrayList<Gene[]> nextGen = god.BreedPopulation(fishes);
-			for (Gene[] gene : nextGen) {
-				// TODO unhardcode these
-				int x = (int) Math.floor(Math.random() * 1000);
-				int y = (int) Math.floor(Math.random() * 750);
-				int heading = (int) Math.floor(Math.random() * 360);
-				spawnAgent(new Point2D.Double(x,y), heading, gene);
-			}
-			for(int i = 0; i < fishes.size()/2; i++){
-				int x = (int) Math.floor(Math.random() * 1000);
-				int y = (int) Math.floor(Math.random() * 750);
-				addFood(new Point2D.Double(x, y));
-			}
-			//god.BreedPopulation(sharks);
-			// Reset tick until next generation
-			tick = 0;
-		}
-	}
+    protected void updateAllAgents(){
+    	for (Agent fish: fishes) { //drawing the ikkle fishes
+    		fish.update();
+    	}
+    	for (Agent shark:sharks) {
+    		shark.update();
+    	}
+    	tick++;
 
-	protected void spawnAgent(Point2D.Double coords, int heading, Gene[] newGenome) {
+    	if (tick % 200 == 0) {
+
+    		if (tick % 400 == 0) {
+    			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks);
+    			for (Gene[] gene : nextSharks) {
+    				// TODO unhardcode these
+    				int x = (int) Math.floor(Math.random() * 1000);
+    				int y = (int) Math.floor(Math.random() * 750);
+    				int heading = (int) Math.floor(Math.random() * 360);
+    				spawnShark(new Point2D.Double(x,y), heading, gene);
+    				// Reset tick until next generation
+    				tick = 0;
+    			}
+    		}
+    		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes);
+    		for (Gene[] gene : nextFish) {
+    			// TODO unhardcode these
+    			int x = (int) Math.floor(Math.random() * 1000);
+    			int y = (int) Math.floor(Math.random() * 750);
+    			int heading = (int) Math.floor(Math.random() * 360);
+    			spawnFish(new Point2D.Double(x,y), heading, gene);
+    		}
+
+    		for(int i = 0; i < fishes.size()/2; i++){
+    			int x = (int) Math.floor(Math.random() * 1000);
+    			int y = (int) Math.floor(Math.random() * 750);
+    			addFood(new Point2D.Double(x, y));
+    		}
+
+    	}
+    }
+
+	protected void spawnFish(Point2D.Double coords, int heading, Gene[] newGenome) {
 		fishes.add(new Agent(coords, heading, parent, newGenome));
 	}
 
-	protected void addFish(Point2D.Double coords, int heading, boolean isEnemy){
+	protected void spawnShark(Point2D.Double coords, int heading, Gene[] newGenome) {
+		sharks.add(new Enemy(coords, heading, parent, newGenome));
+	}
 
-		/*
-		Gene[] genome = new Gene[4];
-		genome[0] = new Gene(1, 0,4,4.0,1);
-		genome[1] = new Gene(2, 1,4,4.0,1);
-		genome[2] = new Gene(3, 2,5,4.0,1);
-		genome[3] = new Gene(4, 3,6,4.0,1);
-		*/
+	protected void addFish(Point2D.Double coords, int heading){
+		Gene[] genome = getGenome();
+
+		//Creates an agent with a generic genome for a network that has no hidden nodes
+		fishes.add(new Agent(coords, heading, parent, genome));
+	}
+
+	private Gene[] getGenome() {
 		/**
 		 * FULL GENOME FOR INITIAL AGENT
 		 * GENE PARAMETERS:
@@ -339,11 +355,13 @@ public class Environment implements Serializable{
 		genome[88] = new Gene(88,28,32,4.0,1);
 		genome[89] = new Gene(89,29,32,4.0,1);
 
+		return genome;
+	}
 
-
+	protected void addShark(Point2D.Double coords, int heading){
+		Gene[] genome = getGenome();
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		if(isEnemy) sharks.add(new Enemy(coords, heading, parent, genome));
-		else  fishes.add(new Agent(coords, heading, parent, genome));
+		sharks.add(new Enemy(coords, heading, parent, genome));
 	}
 
 	void addFood(Point2D.Double coords){
@@ -398,7 +416,7 @@ public class Environment implements Serializable{
 				fish.updateHealth(-1);
 			}
 		}
-		
+
 	}
 
 }

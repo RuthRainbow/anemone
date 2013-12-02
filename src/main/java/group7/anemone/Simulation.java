@@ -29,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -80,7 +79,7 @@ public class Simulation extends PApplet {
 	float minZoom = 0.2f;
 	int SIM_TICKS = 1;
 	int SIM_TPS_MAX = 51;
-	
+
 	//agent tracking / focused settings
 	boolean agentFocused = false;
 	int trackingBounds = 100;
@@ -103,7 +102,13 @@ public class Simulation extends PApplet {
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			int heading = (int) Math.floor(Math.random() * 360);
-			env.addFish(new Point2D.Double(x, y), heading, i > 5);
+			env.addFish(new Point2D.Double(x, y), heading);
+		}
+		for (int i = 0; i < 15; i++) {
+			int x = (int) Math.floor(Math.random() * width);
+			int y = (int) Math.floor(Math.random() * height);
+			int heading = (int) Math.floor(Math.random() * 360);
+			env.addShark(new Point2D.Double(x, y), heading);
 		}
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
@@ -138,7 +143,7 @@ public class Simulation extends PApplet {
 		int simMouseX = (int) ((float) (mouseX - offsetX) / zoomLevel);
 		int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
 		if(!Utilities.isPointInBox(simMouseX, simMouseY, 0, 0, width, height)) return;
-		
+
 		switch(mouseMode){
 		case 0: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
 				if(agent_clicked != null){ //agent was clicked so update selected
@@ -150,7 +155,7 @@ public class Simulation extends PApplet {
 				break;
 
 		case 2: int heading = (int) Math.floor(Math.random() * 360);
-				env.addFish(new Point2D.Double(simMouseX, simMouseY), heading, false);
+				env.addFish(new Point2D.Double(simMouseX, simMouseY), heading);
 				break;
 		case 3: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
 				if(agent_clicked != null){ //agent was clicked so update selected
@@ -173,9 +178,9 @@ public class Simulation extends PApplet {
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
-		
+
 		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
-		
+
 		if(zoomLevel > minZoom || event.getWheelRotation() > 0){
 			zoomLevel = Math.max(minZoom, (zoomLevel + 0.1f * event.getWheelRotation()));
 			offsetX -= (int) (((mouseX - offsetX) * (0.1f * event.getWheelRotation()))) / zoomLevel;
@@ -184,7 +189,7 @@ public class Simulation extends PApplet {
 	}
 	public void keyReleased(){	//Hotkeys for buttons
 		if(win.keyReleased()) return;
-		
+
 		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
 
 		switch(key) {
@@ -220,7 +225,7 @@ public class Simulation extends PApplet {
 	public void keyPressed(){	//Hotkeys for buttons
 		if(win.keyPressed()) return;
 		if(!Utilities.isPointInBox(mouseX, mouseY, 0, 0, draw_width, draw_height)) return;
-		
+
 		switch(keyCode) {
 			case(UP):	arrowsPressed[0] = true;
 						break;
@@ -238,7 +243,7 @@ public class Simulation extends PApplet {
 		win.setBackground(theme.getColor("Background"));
 		sidePanel.setBackground(theme.getColor("Sidepanel"));
 
-		
+
 		for(int i = 0; i < SIM_TICKS; i++){
 			env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
 			env.updateCollisions(); //update the environment with the new collisions
@@ -297,16 +302,16 @@ public class Simulation extends PApplet {
 			noStroke();
 			if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor((ag instanceof Enemy ? "Enemy" : "Agent")));
 			else fill(theme.getColor((ag instanceof Enemy ? "Enemy" : "Agent")), 100); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
-			
+
 			ellipse(ag.getX(), ag.getY(), 20, 20);
-			
+
 			if(agentFocused && ag == selectedAgent){ //keep agent on screen if in focused / tracking mode
 				int simAgX = (int) ((ag.getX() * zoomLevel) + offsetX);//screen coordinates of the selected agent
 				int simAgY = (int) ((ag.getY() * zoomLevel) + offsetY);
-				
+
 				if(simAgX < trackingBounds) offsetX += trackingBounds - simAgX;
 				else if(simAgX > draw_width - trackingBounds) offsetX -= simAgX - draw_width + trackingBounds;
-				
+
 				if(simAgY < trackingBounds) offsetY += trackingBounds - simAgY;
 				else if(simAgY > draw_height - trackingBounds) offsetY -= simAgY - draw_height + trackingBounds;
 			}
@@ -397,9 +402,9 @@ public class Simulation extends PApplet {
 		btnAddFood = addModeButton(1, "Food", 70, 84, 255, 159);
 		btnAddAgent = addModeButton(2, "Agent", 130, 255, 127, 0);
 		btnThrust = addModeButton(3, "Thrust", 190, 0, 231, 125);
-		
+
 		btnGroupModes.selectButton(btnSelectAgent);
-		
+
 		//Change number of ticks updated each frame
 		sliderTPS = new UISlider(this, 10, 85, 170, 30);
 		sliderTPS.setEventHandler(new UIAction(){
@@ -493,7 +498,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(btnSelectKill);
-		
+
 		//Toggle focused / tracking mode for selected agent
 		btnToggleFocused = new UIButton(this, 120, 5, 65, 15, (agentFocused ? "Unfocus" : "Focus"));
 		btnToggleFocused.setIsLeft(false);
@@ -505,9 +510,9 @@ public class Simulation extends PApplet {
 			}
 		});
 		winStats.addObject(btnToggleFocused);
-		
+
 		//3D neural network visual
-		
+
 		neuralVisual.setIsTop(false);
 		neuralVisual.setBackground(30);
 		neuralVisual.setFixedBackground(true);
@@ -519,15 +524,15 @@ public class Simulation extends PApplet {
 		    private boolean rotating = true;
 			public void draw(PApplet canvas){
 				if(selectedAgent == null) return;
-				
+
 				if(arrows[0] && !arrows[1]) offY -= moveSpeed/3; //UP
 				if(arrows[1] && !arrows[0]) offY += moveSpeed/3; //DOWN
-				
+
 				MNetwork net = selectedAgent.getNetwork();
-				
+
 			    noStroke();
 			    pushMatrix();
-			    
+
 			    rotateY(neuralRotation);
 			    scale(zoom, zoom, zoom);
 			    translate(offX, offY);
@@ -540,7 +545,7 @@ public class Simulation extends PApplet {
 			    	MVec3f vec = n.getCoordinates();
 			    	//clip node if off the display
 			    	if((vec.y + offY) * zoom < -135) continue;
-			    	
+
 		    		translate(vec.x, vec.y, vec.z);
 			    	sphere(3);
 			    	translate(-vec.x, -vec.y, -vec.z);
@@ -549,14 +554,14 @@ public class Simulation extends PApplet {
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
 			    	MVec3f n1 = s.getPreNeuron().getCoordinates();
 			    	MVec3f n2 = s.getPostNeuron().getCoordinates();
-			    	
+
 			    	//clip edge if both nodes above clipping
 			    	if((n1.y + offY) * zoom < -135
 			    			&& (n2.y + offY) * zoom < -135) continue;
-			    	
+
 			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
 			    	else stroke(255, 20);
-			    	
+
 			    	//partial clipping when one node if above line
 			    	if((n1.y + offY) * zoom < -135){
 			    		double t = (((-135 / zoom) - offY)-n2.y) / (n1.y - n2.y);
@@ -570,18 +575,18 @@ public class Simulation extends PApplet {
 			    		line((int) n1.x, (int) n1.y, (int) n1.z, (int) n2.x, (int) n2.y, (int) n2.z);
 			    	}
 			    }
-			    
+
 			    popMatrix();
 			    if(rotating) neuralRotation -= 0.02;
 			}
-			
+
 			public boolean mouseWheel(MouseWheelEvent event){
 				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
-				
+
 				if(zoom > minZoom || event.getWheelRotation() > 0){
 					zoom = Math.max(minZoom, (zoom + 0.1f * event.getWheelRotation()));
 				}
-				
+
 				return true;
 			}
 			public boolean mousePressed(){
@@ -589,10 +594,10 @@ public class Simulation extends PApplet {
 				rotating = !rotating;
 				return true;
 			}
-			
+
 			public boolean keyReleased(){	//Hotkeys for buttons
 				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
-				
+
 				switch(keyCode) {
 					case(UP):	arrows[0] = false;
 								return true;
@@ -607,7 +612,7 @@ public class Simulation extends PApplet {
 			}
 			public boolean keyPressed(){	//Hotkeys for buttons
 				if(!Utilities.isPointInBox(mouseX, mouseY, screen.width - 250, screen.height - 250, 250, 250)) return false;
-				
+
 				switch(keyCode) {
 					case(UP):	arrows[0] = true;
 								return true;
@@ -621,7 +626,7 @@ public class Simulation extends PApplet {
 				return false;
 			}
 		});
-		
+
 
 		//printout of selected agents stats
 		lblStatTitle = addStatLabel("Selected Agent", 5);
@@ -852,15 +857,15 @@ public class Simulation extends PApplet {
 			env.removeFood(fd);
 			cc.getAgent().updateHealth(fd.getValue());
 			cc.getAgent().updateFitness(fd.getValue());
-		}else{
+		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
-			double val = ag.getHealth() / 2;
+			double val = ag.getHealth() / 5;
 			cc.getAgent().updateHealth(val);
 			cc.getAgent().updateFitness(val);
 		}
 	}
-	
+
 	private void killAgent(Agent ag){
 		env.removeAgent(ag);
 		if(selectedAgent == ag){
@@ -879,12 +884,12 @@ public class Simulation extends PApplet {
 		}
 		return agent_clicked;
 	}
-	
+
 	//Serialises the environment class to chosen location
 	private void saveEnvironment(){
 		JFileChooser diag = getFileChooser(true);
 		if(diag.showSaveDialog(this) != diag.APPROVE_OPTION) return;
-		
+
 		try{
 			File file = new File(diag.getSelectedFile().getAbsoluteFile() + ".env");
 			FileOutputStream output = new FileOutputStream(file);
@@ -897,25 +902,25 @@ public class Simulation extends PApplet {
 			e.printStackTrace();
 		}
 	}
-	
+
 	//Deserialises the environment class selected by user
 	private void restoreEnvironment(){
 		JFileChooser diag = getFileChooser(false);
 		if(diag.showOpenDialog(this) != diag.APPROVE_OPTION) return;
-		
+
 		File file = diag.getSelectedFile();
 		if(!file.exists()){
 			System.out.println("Save file does not exist" + file.getAbsolutePath());
 			return;
 		}
-		
+
 		try{
 			FileInputStream input = new FileInputStream(file);
 			ObjectInputStream in = new ObjectInputStream(input);
 			Environment en = (Environment) in.readObject();
 			in.close();
 			input.close();
-			
+
 			if(en != null){ //set all parent variables in environment to this class
 				env = en;
 				env.parent = this;
@@ -928,19 +933,19 @@ public class Simulation extends PApplet {
 			e.printStackTrace();
 		}
 	}
-	
+
 	//Builds a file selection dialog box for saving / opening an environment
 	private JFileChooser getFileChooser(boolean isSave){
 		File file = new File(System.getProperty("user.home") + "/anemone/save/");
 		file.mkdirs();
-		
+
 		JFileChooser diag = new JFileChooser(file);
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Environment (.env)", "env");
 		diag.setFileFilter(filter);
 		if(isSave) diag.setDialogTitle("Save Environment");
 		else diag.setDialogTitle("Open Environment");
 		diag.setMultiSelectionEnabled(false);
-		
+
 		return diag;
 	}
 }
