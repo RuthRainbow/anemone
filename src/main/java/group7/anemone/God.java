@@ -18,9 +18,9 @@ public class God implements Serializable{
 	private double mutation_chance = 0.03f;
 	private final double twin_chance = 0.05f;
 
-	private double best_fitness = 0;
-	private double worst_fitness = 1;
-	private double average_fitness = 0.1;
+	private HashMap<Integer, Double> best_fitness = new HashMap<Integer, Double>();
+	private HashMap<Integer, Double> worst_fitness = new HashMap<Integer, Double>();
+	private HashMap<Integer, Double> average_fitness = new HashMap<Integer, Double>();
 	private int no_improvement_count = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
@@ -40,6 +40,12 @@ public class God implements Serializable{
 	
 	public God() {
 		this.species = new ArrayList<Gene[]>();
+		best_fitness.put(Collision.TYPE_AGENT, 0.0);
+		best_fitness.put(Collision.TYPE_ENEMY, 0.0);
+		worst_fitness.put(Collision.TYPE_AGENT, 1.0);
+		worst_fitness.put(Collision.TYPE_ENEMY, 1.0);
+		average_fitness.put(Collision.TYPE_AGENT, 0.1);
+		average_fitness.put(Collision.TYPE_ENEMY, 0.1);
 	}
 
 	// This is inside it's own method to make unittesting easier.
@@ -48,9 +54,9 @@ public class God implements Serializable{
 	}
 
 	// Method to breed the entire population
-	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents) {
+	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents, int type) {
 		newGenes = new ArrayList<Gene>();
-		ArrayList<Agent> selectedAgents = Selection(agents);
+		ArrayList<Agent> selectedAgents = Selection(agents, type);
 		System.out.println("selecting " + selectedAgents.size());
 		return GenerateChildren(selectedAgents);
 	}
@@ -101,27 +107,27 @@ public class God implements Serializable{
 		return (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
 	}
 
-	protected ArrayList<Agent> Selection(ArrayList<Agent> agents) {
+	protected ArrayList<Agent> Selection(ArrayList<Agent> agents, int type) {
 		ArrayList<Agent> selectedAgents = new ArrayList<Agent>();
-		double last_best = best_fitness;
-		double last_average = average_fitness;
-		average_fitness = 0;
+		double last_best = getBestFitness(type);
+		double last_average = getAverageFitness(type);
+		setAverageFitness(0, type);
 		for (Agent agent : agents) {
 			double fitness = agent.getFitness();
-			average_fitness += fitness;
+			setAverageFitness(getAverageFitness(type) + fitness, type);
 			// This number is completely arbitrary, depends on fitness function
 			if (fitness * getRandom() > last_average) {
 				selectedAgents.add(agent);
 			}
-			if (agent.getFitness() > best_fitness) {
-				best_fitness = agent.getFitness();
-			} else if (agent.getFitness() < worst_fitness) {
-				worst_fitness = agent.getFitness();
+			if (agent.getFitness() > getBestFitness(type)) {
+				setBestFitness(agent.getFitness(), type);
+			} else if (agent.getFitness() < getWorstFitness(type)) {
+				setWorstFitness(agent.getFitness(), type);
 			}
 		}
-		average_fitness = average_fitness / agents.size();
+		setAverageFitness(getAverageFitness(type) / agents.size(), type);
 		// Keep track of the number of generations without improvement.
-		if (last_best >= best_fitness) {
+		if (last_best >= getBestFitness(type)) {
 			no_improvement_count++;
 		} else {
 			no_improvement_count--;
@@ -327,12 +333,12 @@ public class God implements Serializable{
 	}
 
 	// Packing social disaster - all elite individuals randomised except 1
-	protected ArrayList<Gene[]> SocialDisasterPacking(ArrayList<Agent> agents) {
+	protected ArrayList<Gene[]> SocialDisasterPacking(ArrayList<Agent> agents, int type) {
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
-			if (agent.getFitness() == best_fitness) {
+			if (agent.getFitness() == getBestFitness(type)) {
 				if (!elite_agent_in) {
 					children.add(agent.getStringRep());
 				} else {
@@ -348,13 +354,13 @@ public class God implements Serializable{
 
 	// Judgement day social disaster - all individuals randomised except 1 elite
 	// (might be SUPER EXPENSIVE)
-	protected ArrayList<Gene[]> SocialDisasterJudgement(ArrayList<Agent> agents) {
+	protected ArrayList<Gene[]> SocialDisasterJudgement(ArrayList<Agent> agents, int type) {
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 
 
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
-			if (agent.getFitness() == best_fitness && !elite_agent_in) {
+			if (agent.getFitness() == getBestFitness(type) && !elite_agent_in) {
 				children.add(agent.getStringRep());
 			} else {
 				children.add(RandomlyGenerate());
@@ -367,6 +373,26 @@ public class God implements Serializable{
 	// Return the string representation of a new agent.
 	protected Gene[] RandomlyGenerate() {
 		throw new NotImplementedException();
+	}
+	
+	//Get / Set fitness values
+	private void setBestFitness(double d, int type){
+		best_fitness.put(type, d);
+	}
+	private double getBestFitness(int type){
+		return best_fitness.get(type);
+	}
+	private void setWorstFitness(double d, int type){
+		worst_fitness.put(type, d);
+	}
+	private double getWorstFitness(int type){
+		return worst_fitness.get(type);
+	}
+	private void setAverageFitness(double d, int type){
+		average_fitness.put(type, d);
+	}
+	private double getAverageFitness(int type){
+		return average_fitness.get(type);
 	}
 
 	public class NotImplementedException extends RuntimeException {
