@@ -207,18 +207,19 @@ public class Environment implements Serializable{
     	if (tick % 200 == 0) {
 
     		if (tick % 400 == 0) {
-    			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks);
+    			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks, Collision.TYPE_ENEMY);
     			for (Gene[] gene : nextSharks) {
     				// TODO unhardcode these
     				int x = (int) Math.floor(Math.random() * 1000);
     				int y = (int) Math.floor(Math.random() * 750);
     				int heading = (int) Math.floor(Math.random() * 360);
     				spawnShark(new Point2D.Double(x,y), heading, gene);
-    				// Reset tick until next generation
-    				tick = 0;
+    				
     			}
+    			// Reset tick until next generation
+    			tick = 0;
     		}
-    		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes);
+    		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes, Collision.TYPE_AGENT);
     		for (Gene[] gene : nextFish) {
     			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * 1000);
