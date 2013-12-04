@@ -204,9 +204,9 @@ public class Environment implements Serializable{
     	}
     	tick++;
 
-    	if (tick % 200 == 0) {
+    	if (tick % 200 == 0 ) {
 
-    		if (tick % 400 == 0) {
+    		if (tick % 400 == 0 ) {
     			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks);
     			for (Gene[] gene : nextSharks) {
     				// TODO unhardcode these
@@ -233,6 +233,32 @@ public class Environment implements Serializable{
     			addFood(new Point2D.Double(x, y));
     		}
 
+    	}
+    	
+    	if(fishes.size() <= 5) {
+       		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes);
+    		for (Gene[] gene : nextFish) {
+    			// TODO unhardcode these
+    			int x = (int) Math.floor(Math.random() * 1000);
+    			int y = (int) Math.floor(Math.random() * 750);
+    			int heading = (int) Math.floor(Math.random() * 360);
+    			spawnFish(new Point2D.Double(x,y), heading, gene);
+    			tick = 0;
+    		}    	
+    		System.out.println("Fish population got to small, breeding.");
+    	}
+    	if(sharks.size() <= 5) {
+  			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks);
+			for (Gene[] gene : nextSharks) {
+				// TODO unhardcode these
+				int x = (int) Math.floor(Math.random() * 1000);
+				int y = (int) Math.floor(Math.random() * 750);
+				int heading = (int) Math.floor(Math.random() * 360);
+				spawnShark(new Point2D.Double(x,y), heading, gene);
+				// Reset tick until next generation
+				tick = 0;
+			}
+			System.out.println("Shark population got to small, breeding.");
     	}
     }
 
