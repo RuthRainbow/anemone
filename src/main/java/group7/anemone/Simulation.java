@@ -113,7 +113,7 @@ public class Simulation extends PApplet {
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 100; i++){
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			env.addFood(new Point2D.Double(x, y));
@@ -861,7 +861,7 @@ public class Simulation extends PApplet {
 		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
-			double val = ag.getHealth() / 5;
+			double val = 1;//ag.getHealth();
 			cc.getAgent().updateHealth(val);
 			cc.getAgent().updateFitness(val);
 		}
