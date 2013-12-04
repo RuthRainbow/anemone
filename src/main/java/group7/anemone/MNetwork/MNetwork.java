@@ -45,4 +45,12 @@ public class MNetwork implements Serializable{
 	public float getDepth() {
 		return depth;
 	}
+	
+	public float getVertexNumber() {
+		return neurons.size();
+	}
+	
+	public void setNeurons(ArrayList<MNeuron> newNeurons) {
+		neurons = newNeurons;
+	}
 }

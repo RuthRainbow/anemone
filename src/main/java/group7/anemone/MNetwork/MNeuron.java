@@ -18,7 +18,7 @@ public class MNeuron implements Serializable{
 	private static final long serialVersionUID = 4920400729701021728L;
 
 	/* Neuron parameters (shouldn't change). */
-	private MNeuronParams params;
+	public MNeuronParams params;
 
 	/* Neuron state (changes). */
 	private MNeuronState state;
@@ -28,6 +28,8 @@ public class MNeuron implements Serializable{
 
 	/* Pre and post synapses. */
 	private ArrayList<MSynapse> preSynapses, postSynapses;
+	
+	public float disp;
 
 	public MNeuron(MNeuronParams params, MNeuronState state, int nid) {
 		/* Initialise parameters and state. */

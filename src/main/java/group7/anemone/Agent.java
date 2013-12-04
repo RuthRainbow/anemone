@@ -13,6 +13,7 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import processing.core.PApplet;
 
@@ -329,43 +330,104 @@ public class Agent extends SimulationObject implements Serializable{
 	    maxInLevel.put(0, 0);
 	    maxLevel = 0;
 	    maxHeight = 0;
-
-	    //TODO: these positions of nodes can be precalculated when network is generated.
-	    for(MSynapse s : mnetwork.getSynapses()){ //determine the x, y coordinates for each node based on links
-	    	MNeuron pre = s.getPreNeuron();
-	    	MNeuron post = s.getPostNeuron();
-	    	int level = 0;
-
-	    	if(!placed.contains(pre)){
-	    		if(placed.contains(post)){ //pre node not placed but post is, place at level - 1
-	    			level = (int) (post.getCoordinates().x / 20) - 1;
-	    		}
-
-	    		int max = maxValue(level);
-	    		addNode(level, max, pre);
-	    	}
-
-	    	if(!placed.contains(post)){
-	    		if(placed.contains(pre)){ //post node not placed but pre is, place at level + 1
-	    			level = (int) (pre.getCoordinates().x / 20);
-	    		}
-	    		level++;
-
-                int max = maxValue(level);
-	    		addNode(level, max, post);
-	    	}
+	    
+	    ArrayList<MNeuron> neurons = mnetwork.getNeurons();
+	    float area = 250*250; //The size of the area 
+	    float k = (float) Math.sqrt(area/mnetwork.getVertexNumber());
+	    int setIterations = 1;
+	    double temp=50;
+	    
+	    for(int x=0; x<neurons.size(); x++) {
+	    	Random generator = new Random(); 
+			int xAx = generator.nextInt(10) + 1;
+			int yAx = generator.nextInt(10) + 1;
+			int zAx = generator.nextInt(10) + 1;
+	    	neurons.get(x).params.spatialCoords = new MVec3f(xAx, yAx, zAx);
+	    }
+	    
+	    //For a pre set number of iterations
+	    for (int i=0; i<setIterations; i++) {
+	    	float delta;
 	    	
-	    	if(pre.getCoordinates().x == post.getCoordinates().x) pre.getCoordinates().z += 20;
+	    	System.out.println();
+	    	
+	    	//Calculate the repulsive force between neurons
+		    for (int x=0; x<neurons.size(); x++) {
+		    	System.out.println("Neuron:" + x);
+		    	//Each neuron has two vectors, pos and disp
+		    	neurons.get(x).disp = (float) 0;
+		    	System.out.println("Original Neuron X Disp: " + neurons.get(x).disp);
+		    	System.out.println();
+		    	for(int y=0; y<neurons.size(); y++) {
+		    		if (x!=y) {
+		    			//Calculate delta, the difference in position between the two neurons
+		    			MVec3f neuron1 = neurons.get(x).getParams().spatialCoords;
+		    			//System.out.println("Neuron1 - X: " + neuron1.x + "Y: " + neuron1.y);
+		    			MVec3f neuron2 = neurons.get(y).getParams().spatialCoords;
+		    			//System.out.println("Neuron2 - X: " + neuron2.x + "Y: " + neuron2.y);
+		    			delta = (neuron1.x-neuron2.x) + (neuron1.y-neuron2.y) + (neuron1.z-neuron2.z);
+		    			if (delta==0) {
+		    				delta = 1;
+		    			}
+		    			//System.out.println("Delta: " + delta);
+		    			
+		    			neurons.get(x).disp = (neurons.get(x).disp + (delta/Math.abs(delta)) + ( (float) (Math.pow(k, 2)/Math.abs(delta))));
+		    			//System.out.println("Calc disp: " + neurons.get(x).disp + " + " + delta +"/" + Math.abs(delta) + " + " + Math.pow(k, 2) + "/" + Math.abs(delta));
+		    			//System.out.println("New Neuron X Disp: " + neurons.get(x).disp);
+		    		}
+		    	}
+		    }
+		    
+		    //Calculate the attractive forces
+		    for (int x=0; x<neurons.size(); x++) {
+		    	//Each neuron has two vectors, pos and disp
+		    	neurons.get(x).disp = 0;
+		    	
+		    	for(int y=0; y<neurons.size(); y++) {
+		    		if (x!=y) {
+		    			//Calculate delta, the difference in position between the two neurons
+		    			MVec3f neuron1 = neurons.get(x).getParams().spatialCoords;
+		    			MVec3f neuron2 = neurons.get(y).getParams().spatialCoords;
+		    			delta = (neuron1.x-neuron2.x) + (neuron1.y-neuron2.y) + (neuron1.z-neuron2.z);
+		    			if (delta==0) {
+		    				delta = 1;
+		    			}
+		    			
+		    			neurons.get(x).disp = (neurons.get(x).disp + (delta/Math.abs(delta)) + ((float)(Math.pow(Math.abs(delta), 2)/k)));
+		    			neurons.get(y).disp = (neurons.get(y).disp + (delta/Math.abs(delta)) + ((float)(Math.pow(Math.abs(delta), 2)/k)));
+		    		}
+		    	}
+		    }
+		    
+		    //Limit maximum displacement by the temperature
+		    //Also prevent the thing from being displaced outside the frame
+		    for (int x=0; x<neurons.size(); x++) {
+		    	System.out.println("Neuron: " + x);
+		    	float curX = neurons.get(x).params.spatialCoords.x;
+		    	float curY = neurons.get(x).params.spatialCoords.y;
+		    	neurons.get(x).params.spatialCoords.x = (curX + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
+		    	//System.out.println("X: " + curX + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
+		    	neurons.get(x).params.spatialCoords.y = (curY + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
+		    	//System.out.println("Y: " + curY + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
+		    	
+		    	neurons.get(x).params.spatialCoords.x = Math.min(250/2, Math.max(-250/2, neurons.get(x).params.spatialCoords.x));
+		    	neurons.get(x).params.spatialCoords.y = Math.min(250/2, Math.max(-250/2, neurons.get(x).params.spatialCoords.y));
+		    	
+		    	
+		    	//System.out.println("Current X: " + curX);
+		    	//System.out.println("Current Y: " + curY);
+		    	//System.out.println("New X: " + neurons.get(x).params.spatialCoords.x);
+		    	//System.out.println("New Y: " + neurons.get(x).params.spatialCoords.y);
+		    }
+		    
+		    //Reduce temperature
+		    temp = temp-1;
 	    }
+	    
+	    mnetwork.setNeurons(neurons);
 
-	    //TODO: offset add nodes by this
-	    int offsetX = -maxLevel * 10;
-	    int offsetY = -maxHeight * 10;
-	    for(MNeuron n : mnetwork.getNeurons()){
-	    	n.getCoordinates().x += offsetX;
-	    	n.getCoordinates().y += offsetY;
-	    }
 	}
+	
 	private void addNode(int level, int max, MNeuron node){
 		//if(node.getCoordinates() == null)
 		node.getCoordinates().x = level * 20;
