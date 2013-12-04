@@ -334,9 +334,11 @@ public class Agent extends SimulationObject implements Serializable{
 	    ArrayList<MNeuron> neurons = mnetwork.getNeurons();
 	    ArrayList<MSynapse> synapses = mnetwork.getSynapses();
 	    float area = 250*250*250; //The size of the area 
-	    float k = (float) Math.sqrt(area/mnetwork.getVertexNumber());
-	    int setIterations = 30;
+	    float C = 2;
+	    float k =  C * (float) Math.sqrt(area/mnetwork.getVertexNumber());
+	    int setIterations = 100;
 	    double temp=15;
+	    double kPow = Math.pow(k,2);
 	    
 	    for(int x=0; x<neurons.size(); x++) {
 	    	Random generator = new Random(); 
@@ -371,8 +373,9 @@ public class Agent extends SimulationObject implements Serializable{
 		    				delta = 1;
 		    			}
 		    			//System.out.println("Delta: " + delta);
+		    			float absDelta = Math.abs(delta);
 		    			
-		    			neurons.get(x).disp = (neurons.get(x).disp + (delta/Math.abs(delta)) + ( (float) (Math.pow(k, 2)/Math.abs(delta))));
+		    			neurons.get(x).disp = (neurons.get(x).disp + (delta/absDelta) + ( (float) (kPow/absDelta)));
 		    			//System.out.println("Calc disp: " + neurons.get(x).disp + " + " + delta +"/" + Math.abs(delta) + " + " + Math.pow(k, 2) + "/" + Math.abs(delta));
 		    			//System.out.println("New Neuron X Disp: " + neurons.get(x).disp);
 		    		}
@@ -390,28 +393,35 @@ public class Agent extends SimulationObject implements Serializable{
     			if (delta==0) {
     				delta = 1;
     			}
+    			float absDelta = Math.abs(delta);
+    			float deltaPow = (float)(Math.pow(Math.abs(delta), 2)/k);
     			
-    			pre.disp = (pre.disp + (delta/Math.abs(delta)) - ((float)(Math.pow(Math.abs(delta), 2)/k)));
-    			post.disp = (post.disp + (delta/Math.abs(delta)) + ((float)(Math.pow(Math.abs(delta), 2)/k)));
+    			pre.disp = (pre.disp + (delta/absDelta) - (deltaPow));
+    			post.disp = (post.disp + (delta/absDelta) + deltaPow);
 	    	}
 	    	//System.out.println("Neuron " + x + " disp: " + neurons.get(x).disp);
 		    
 		    //Limit maximum displacement by the temperature
 		    //Also prevent the thing from being displaced outside the frame
 		    for (int x=0; x<neurons.size(); x++) {
-		    	System.out.println("Neuron: " + x);
+		    	//System.out.println("Neuron: " + x);
 		    	float curX = neurons.get(x).params.spatialCoords.x;
 		    	float curY = neurons.get(x).params.spatialCoords.y;
 		    	float curZ = neurons.get(x).params.spatialCoords.z;
-		    	neurons.get(x).params.spatialCoords.x = (curX + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
-		    	//System.out.println("X: " + curX + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
-		    	neurons.get(x).params.spatialCoords.y = (curY + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
-		    	//System.out.println("Y: " + curY + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
-		    	neurons.get(x).params.spatialCoords.z = (curZ + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
 		    	
-		    	System.out.println("First New X: " + neurons.get(x).params.spatialCoords.x);
-		    	System.out.println("First New Y: " + neurons.get(x).params.spatialCoords.y);
-		    	System.out.println("First New Z: " + neurons.get(x).params.spatialCoords.z);
+		    	float tempDisp = neurons.get(x).disp;
+		    	float absDisp = Math.abs(neurons.get(x).disp);
+		    	float updateFloat = ((tempDisp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp)));
+		    	
+		    	neurons.get(x).params.spatialCoords.x = (curX + updateFloat);
+		    	//System.out.println("X: " + curX + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
+		    	neurons.get(x).params.spatialCoords.y = (curY + updateFloat);
+		    	//System.out.println("Y: " + curY + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
+		    	neurons.get(x).params.spatialCoords.z = (curZ + updateFloat);
+		    	
+		    	//System.out.println("First New X: " + neurons.get(x).params.spatialCoords.x);
+		    	//System.out.println("First New Y: " + neurons.get(x).params.spatialCoords.y);
+		    	//System.out.println("First New Z: " + neurons.get(x).params.spatialCoords.z);
 		    	
 		    	neurons.get(x).params.spatialCoords.x = Math.min(250/2, Math.max(-250/2, neurons.get(x).params.spatialCoords.x));
 		    	neurons.get(x).params.spatialCoords.y = Math.min(250/2, Math.max(-250/2, neurons.get(x).params.spatialCoords.y));
@@ -419,13 +429,17 @@ public class Agent extends SimulationObject implements Serializable{
 		    	
 		    	//System.out.println("Current X: " + curX);
 		    	//System.out.println("Current Y: " + curY);
-		    	System.out.println("New X: " + neurons.get(x).params.spatialCoords.x);
-		    	System.out.println("New Y: " + neurons.get(x).params.spatialCoords.y);
-		    	System.out.println("New Z: " + neurons.get(x).params.spatialCoords.z);
+		    	//System.out.println("New X: " + neurons.get(x).params.spatialCoords.x);
+		    	//System.out.println("New Y: " + neurons.get(x).params.spatialCoords.y);
+		    	//System.out.println("New Z: " + neurons.get(x).params.spatialCoords.z);
 		    }
 		    
 		    //Reduce temperature
+		    
 		    temp = temp-1;
+		    if (temp==0) {
+		    	temp=1;
+		    }
 	    }
 	    
 	    mnetwork.setNeurons(neurons);
