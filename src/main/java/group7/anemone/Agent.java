@@ -332,16 +332,17 @@ public class Agent extends SimulationObject implements Serializable{
 	    maxHeight = 0;
 	    
 	    ArrayList<MNeuron> neurons = mnetwork.getNeurons();
-	    float area = 250*250; //The size of the area 
+	    ArrayList<MSynapse> synapses = mnetwork.getSynapses();
+	    float area = 250*250*250; //The size of the area 
 	    float k = (float) Math.sqrt(area/mnetwork.getVertexNumber());
-	    int setIterations = 50;
-	    double temp=75;
+	    int setIterations = 30;
+	    double temp=15;
 	    
 	    for(int x=0; x<neurons.size(); x++) {
 	    	Random generator = new Random(); 
-			int xAx = generator.nextInt(100) + 1;
-			int yAx = generator.nextInt(100) + 1;
-			int zAx = generator.nextInt(100) + 1;
+			int xAx = 250 - generator.nextInt(500);
+			int yAx = 250 - generator.nextInt(500);
+			int zAx = 250 - generator.nextInt(500);
 	    	neurons.get(x).params.spatialCoords = new MVec3f(xAx, yAx, zAx);
 	    }
 	    
@@ -379,26 +380,21 @@ public class Agent extends SimulationObject implements Serializable{
 		    }
 		    
 		    //Calculate the attractive forces
-		    for (int x=0; x<neurons.size(); x++) {
-		    	//Each neuron has two vectors, pos and disp
-		    	neurons.get(x).disp = 0;
-		    	
-		    	for(int y=0; y<neurons.size(); y++) {
-		    		if (x!=y) {
-		    			//Calculate delta, the difference in position between the two neurons
-		    			MVec3f neuron1 = neurons.get(x).getParams().spatialCoords;
-		    			MVec3f neuron2 = neurons.get(y).getParams().spatialCoords;
-		    			delta = (neuron1.x-neuron2.x) + (neuron1.y-neuron2.y) + (neuron1.z-neuron2.z);
-		    			if (delta==0) {
-		    				delta = 1;
-		    			}
-		    			
-		    			neurons.get(x).disp = (neurons.get(x).disp + (delta/Math.abs(delta)) + ((float)(Math.pow(Math.abs(delta), 2)/k)));
-		    			neurons.get(y).disp = (neurons.get(y).disp + (delta/Math.abs(delta)) + ((float)(Math.pow(Math.abs(delta), 2)/k)));
-		    		}
-		    	}
-		    	System.out.println("Neuron " + x + " disp: " + neurons.get(x).disp);
-		    }
+	    	for(MSynapse sy : synapses) {
+	    		MNeuron pre = sy.getPreNeuron();
+	    		MNeuron post = sy.getPostNeuron();
+    			//Calculate delta, the difference in position between the two neurons
+    			MVec3f neuron1 = pre.getParams().spatialCoords;
+    			MVec3f neuron2 = post.getParams().spatialCoords;
+    			delta = (neuron1.x-neuron2.x) + (neuron1.y-neuron2.y) + (neuron1.z-neuron2.z);
+    			if (delta==0) {
+    				delta = 1;
+    			}
+    			
+    			pre.disp = (pre.disp + (delta/Math.abs(delta)) - ((float)(Math.pow(Math.abs(delta), 2)/k)));
+    			post.disp = (post.disp + (delta/Math.abs(delta)) + ((float)(Math.pow(Math.abs(delta), 2)/k)));
+	    	}
+	    	//System.out.println("Neuron " + x + " disp: " + neurons.get(x).disp);
 		    
 		    //Limit maximum displacement by the temperature
 		    //Also prevent the thing from being displaced outside the frame
@@ -411,7 +407,7 @@ public class Agent extends SimulationObject implements Serializable{
 		    	//System.out.println("X: " + curX + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
 		    	neurons.get(x).params.spatialCoords.y = (curY + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
 		    	//System.out.println("Y: " + curY + " + ((" + neurons.get(x).disp + "/" + Math.abs(neurons.get(x).disp) + "*" + Math.min(neurons.get(x).disp, temp) + "))");
-		    	neurons.get(x).params.spatialCoords.y = (curZ + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
+		    	neurons.get(x).params.spatialCoords.z = (curZ + ((neurons.get(x).disp/(float)Math.abs(neurons.get(x).disp) * (float)Math.min(neurons.get(x).disp, temp))));
 		    	
 		    	System.out.println("First New X: " + neurons.get(x).params.spatialCoords.x);
 		    	System.out.println("First New Y: " + neurons.get(x).params.spatialCoords.y);

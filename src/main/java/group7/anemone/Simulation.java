@@ -518,7 +518,7 @@ public class Simulation extends PApplet {
 		neuralVisual.setBackground(30);
 		neuralVisual.setFixedBackground(true);
 		neuralVisual.setEventHandler(new UIAction(){
-		    private float zoom = 1.0f;
+		    private float zoom = 0.5f;
 		    private int offX = 0;
 		    private int offY = 0;
 		    boolean arrows[] = new boolean[4];
