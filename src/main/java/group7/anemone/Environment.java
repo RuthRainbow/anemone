@@ -247,7 +247,7 @@ public class Environment implements Serializable{
     		}    	
     		System.out.println("Fish population got to small, breeding.");
     	}
-    	if(sharks.size() <= 5) {
+    	/*if(sharks.size() <= 5) {
   			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks, Collision.TYPE_ENEMY);
 			for (Gene[] gene : nextSharks) {
 				// TODO unhardcode these
@@ -259,7 +259,7 @@ public class Environment implements Serializable{
 				tick = 0;
 			}
 			System.out.println("Shark population got to small, breeding.");
-    	}
+    	}*/
     }
 
 	protected void spawnFish(Point2D.Double coords, int heading, Gene[] newGenome) {

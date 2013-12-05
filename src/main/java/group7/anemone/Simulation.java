@@ -104,7 +104,7 @@ public class Simulation extends PApplet {
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 0; i++) {
 			int x = (int) Math.floor(Math.random() * width);
 			int y = (int) Math.floor(Math.random() * height);
 			int heading = (int) Math.floor(Math.random() * 360);
