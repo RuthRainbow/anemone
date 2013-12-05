@@ -25,6 +25,9 @@ public class Environment implements Serializable{
 	private ArrayList<Wall> wall;
 
 	private ArrayList<Collision> collisions;
+	
+	int width = 7500;
+	int height = 7500;
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -209,8 +212,8 @@ public class Environment implements Serializable{
     			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks, Collision.TYPE_ENEMY);
     			for (Gene[] gene : nextSharks) {
     				// TODO unhardcode these
-    				int x = (int) Math.floor(Math.random() * 1000);
-    				int y = (int) Math.floor(Math.random() * 750);
+    				int x = (int) Math.floor(Math.random() * width);
+    				int y = (int) Math.floor(Math.random() * height);
     				int heading = (int) Math.floor(Math.random() * 360);
     				spawnShark(new Point2D.Double(x,y), heading, gene);
     				
@@ -221,15 +224,15 @@ public class Environment implements Serializable{
     		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes, Collision.TYPE_AGENT);
     		for (Gene[] gene : nextFish) {
     			// TODO unhardcode these
-    			int x = (int) Math.floor(Math.random() * 1000);
-    			int y = (int) Math.floor(Math.random() * 750);
+    			int x = (int) Math.floor(Math.random() * width);
+    			int y = (int) Math.floor(Math.random() * height);
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, gene);
     		}
 
     		for(int i = 0; i < fishes.size()/2; i++){
-    			int x = (int) Math.floor(Math.random() * 1000);
-    			int y = (int) Math.floor(Math.random() * 750);
+    			int x = (int) Math.floor(Math.random() * width);
+    			int y = (int) Math.floor(Math.random() * height);
     			addFood(new Point2D.Double(x, y));
     		}
 
@@ -239,8 +242,8 @@ public class Environment implements Serializable{
        		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes, Collision.TYPE_AGENT);
     		for (Gene[] gene : nextFish) {
     			// TODO unhardcode these
-    			int x = (int) Math.floor(Math.random() * 1000);
-    			int y = (int) Math.floor(Math.random() * 750);
+    			int x = (int) Math.floor(Math.random() * width);
+    			int y = (int) Math.floor(Math.random() * height);
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, gene);
     			tick = 0;
@@ -251,8 +254,8 @@ public class Environment implements Serializable{
   			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks, Collision.TYPE_ENEMY);
 			for (Gene[] gene : nextSharks) {
 				// TODO unhardcode these
-				int x = (int) Math.floor(Math.random() * 1000);
-				int y = (int) Math.floor(Math.random() * 750);
+				int x = (int) Math.floor(Math.random() * width);
+				int y = (int) Math.floor(Math.random() * height);
 				int heading = (int) Math.floor(Math.random() * 360);
 				spawnShark(new Point2D.Double(x,y), heading, gene);
 				// Reset tick until next generation
