@@ -364,7 +364,7 @@ public class Simulation extends PApplet {
 		theme.setColor("Food", color(0, 255, 0));
 		theme.setColor("Agent", color(255, 127, 0));
 		theme.setColor("Enemy", color(255, 0, 0));
-		theme.setColor("Wall", color(255));
+		theme.setColor("Wall", color(255, 255, 0));
 		theme.setColor("Neuron", color(200));
 		theme.setColor("NeuronFired", color(0, 255, 0));
 
@@ -536,8 +536,10 @@ public class Simulation extends PApplet {
 			    translate(offX, offY);
 			    for(MNeuron n : net.getNeurons()){ //draw the neurons
 			    	int isFired = (n.isFiring() ? 255 : 60);
-			    	if(n.getID() <= 9) fill(theme.getColor("Food"), isFired);
-			    	else if(n.getID() >= net.getNeurons().size() - 3) fill(0, 255, 255, isFired);
+			    	if(n.getID() >= 3 && n.getID() < 13) fill(theme.getColor("Food"), isFired);
+			    	else if(n.getID() >= 13 && n.getID() < 23) fill(theme.getColor("Wall"), isFired);
+			    	else if(n.getID() >= 23 && n.getID() < 33) fill(theme.getColor("Enemy"), isFired);
+			    	else if(n.getID() < 3) fill(0, 255, 255, isFired);
 			    	else fill(theme.getColor("Neuron"), isFired);
 
 			    	MVec3f vec = n.getCoordinates();
@@ -550,15 +552,21 @@ public class Simulation extends PApplet {
 			    }
 
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
-			    	MVec3f n1 = s.getPreNeuron().getCoordinates();
-			    	MVec3f n2 = s.getPostNeuron().getCoordinates();
+			    	MNeuron pre = s.getPreNeuron();
+			    	MNeuron post = s.getPostNeuron();
+			    	MVec3f n1 = pre.getCoordinates();
+			    	MVec3f n2 = post.getCoordinates();
 
 			    	//clip edge if both nodes above clipping
 			    	if((n1.y + offY) * zoom < -135
 			    			&& (n2.y + offY) * zoom < -135) continue;
 
-			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0, 100);
-			    	else stroke(0, 255, 0, 10);
+			    	int isFired = (pre.isFiring() ? 100 : 10);
+			    	if(pre.getID() >= 3 && pre.getID() < 13) stroke(theme.getColor("Food"), isFired);
+			    	else if(pre.getID() >= 13 && pre.getID() < 23) stroke(theme.getColor("Wall"), isFired);
+			    	else if(pre.getID() >= 23 && pre.getID() < 33) stroke(theme.getColor("Enemy"), isFired);
+			    	else if(pre.getID() < 3) stroke(0, 255, 255, isFired);
+			    	else stroke(255, isFired);
 
 			    	//partial clipping when one node if above line
 			    	if((n1.y + offY) * zoom < -135){

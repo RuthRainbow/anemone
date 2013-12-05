@@ -31,7 +31,7 @@ public class Agent extends SimulationObject implements Serializable{
 	private int age = 0; // Age of agent in number of updates.
 	private double viewHeading = 0; // in degrees 0-360
 	private double visionRange = 100; //how far they can see into the distance
-	private double fov = 25; //field of view, +-
+	private double fov = 45; //field of view, +-
 	private ArrayList<SightInformation> canSee;
 	private double maxSpeed = 15;
 
