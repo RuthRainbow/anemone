@@ -557,8 +557,8 @@ public class Simulation extends PApplet {
 			    	if((n1.y + offY) * zoom < -135
 			    			&& (n2.y + offY) * zoom < -135) continue;
 
-			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0);
-			    	else stroke(255, 20);
+			    	if(s.getPreNeuron().isFiring()) stroke(0, 255, 0, 100);
+			    	else stroke(0, 255, 0, 10);
 
 			    	//partial clipping when one node if above line
 			    	if((n1.y + offY) * zoom < -135){
