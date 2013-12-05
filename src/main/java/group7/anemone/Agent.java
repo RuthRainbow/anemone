@@ -169,51 +169,46 @@ public class Agent extends SimulationObject implements Serializable{
 
 	private void updateMNetwork() {
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
-		int thrustNeuronID = neurons.size()-3;
-		int turnNegativeNeuronID = neurons.size()-2;
-		int turnPositiveNeuronID = neurons.size()-1;
+		int thrustNeuronID = 0;
+		int turnNegativeNeuronID = 1;
+		int turnPositiveNeuronID = 2;
 
 		/* Apply inputs from sensors to network. */
 		for (MNeuron n : neurons) {
-			switch(n.getID()) {
-				/* Sensory neurons. */
-				case 0:
-					//System.out.println("Adding current "+ninterface.affectors.vFood[4]);
-					n.addCurrent(ninterface.affectors.vFood[0]);
-					break;
-				case 1:
-					//System.out.println("Adding current "+ninterface.affectors.vFood[5]);
-					n.addCurrent(ninterface.affectors.vFood[1]);
-					break;
-				case 2:
-					//System.out.println("Adding current "+ninterface.affectors.vFood[0]);
-					n.addCurrent(ninterface.affectors.vFood[2]);
-					break;
-				case 3:
-					//System.out.println("Adding current "+ninterface.affectors.vFood[9]);
-					n.addCurrent(ninterface.affectors.vFood[3]);
-					break;
-				case 4:
-					n.addCurrent(ninterface.affectors.vFood[4]);
-					break;
-				case 5:
-					n.addCurrent(ninterface.affectors.vFood[5]);
-					break;
-				case 6:
-					n.addCurrent(ninterface.affectors.vFood[6]);
-					break;
-				case 7:
-					n.addCurrent(ninterface.affectors.vFood[7]);
-					break;
-				case 8:
-					n.addCurrent(ninterface.affectors.vFood[8]);
-					break;
-				case 9:
-					n.addCurrent(ninterface.affectors.vFood[9]);
-					break;
-				default:
-					break;
-			}
+			int id = n.getID();
+			
+			if(id == 3) n.addCurrent(ninterface.affectors.vFood[0]);
+			else if(id == 4) n.addCurrent(ninterface.affectors.vFood[1]);
+			else if(id == 5) n.addCurrent(ninterface.affectors.vFood[2]);
+			else if(id == 6) n.addCurrent(ninterface.affectors.vFood[3]);
+			else if(id == 7) n.addCurrent(ninterface.affectors.vFood[4]);
+			else if(id == 8) n.addCurrent(ninterface.affectors.vFood[5]);
+			else if(id == 9) n.addCurrent(ninterface.affectors.vFood[6]);
+			else if(id == 10) n.addCurrent(ninterface.affectors.vFood[7]);
+			else if(id == 11) n.addCurrent(ninterface.affectors.vFood[8]);
+			else if(id == 12) n.addCurrent(ninterface.affectors.vFood[9]);
+			
+			else if(id == 13) n.addCurrent(ninterface.affectors.vWall[0]);
+			else if(id == 14) n.addCurrent(ninterface.affectors.vWall[1]);
+			else if(id == 15) n.addCurrent(ninterface.affectors.vWall[2]);
+			else if(id == 16) n.addCurrent(ninterface.affectors.vWall[3]);
+			else if(id == 17) n.addCurrent(ninterface.affectors.vWall[4]);
+			else if(id == 18) n.addCurrent(ninterface.affectors.vWall[5]);
+			else if(id == 19) n.addCurrent(ninterface.affectors.vWall[6]);
+			else if(id == 20) n.addCurrent(ninterface.affectors.vWall[7]);
+			else if(id == 21) n.addCurrent(ninterface.affectors.vWall[8]);
+			else if(id == 22) n.addCurrent(ninterface.affectors.vWall[9]);
+			
+			else if(id == 23) n.addCurrent(ninterface.affectors.vEnemy[0]);
+			else if(id == 24) n.addCurrent(ninterface.affectors.vEnemy[1]);
+			else if(id == 25) n.addCurrent(ninterface.affectors.vEnemy[2]);
+			else if(id == 26) n.addCurrent(ninterface.affectors.vEnemy[3]);
+			else if(id == 27) n.addCurrent(ninterface.affectors.vEnemy[4]);
+			else if(id == 28) n.addCurrent(ninterface.affectors.vEnemy[5]);
+			else if(id == 29) n.addCurrent(ninterface.affectors.vEnemy[6]);
+			else if(id == 30) n.addCurrent(ninterface.affectors.vEnemy[7]);
+			else if(id == 31) n.addCurrent(ninterface.affectors.vEnemy[8]);
+			else if(id == 32) n.addCurrent(ninterface.affectors.vEnemy[9]);
 			
 			if (n.getID()==thrustNeuronID) {
 				if (n.isFiring()) {
@@ -303,7 +298,9 @@ public class Agent extends SimulationObject implements Serializable{
 
 	void update(){
 		updateSensors();
-		updateMNetwork();
+		for(int i = 0; i < 64; i++){
+			updateMNetwork();
+		}
 		updateSpeed();
 
 		//TODO Move the change of coords to the update speed section?? -Seb

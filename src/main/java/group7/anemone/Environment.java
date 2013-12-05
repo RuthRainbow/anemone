@@ -26,8 +26,8 @@ public class Environment implements Serializable{
 
 	private ArrayList<Collision> collisions;
 	
-	int width = 7500;
-	int height = 7500;
+	int width = 1500;
+	int height = 1500;
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -292,8 +292,28 @@ public class Environment implements Serializable{
 		 *
 		 * */
 		Gene[] genome = new Gene[90];
+		int total = 0;
+		
+		for(int i = 0; i < 10; i++){//FOOD
+			for(int j = 0; j < 3; j++){
+				genome[total] = new Gene(total, 3 + i, j, 4.0, 1);
+				total++;
+			}
+		}
+		for(int i = 0; i < 10; i++){//Wall
+			for(int j = 0; j < 3; j++){
+				genome[total] = new Gene(total, 3 + i + 10, j, 4.0, 1);
+				total++;
+			}
+		}
+		for(int i = 0; i < 10; i++){//Enemy
+			for(int j = 0; j < 3; j++){
+				genome[total] = new Gene(total, 3 + i + 20, j, 4.0, 1);
+				total++;
+			}
+		}
 
-		genome[0] = new Gene(0,0,30,4.0,1);
+		/*genome[0] = new Gene(0,0,30,4.0,1);//food
 		genome[1] = new Gene(1,1,30,4.0,1);
 		genome[2] = new Gene(2,2,30,4.0,1);
 		genome[3] = new Gene(3,3,30,4.0,1);
@@ -303,7 +323,7 @@ public class Environment implements Serializable{
 		genome[7] = new Gene(7,7,30,4.0,1);
 		genome[8] = new Gene(8,8,30,4.0,1);
 		genome[9] = new Gene(9,9,30,4.0,1);
-		genome[10] = new Gene(10,10,30,4.0,1);
+		genome[10] = new Gene(10,10,30,4.0,1);//walls
 		genome[11] = new Gene(11,11,30,4.0,1);
 		genome[12] = new Gene(12,12,30,4.0,1);
 		genome[13] = new Gene(13,13,30,4.0,1);
@@ -313,7 +333,7 @@ public class Environment implements Serializable{
 		genome[17] = new Gene(17,17,30,4.0,1);
 		genome[18] = new Gene(18,18,30,4.0,1);
 		genome[19] = new Gene(19,19,30,4.0,1);
-		genome[20] = new Gene(20,20,30,4.0,1);
+		genome[20] = new Gene(20,20,30,4.0,1);//Enemy
 		genome[21] = new Gene(21,21,30,4.0,1);
 		genome[22] = new Gene(22,22,30,4.0,1);
 		genome[23] = new Gene(23,23,30,4.0,1);
@@ -323,7 +343,7 @@ public class Environment implements Serializable{
 		genome[27] = new Gene(27,27,30,4.0,1);
 		genome[28] = new Gene(28,28,30,4.0,1);
 		genome[29] = new Gene(29,29,30,4.0,1);
-		genome[30] = new Gene(30,0,31,4.0,1);
+		genome[30] = new Gene(30,0,31,4.0,1);//Food
 		genome[31] = new Gene(31,1,31,4.0,1);
 		genome[32] = new Gene(32,2,31,4.0,1);
 		genome[33] = new Gene(33,3,31,4.0,1);
@@ -333,7 +353,7 @@ public class Environment implements Serializable{
 		genome[37] = new Gene(37,7,31,4.0,1);
 		genome[38] = new Gene(38,8,31,4.0,1);
 		genome[39] = new Gene(39,9,31,4.0,1);
-		genome[40] = new Gene(40,10,31,4.0,1);
+		genome[40] = new Gene(40,10,31,4.0,1);//Wall
 		genome[41] = new Gene(41,11,31,4.0,1);
 		genome[42] = new Gene(42,12,31,4.0,1);
 		genome[43] = new Gene(43,13,31,4.0,1);
@@ -343,7 +363,7 @@ public class Environment implements Serializable{
 		genome[47] = new Gene(47,17,31,4.0,1);
 		genome[48] = new Gene(48,18,31,4.0,1);
 		genome[49] = new Gene(49,19,31,4.0,1);
-		genome[50] = new Gene(50,20,31,4.0,1);
+		genome[50] = new Gene(50,20,31,4.0,1);//Eneny
 		genome[51] = new Gene(51,21,31,4.0,1);
 		genome[52] = new Gene(52,22,31,4.0,1);
 		genome[53] = new Gene(53,23,31,4.0,1);
@@ -353,7 +373,7 @@ public class Environment implements Serializable{
 		genome[57] = new Gene(57,27,31,4.0,1);
 		genome[58] = new Gene(58,28,31,4.0,1);
 		genome[59] = new Gene(59,29,31,4.0,1);
-		genome[60] = new Gene(60,0,32,4.0,1);
+		genome[60] = new Gene(60,0,32,4.0,1);//Food
 		genome[61] = new Gene(61,1,32,4.0,1);
 		genome[62] = new Gene(62,2,32,4.0,1);
 		genome[63] = new Gene(63,3,32,4.0,1);
@@ -363,7 +383,7 @@ public class Environment implements Serializable{
 		genome[67] = new Gene(67,7,32,4.0,1);
 		genome[68] = new Gene(68,8,32,4.0,1);
 		genome[69] = new Gene(69,9,32,4.0,1);
-		genome[70] = new Gene(70,10,32,4.0,1);
+		genome[70] = new Gene(70,10,32,4.0,1);//Wall
 		genome[71] = new Gene(71,11,32,4.0,1);
 		genome[72] = new Gene(72,12,32,4.0,1);
 		genome[73] = new Gene(73,13,32,4.0,1);
@@ -373,7 +393,7 @@ public class Environment implements Serializable{
 		genome[77] = new Gene(77,17,32,4.0,1);
 		genome[78] = new Gene(78,18,32,4.0,1);
 		genome[79] = new Gene(79,19,32,4.0,1);
-		genome[80] = new Gene(80,20,32,4.0,1);
+		genome[80] = new Gene(80,20,32,4.0,1);//Enemy
 		genome[81] = new Gene(81,21,32,4.0,1);
 		genome[82] = new Gene(82,22,32,4.0,1);
 		genome[83] = new Gene(83,23,32,4.0,1);
@@ -382,7 +402,7 @@ public class Environment implements Serializable{
 		genome[86] = new Gene(86,26,32,4.0,1);
 		genome[87] = new Gene(87,27,32,4.0,1);
 		genome[88] = new Gene(88,28,32,4.0,1);
-		genome[89] = new Gene(89,29,32,4.0,1);
+		genome[89] = new Gene(89,29,32,4.0,1);*/
 
 		return genome;
 	}
