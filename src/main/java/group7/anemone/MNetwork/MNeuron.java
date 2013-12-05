@@ -29,7 +29,7 @@ public class MNeuron implements Serializable{
 	/* Pre and post synapses. */
 	private ArrayList<MSynapse> preSynapses, postSynapses;
 	
-	public float disp;
+	public MVec3f disp;
 
 	public MNeuron(MNeuronParams params, MNeuronState state, int nid) {
 		/* Initialise parameters and state. */

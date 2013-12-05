@@ -861,7 +861,7 @@ public class Simulation extends PApplet {
 		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
-			double val = 1;//ag.getHealth();
+			double val = ag.getHealth() / 2;
 			cc.getAgent().updateHealth(val);
 			cc.getAgent().updateFitness(val);
 		}
