@@ -46,7 +46,7 @@ public class Agent extends SimulationObject implements Serializable{
 	 */
 	private Gene[] genome;
 
-	private int configNumSegments = 10;
+	public static final int configNumSegments = 10;
 
 	private MNetwork mnetwork;
 	private MSimulation msimulation;
@@ -54,7 +54,7 @@ public class Agent extends SimulationObject implements Serializable{
 
 	public Agent(Point2D.Double coords, double viewHeading, PApplet p, Gene[] newGenome) {
 		super(coords);
-		ninterface = new NInterface(10);
+		ninterface = new NInterface(configNumSegments);
 		canSee = new ArrayList<SightInformation>();
 		this.parent = p;
 		this.viewHeading = viewHeading;
@@ -177,38 +177,13 @@ public class Agent extends SimulationObject implements Serializable{
 		for (MNeuron n : neurons) {
 			int id = n.getID();
 			
-			if(id == 3) n.addCurrent(ninterface.affectors.vFood[0]);
-			else if(id == 4) n.addCurrent(ninterface.affectors.vFood[1]);
-			else if(id == 5) n.addCurrent(ninterface.affectors.vFood[2]);
-			else if(id == 6) n.addCurrent(ninterface.affectors.vFood[3]);
-			else if(id == 7) n.addCurrent(ninterface.affectors.vFood[4]);
-			else if(id == 8) n.addCurrent(ninterface.affectors.vFood[5]);
-			else if(id == 9) n.addCurrent(ninterface.affectors.vFood[6]);
-			else if(id == 10) n.addCurrent(ninterface.affectors.vFood[7]);
-			else if(id == 11) n.addCurrent(ninterface.affectors.vFood[8]);
-			else if(id == 12) n.addCurrent(ninterface.affectors.vFood[9]);
-			
-			else if(id == 13) n.addCurrent(ninterface.affectors.vWall[0]);
-			else if(id == 14) n.addCurrent(ninterface.affectors.vWall[1]);
-			else if(id == 15) n.addCurrent(ninterface.affectors.vWall[2]);
-			else if(id == 16) n.addCurrent(ninterface.affectors.vWall[3]);
-			else if(id == 17) n.addCurrent(ninterface.affectors.vWall[4]);
-			else if(id == 18) n.addCurrent(ninterface.affectors.vWall[5]);
-			else if(id == 19) n.addCurrent(ninterface.affectors.vWall[6]);
-			else if(id == 20) n.addCurrent(ninterface.affectors.vWall[7]);
-			else if(id == 21) n.addCurrent(ninterface.affectors.vWall[8]);
-			else if(id == 22) n.addCurrent(ninterface.affectors.vWall[9]);
-			
-			else if(id == 23) n.addCurrent(ninterface.affectors.vEnemy[0]);
-			else if(id == 24) n.addCurrent(ninterface.affectors.vEnemy[1]);
-			else if(id == 25) n.addCurrent(ninterface.affectors.vEnemy[2]);
-			else if(id == 26) n.addCurrent(ninterface.affectors.vEnemy[3]);
-			else if(id == 27) n.addCurrent(ninterface.affectors.vEnemy[4]);
-			else if(id == 28) n.addCurrent(ninterface.affectors.vEnemy[5]);
-			else if(id == 29) n.addCurrent(ninterface.affectors.vEnemy[6]);
-			else if(id == 30) n.addCurrent(ninterface.affectors.vEnemy[7]);
-			else if(id == 31) n.addCurrent(ninterface.affectors.vEnemy[8]);
-			else if(id == 32) n.addCurrent(ninterface.affectors.vEnemy[9]);
+			if(id >= 3 && id < 3 + Agent.configNumSegments){
+				n.addCurrent(ninterface.affectors.vFood[id - 3]);
+			}else if(id >= 3 + Agent.configNumSegments && id < 3 + Agent.configNumSegments * 2){
+				n.addCurrent(ninterface.affectors.vWall[id - 3 - Agent.configNumSegments]);
+			}else if(id >= 3 + Agent.configNumSegments * 2 && id < 3 + Agent.configNumSegments * 3){
+				n.addCurrent(ninterface.affectors.vEnemy[id - 3 - Agent.configNumSegments * 2]);
+			}
 			
 			if (n.getID()==thrustNeuronID) {
 				if (n.isFiring()) {

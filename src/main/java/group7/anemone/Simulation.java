@@ -536,9 +536,9 @@ public class Simulation extends PApplet {
 			    translate(offX, offY);
 			    for(MNeuron n : net.getNeurons()){ //draw the neurons
 			    	int isFired = (n.isFiring() ? 255 : 60);
-			    	if(n.getID() >= 3 && n.getID() < 13) fill(theme.getColor("Food"), isFired);
-			    	else if(n.getID() >= 13 && n.getID() < 23) fill(theme.getColor("Wall"), isFired);
-			    	else if(n.getID() >= 23 && n.getID() < 33) fill(theme.getColor("Enemy"), isFired);
+			    	if(n.getID() >= 3 && n.getID() < 3 + Agent.configNumSegments) fill(theme.getColor("Food"), isFired);
+			    	else if(n.getID() >= 3 + Agent.configNumSegments && n.getID() < 3 + Agent.configNumSegments * 2) fill(theme.getColor("Wall"), isFired);
+			    	else if(n.getID() >= 3 + Agent.configNumSegments * 2 && n.getID() < 3 + Agent.configNumSegments * 3) fill(theme.getColor("Enemy"), isFired);
 			    	else if(n.getID() < 3) fill(0, 255, 255, isFired);
 			    	else fill(theme.getColor("Neuron"), isFired);
 
@@ -562,9 +562,9 @@ public class Simulation extends PApplet {
 			    			&& (n2.y + offY) * zoom < -135) continue;
 
 			    	int isFired = (pre.isFiring() ? 100 : 10);
-			    	if(pre.getID() >= 3 && pre.getID() < 13) stroke(theme.getColor("Food"), isFired);
-			    	else if(pre.getID() >= 13 && pre.getID() < 23) stroke(theme.getColor("Wall"), isFired);
-			    	else if(pre.getID() >= 23 && pre.getID() < 33) stroke(theme.getColor("Enemy"), isFired);
+			    	if(pre.getID() >= 3 && pre.getID() < 3 + Agent.configNumSegments) stroke(theme.getColor("Food"), isFired);
+			    	else if(pre.getID() >= 3 + Agent.configNumSegments && pre.getID() < 3 + Agent.configNumSegments * 2) stroke(theme.getColor("Wall"), isFired);
+			    	else if(pre.getID() >= 3 + Agent.configNumSegments * 2 && pre.getID() < 3 + Agent.configNumSegments * 3) stroke(theme.getColor("Enemy"), isFired);
 			    	else if(pre.getID() < 3) stroke(0, 255, 255, isFired);
 			    	else stroke(255, isFired);
 
