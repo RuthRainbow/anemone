@@ -34,6 +34,7 @@ public class Gene implements Serializable{
 				" DELAY: " + delay;
 	}
 
+	/*
 	@Override
 	public boolean equals(Object gene) {
 		 if (gene == null)
@@ -49,5 +50,5 @@ public class Gene implements Serializable{
 	     } else {
 	    	 return false;
 	     }
-	}
+	}*/
 }
