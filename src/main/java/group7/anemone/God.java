@@ -10,17 +10,14 @@ import java.util.Set;
 
 public class God implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 619717007643693268L;
 	// NEAT uses an absolutely massive mutation chance
 	private double mutation_chance = 0.03f;
 	private final double twin_chance = 0.05f;
 
-	private HashMap<Integer, Double> best_fitness = new HashMap<Integer, Double>();
-	private HashMap<Integer, Double> worst_fitness = new HashMap<Integer, Double>();
-	private HashMap<Integer, Double> average_fitness = new HashMap<Integer, Double>();
+	private double best_fitness;
+	private double worst_fitness;
+	private double average_fitness;
 	private int no_improvement_count = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
@@ -40,12 +37,6 @@ public class God implements Serializable{
 	
 	public God() {
 		this.species = new ArrayList<Gene[]>();
-		best_fitness.put(Collision.TYPE_AGENT, 0.0);
-		best_fitness.put(Collision.TYPE_ENEMY, 0.0);
-		worst_fitness.put(Collision.TYPE_AGENT, 1.0);
-		worst_fitness.put(Collision.TYPE_ENEMY, 1.0);
-		average_fitness.put(Collision.TYPE_AGENT, 0.1);
-		average_fitness.put(Collision.TYPE_ENEMY, 0.1);
 	}
 
 	// This is inside it's own method to make unittesting easier.
@@ -54,9 +45,9 @@ public class God implements Serializable{
 	}
 
 	// Method to breed the entire population
-	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents, int type) {
+	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
-		ArrayList<Agent> selectedAgents = Selection(agents, type);
+		ArrayList<Agent> selectedAgents = Selection(agents);
 		System.out.println("selecting " + selectedAgents.size());
 		return GenerateChildren(selectedAgents);
 	}
@@ -107,27 +98,27 @@ public class God implements Serializable{
 		return (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
 	}
 
-	protected ArrayList<Agent> Selection(ArrayList<Agent> agents, int type) {
+	protected ArrayList<Agent> Selection(ArrayList<Agent> agents) {
 		ArrayList<Agent> selectedAgents = new ArrayList<Agent>();
-		double last_best = getBestFitness(type);
-		double last_average = getAverageFitness(type);
-		setAverageFitness(0, type);
+		double last_best = best_fitness;
+		double last_average = average_fitness;
+		average_fitness = 0;
 		for (Agent agent : agents) {
 			double fitness = agent.getFitness();
-			setAverageFitness(getAverageFitness(type) + fitness, type);
+			average_fitness += fitness;
 			// This number is completely arbitrary, depends on fitness function
 			if (fitness * getRandom() > last_average) {
 				selectedAgents.add(agent);
 			}
-			if (agent.getFitness() > getBestFitness(type)) {
-				setBestFitness(agent.getFitness(), type);
-			} else if (agent.getFitness() < getWorstFitness(type)) {
-				setWorstFitness(agent.getFitness(), type);
-			}
+			 if (agent.getFitness() > best_fitness) {
+                 best_fitness = agent.getFitness();
+			 } else if (agent.getFitness() < worst_fitness) {
+                 worst_fitness = agent.getFitness();
+			 }
 		}
-		setAverageFitness(getAverageFitness(type) / agents.size(), type);
+		average_fitness = average_fitness / agents.size();
 		// Keep track of the number of generations without improvement.
-		if (last_best >= getBestFitness(type)) {
+		if (last_best >= best_fitness) {
 			no_improvement_count++;
 		} else {
 			no_improvement_count--;
@@ -253,23 +244,12 @@ public class God implements Serializable{
 			if (getRandom() < 0.5) {
 				int left = 0;
 				int right = 0;
-				boolean connected = true;
-				int count = 0;
-				// Put a good effort into finding two unconnected nodes in the network (it may be
-				// impossible).
-				while (connected && count < max * max) {
-					count++;
-					left = historicalMarkersList.get(
-							(int) Math.floor(getRandom()*historicalMarkersList.size()));
-					right = historicalMarkersList.get(
-							(int) Math.floor(getRandom()*historicalMarkersList.size()));
-					//Check if the connected left <-> is already within a gene
-					// ASSUMES EDGES ARE BIDIRECTIONAL. IS THIS RIGHT??????
-					IntPair newPair = new IntPair(left, right);
-					//if (!edges.contains(newPair)) {
-						connected = false;
-					//}
-				}
+				// Connect two arbitrary nodes - we don't care if they are already connected.
+				// (Similar to growing multiple synapses).
+				left = historicalMarkersList.get(
+						(int) Math.floor(getRandom()*historicalMarkersList.size()));
+				right = historicalMarkersList.get(
+						(int) Math.floor(getRandom()*historicalMarkersList.size()));
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(next_marker, child[left].in, child[right].in, 4.0, 1);
 				for (Gene gene : newGenes) {
@@ -338,7 +318,7 @@ public class God implements Serializable{
 
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
-			if (agent.getFitness() == getBestFitness(type)) {
+			if (agent.getFitness() == best_fitness) {
 				if (!elite_agent_in) {
 					children.add(agent.getStringRep());
 				} else {
@@ -360,7 +340,7 @@ public class God implements Serializable{
 
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
-			if (agent.getFitness() == getBestFitness(type) && !elite_agent_in) {
+			if (agent.getFitness() == best_fitness && !elite_agent_in) {
 				children.add(agent.getStringRep());
 			} else {
 				children.add(RandomlyGenerate());
@@ -373,26 +353,6 @@ public class God implements Serializable{
 	// Return the string representation of a new agent.
 	protected Gene[] RandomlyGenerate() {
 		throw new NotImplementedException();
-	}
-	
-	//Get / Set fitness values
-	private void setBestFitness(double d, int type){
-		best_fitness.put(type, d);
-	}
-	private double getBestFitness(int type){
-		return best_fitness.get(type);
-	}
-	private void setWorstFitness(double d, int type){
-		worst_fitness.put(type, d);
-	}
-	private double getWorstFitness(int type){
-		return worst_fitness.get(type);
-	}
-	private void setAverageFitness(double d, int type){
-		average_fitness.put(type, d);
-	}
-	private double getAverageFitness(int type){
-		return average_fitness.get(type);
 	}
 
 	public class NotImplementedException extends RuntimeException {

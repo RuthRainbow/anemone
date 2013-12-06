@@ -17,7 +17,8 @@ public class Environment implements Serializable{
 	private static final long serialVersionUID = 2740658645450395424L;
 	transient PApplet parent;
 	// God & clock needed for breeding every n generations
-	private God god;
+	private God fishGod;
+	private God sharkGod;
 	private int tick = 0;
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
@@ -31,7 +32,8 @@ public class Environment implements Serializable{
 
 	public Environment(PApplet p){
 		this.parent = p;
-		this.god = new God();
+		this.fishGod = new God();
+		this.sharkGod = new God();
 		this.fishes = new ArrayList<Agent>();
 		this.sharks = new ArrayList<Agent>();
 		this.food = new ArrayList<Food>();
@@ -209,7 +211,7 @@ public class Environment implements Serializable{
 
     	if (tick % 200 == 0 ) {
     		if (tick % 400 == 0) {
-    			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks, Collision.TYPE_ENEMY);
+    			ArrayList<Gene[]> nextSharks = fishGod.BreedPopulation(sharks);
     			for (Gene[] gene : nextSharks) {
     				// TODO unhardcode these
     				int x = (int) Math.floor(Math.random() * width);
@@ -221,7 +223,7 @@ public class Environment implements Serializable{
     			// Reset tick until next generation
     			tick = 0;
     		}
-    		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes, Collision.TYPE_AGENT);
+    		ArrayList<Gene[]> nextFish = sharkGod.BreedPopulation(fishes);
     		for (Gene[] gene : nextFish) {
     			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * width);
@@ -239,7 +241,7 @@ public class Environment implements Serializable{
     	}
     	
     	if(fishes.size() <= 5) {
-       		ArrayList<Gene[]> nextFish = god.BreedPopulation(fishes, Collision.TYPE_AGENT);
+       		ArrayList<Gene[]> nextFish = fishGod.BreedPopulation(fishes);
     		for (Gene[] gene : nextFish) {
     			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * width);
