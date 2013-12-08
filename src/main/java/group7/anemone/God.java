@@ -33,12 +33,12 @@ public class God implements Serializable{
 	private double offspringProportion = 0.5; // ALSO COMPLETELY ARBITRARY
 	
 	// Parameters for use in difference calcuation (can be tweaked).
-	private final double c1 = 0.5;
-	private final double c2 = 0.5;
-	private final double c3 = 0.5;
+	private final double c1 = 0.5; //weighting of excess genes
+	private final double c2 = 0.5; //weighting of disjoint genes
+	private final double c3 = 0.5; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	private final double compatibilityThreshold = 7;
+	private final double compatibilityThreshold = 22;
 	
 	public God() {
 		this.species = new ArrayList<Species>();
@@ -71,22 +71,25 @@ public class God implements Serializable{
 		}
 		// Put each agent given for reproduction into a species.
 		for (Agent agent : agents) {
-			boolean foundSpecies = false;
-			AgentFitness thisAgent = new AgentFitness(agent);
-			for (Species specie : species) {
-				AgentFitness rep = specie.rep;
-				double dist = getDistance(thisAgent, rep);
-				if (dist < compatibilityThreshold) {
-					foundSpecies = true;
-					specie.addMember(thisAgent);
-					thisAgent.speciesId = specie.id;
+			// Try to increase efficiency by ignoring awful agents
+			//if (agent.getFitness() > average_fitness/10) {
+				boolean foundSpecies = false;
+				AgentFitness thisAgent = new AgentFitness(agent);
+				for (Species specie : species) {
+					AgentFitness rep = specie.rep;
+					double dist = getDistance(thisAgent, rep);
+					if (dist < compatibilityThreshold) {
+						foundSpecies = true;
+						specie.addMember(thisAgent);
+						thisAgent.speciesId = specie.id;
+					}
 				}
-			}
-			if (!foundSpecies) {
-				int newSpeciesId = species.size() + 1;
-				species.add(new Species(thisAgent, newSpeciesId));
-				thisAgent.speciesId = newSpeciesId;
-			}
+				if (!foundSpecies) {
+					int newSpeciesId = species.size() + 1;
+					species.add(new Species(thisAgent, newSpeciesId));
+					thisAgent.speciesId = newSpeciesId;
+				}
+			//}
 		}
 		
 		shareFitnesses();
@@ -113,12 +116,13 @@ public class God implements Serializable{
 		for (AgentFitness agent : specie.members) {
 			summedFitness += agent.fitness;
 		}
-		int numOffspring = (int) Math.floor((summedFitness * offspringProportion)/popSize);
+		int numOffspring = Math.min(2, (int) Math.floor(summedFitness * offspringProportion));
+		System.out.println("*************** GENERATING " + numOffspring + " children for species " + specie.id);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			children.addAll(
-					CreateOffspring(specie.members.get(i), specie.members.get(i+1), specie.id));
+					CreateOffspring(specie.members.get(i), specie.members.get(i+1)));
 			i += 2;
 		}
 		return children;
@@ -233,10 +237,21 @@ public class God implements Serializable{
 
 		return mutatedChildren;
 	}
+	
+	protected HashMap<Gene[], Integer> createOffspring(Agent mother, Agent father) {
+		AgentFitness motherFitness = new AgentFitness(mother);
+		AgentFitness fatherFitness = new AgentFitness(father);
+		ArrayList<Gene[]> children = CreateOffspring(motherFitness, fatherFitness);
+		HashMap<Gene[], Integer> childrenSpecies = new HashMap<Gene[], Integer>();
+		for (Gene[] child : children) {
+			childrenSpecies.put(child, father.getSpeciesId());
+		}
+		return childrenSpecies;
+	}
 
 	// Method to create offspring from 2 given parents.
 	protected ArrayList<Gene[]> CreateOffspring(
-			AgentFitness mother, AgentFitness father, int speciesId) {
+			AgentFitness mother, AgentFitness father) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 

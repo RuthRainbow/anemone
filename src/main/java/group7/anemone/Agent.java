@@ -290,7 +290,7 @@ public class Agent extends SimulationObject implements Serializable{
 		if (age < 100) {
 			fitness += 0.001;
 		} else if (age > 200) {
-			fitness -= 0.001;
+			fitness -= 0.01;
 		}
 	}
 	
@@ -535,5 +535,9 @@ public class Agent extends SimulationObject implements Serializable{
 	
 	public int getSpeciesId() {
 		return this.speciesId;
+	}
+
+	public int getAge() {
+		return this.age;
 	}
 }

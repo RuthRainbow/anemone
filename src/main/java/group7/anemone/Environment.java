@@ -214,7 +214,6 @@ public class Environment implements Serializable{
     		if (tick % 900 == 0) {
     			HashMap<Gene[], Integer> nextSharks = sharkGod.BreedWithSpecies(sharks);
     			for (Gene[] gene : nextSharks.keySet()) {
-    				// TODO unhardcode these
     				int x = (int) Math.floor(Math.random() * width);
     				int y = (int) Math.floor(Math.random() * height);
     				int heading = (int) Math.floor(Math.random() * 360);
@@ -226,7 +225,6 @@ public class Environment implements Serializable{
     		}
     		HashMap<Gene[], Integer> nextFish = fishGod.BreedWithSpecies(fishes);
     		for (Gene[] gene : nextFish.keySet()) {
-    			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * width);
     			int y = (int) Math.floor(Math.random() * height);
     			int heading = (int) Math.floor(Math.random() * 360);
@@ -241,31 +239,26 @@ public class Environment implements Serializable{
 
     	}
     	
-    	if(fishes.size() <= 5) {
-    		HashMap<Gene[], Integer> nextFish = fishGod.BreedWithSpecies(fishes);
-    		for (Gene[] gene : nextFish.keySet()) {
-    			// TODO unhardcode these
+    	if(fishes.size() <= 7) {
+    		for (int i = fishes.size(); i < 5; i++) {
+    			Gene[] genome = getGenome();
     			int x = (int) Math.floor(Math.random() * width);
     			int y = (int) Math.floor(Math.random() * height);
     			int heading = (int) Math.floor(Math.random() * 360);
-    			spawnFish(new Point2D.Double(x,y), heading, gene, nextFish.get(gene));
-    			tick = 0;
-    		}    	
-    		System.out.println("Fish population got to small, breeding.");
+    			spawnFish(new Point2D.Double(x,y), heading, genome, 0);
+    		}
+    		System.out.println("Fish population got to small, generating.");
     	}
-    	if(sharks.size() <= 5) {
-  			HashMap<Gene[], Integer> nextSharks = sharkGod.BreedWithSpecies(sharks);
-			for (Gene[] gene : nextSharks.keySet()) {
-				// TODO unhardcode these
-				int x = (int) Math.floor(Math.random() * width);
-				int y = (int) Math.floor(Math.random() * height);
-				int heading = (int) Math.floor(Math.random() * 360);
-				spawnShark(new Point2D.Double(x,y), heading, gene, nextSharks.get(gene));
-				// Reset tick until next generation
-				tick = 0;
-			}
-			System.out.println("Shark population got to small, breeding.");
-    	}
+    	/*if(sharks.size() <= 5) {
+    		for (int i = sharks.size(); i < 5; i++) {
+    			Gene[] genome = getGenome();
+    			int x = (int) Math.floor(Math.random() * width);
+    			int y = (int) Math.floor(Math.random() * height);
+    			int heading = (int) Math.floor(Math.random() * 360);
+    			spawnShark(new Point2D.Double(x,y), heading, genome, 0);
+    		}
+			System.out.println("Shark population got to small, generating.");
+    	}*/
     }
 
 	protected void spawnFish(
@@ -369,9 +362,17 @@ public class Environment implements Serializable{
 	}
 
 	protected void Breed(Agent mother, Agent father) {
-		/*ArrayList<Gene[]> children = god.CreateOffspring(mother, father);
-		for (Gene[] child : children) {
-			//TODO add new agent to env.
+		// TODO for enemies
+		/*if (!(mother instanceof Enemy) && !(father instanceof Enemy) &&
+				mother.getAge() > 100 && father.getAge() > 100 &&
+				mother.getAge() < 400 && father.getAge() < 400) {
+			HashMap<Gene[], Integer> children = fishGod.createOffspring(mother, father);
+			for (Gene[] child : children.keySet()) {
+				int x = (int) Math.floor(Math.random() * width);
+				int y = (int) Math.floor(Math.random() * height);
+				int heading = (int) Math.floor(Math.random() * 360);
+				spawnFish(new Point2D.Double(x,y), heading, child, children.get(child));
+			}
 		}*/
 	}
 

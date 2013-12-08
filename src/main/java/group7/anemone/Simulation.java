@@ -796,8 +796,8 @@ public class Simulation extends PApplet {
 		ag.changeViewHeading(newAngle - ag.getViewHeading());
 		ag.thrust(thrustIncrease * thrust);
 		ag.changeViewHeading(oldHeading - newAngle);
-		ag.updateHealth(thrust / -100);
-		ag.updateFitness(thrust / -100);
+		ag.updateHealth(thrust / -300);
+		ag.updateFitness(thrust / -300);
 	}
 
 	private void eatFood(Collision cc) {
@@ -807,13 +807,13 @@ public class Simulation extends PApplet {
 			Food fd = (Food) obj;
 			env.removeFood(fd);
 			cc.getAgent().updateHealth(fd.getValue());
-			cc.getAgent().updateFitness(fd.getValue());
+			cc.getAgent().updateFitness(fd.getValue()*5);
 		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
 			double val = ag.getHealth() / 2;
 			cc.getAgent().updateHealth(val);
-			cc.getAgent().updateFitness(val);
+			cc.getAgent().updateFitness(-0.1);
 		}
 	}
 
