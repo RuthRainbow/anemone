@@ -16,13 +16,15 @@ public class Gene implements Serializable{
 	public int out;
 	public double weight;
 	public int delay;
+	protected int speciesId;
 
-	Gene(int hist, int in, int out, double wei, int del) {
+	Gene(int hist, int in, int out, double wei, int del, int speciesId) {
 		this.historicalMarker = hist;
 		this.in = in;
 		this.out = out;
 		this.weight = wei;
 		this.delay = del;
+		this.speciesId = speciesId;
 	}
 
 	@Override

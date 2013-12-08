@@ -2,7 +2,6 @@ package group7.anemone;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,12 +49,12 @@ public class God implements Serializable{
 		return Math.random();
 	}
 
-	// Method to breed the entire population
+	// Method to breed the entire population without species.
 	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<AgentFitness> selectedAgents = Selection(agents);
 		System.out.println("selecting " + selectedAgents.size());
-		return GenerateChildren(selectedAgents);
+		return GenerateChildren(selectedAgents, 0);
 	}
 	
 	protected ArrayList<Gene[]> BreedWithSpecies(ArrayList<Agent> agents) {
@@ -74,10 +73,13 @@ public class God implements Serializable{
 				if (dist < compatibilityThreshold) {
 					foundSpecies = true;
 					specie.addMember(thisAgent);
+					thisAgent.stringRep[0].speciesId = specie.id;
 				}
 			}
 			if (!foundSpecies) {
-				species.add(new Species(thisAgent));
+				int newSpeciesId = species.size() + 1;
+				species.add(new Species(thisAgent, newSpeciesId));
+				thisAgent.stringRep[0].speciesId = newSpeciesId;
 			}
 		}
 		
@@ -106,7 +108,8 @@ public class God implements Serializable{
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
-			children.addAll(CreateOffspring(specie.members.get(i), specie.members.get(i+1)));
+			children.addAll(
+					CreateOffspring(specie.members.get(i), specie.members.get(i+1), specie.id));
 			i += 2;
 		}
 		return children;
@@ -194,7 +197,8 @@ public class God implements Serializable{
 		return selectedAgents;
 	}
 
-	protected ArrayList<Gene[]> GenerateChildren(ArrayList<AgentFitness> selectedAgents) {
+	protected ArrayList<Gene[]> GenerateChildren(
+			ArrayList<AgentFitness> selectedAgents, int speciesId) {
 		// Crossover - should select partner randomly (unless we are having genders).
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 
@@ -215,14 +219,16 @@ public class God implements Serializable{
 		ArrayList<Gene[]> mutatedChildren = new ArrayList<Gene[]>();
 		// Put every child through mutation process
 		for (Gene[] child : children) {
-			mutatedChildren.add(mutate(child));
+			mutatedChildren.add(mutate(child, speciesId));
+			child[0].speciesId = speciesId;
 		}
 
 		return mutatedChildren;
 	}
 
 	// Method to create offspring from 2 given parents.
-	protected ArrayList<Gene[]> CreateOffspring(AgentFitness mother, AgentFitness father) {
+	protected ArrayList<Gene[]> CreateOffspring(
+			AgentFitness mother, AgentFitness father, int speciesId) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 
@@ -231,7 +237,7 @@ public class God implements Serializable{
 			children.add(crossover(mother, father));
 		}
 		for (int i = 0; i < children.size(); i++) {
-			children.set(i, mutate(children.get(i)));
+			children.set(i, mutate(children.get(i), speciesId));
 		}
 		return children;
 	}
@@ -284,13 +290,13 @@ public class God implements Serializable{
 		return childGene;
 	}
 
-	private Gene[] mutate(Gene[] child) {
-		child = structuralMutation(child);
+	private Gene[] mutate(Gene[] child, int speciesId) {
+		child = structuralMutation(child, speciesId);
 		return weightMutation(child);
 	}
 
 	// Mutate a gene structurally
-	public Gene[] structuralMutation(Gene[] child) {
+	public Gene[] structuralMutation(Gene[] child, int speciesId) {
 		List<Gene> mutatedChild = new ArrayList<Gene>();
 		Set<Integer> historicalMarkersSet = new HashSet<Integer>();
 		List<IntPair> edges = new ArrayList<IntPair>();
@@ -320,7 +326,8 @@ public class God implements Serializable{
 				right = historicalMarkersList.get(
 						(int) Math.floor(getRandom()*historicalMarkersList.size()));
 				// If this mutated gene has already been created this gen, don't create another
-				Gene newGene = new Gene(next_marker, child[left].in, child[right].in, 4.0, 1);
+				Gene newGene = new Gene(
+						next_marker, child[left].in, child[right].in, 4.0, 1, speciesId);
 				for (Gene gene : newGenes) {
 					if (newGene.equals(gene)) {
 						newGene = gene;
@@ -338,7 +345,7 @@ public class God implements Serializable{
 				Gene toMutate = mutatedChild.get(
 						(int) Math.floor(getRandom() * mutatedChild.size()));
 				mutatedChild.remove(toMutate);
-				Gene newLeftGene = new Gene(next_marker, toMutate.in, max+1, 4.0, 1);
+				Gene newLeftGene = new Gene(next_marker, toMutate.in, max+1, 4.0, 1, speciesId);
 				for (Gene gene : newGenes) {
 					if (newLeftGene.equals(gene)) {
 						newLeftGene = gene;
@@ -348,7 +355,7 @@ public class God implements Serializable{
 					next_marker++;
 				}
 				mutatedChild.add(newLeftGene);
-				Gene newRightGene = new Gene(next_marker, max+1, toMutate.out, 4.0, 1);
+				Gene newRightGene = new Gene(next_marker, max+1, toMutate.out, 4.0, 1, speciesId);
 				for (Gene gene : newGenes) {
 					if (newRightGene.equals(gene)) {
 						newRightGene = gene;
@@ -490,11 +497,13 @@ public class God implements Serializable{
 	private class Species {
 		protected ArrayList<AgentFitness> members;
 		protected AgentFitness rep;
+		private int id;
 		
-		public Species(AgentFitness rep) {
+		public Species(AgentFitness rep, int id) {
 			this.rep = rep;
 			members = new ArrayList<AgentFitness>();
 			members.add(rep);
+			this.id =id;
 		}
 		
 		public void addMember(AgentFitness newMember) {

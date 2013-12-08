@@ -209,8 +209,8 @@ public class Environment implements Serializable{
     	}
     	tick++;
 
-    	if (tick % 200 == 0 ) {
-    		if (tick % 800 == 0) {
+    	if (tick % 250 == 0 ) {
+    		if (tick % 900 == 0) {
     			ArrayList<Gene[]> nextSharks = sharkGod.BreedWithSpecies(sharks);
     			for (Gene[] gene : nextSharks) {
     				// TODO unhardcode these
@@ -267,11 +267,13 @@ public class Environment implements Serializable{
     	}
     }
 
-	protected void spawnFish(Point2D.Double coords, int heading, Gene[] newGenome) {
+	protected void spawnFish(
+			Point2D.Double coords, int heading, Gene[] newGenome) {
 		fishes.add(new Agent(coords, heading, parent, newGenome));
 	}
 
-	protected void spawnShark(Point2D.Double coords, int heading, Gene[] newGenome) {
+	protected void spawnShark(
+			Point2D.Double coords, int heading, Gene[] newGenome) {
 		sharks.add(new Enemy(coords, heading, parent, newGenome));
 	}
 
@@ -295,22 +297,26 @@ public class Environment implements Serializable{
 		 * */
 		Gene[] genome = new Gene[3 * 3 * Agent.configNumSegments];
 		int total = 0;
+		// Start from species 0
+		int speciesId = 0;
 		
 		for(int i = 0; i < Agent.configNumSegments; i++){//Food
 			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(total, 3 + i, j, 4.0, 1);
+				genome[total] = new Gene(total, 3 + i, j, 4.0, 1, speciesId);
 				total++;
 			}
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Wall
 			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(total, 3 + i + Agent.configNumSegments, j, 4.0, 1);
+				genome[total] = new Gene(
+						total, 3 + i + Agent.configNumSegments, j, 4.0, 1, speciesId);
 				total++;
 			}
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Enemy
 			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(total, 3 + i + Agent.configNumSegments * 2, j, 4.0, 1);
+				genome[total] = new Gene(
+						total, 3 + i + Agent.configNumSegments * 2, j, 4.0, 1, speciesId);
 				total++;
 			}
 		}

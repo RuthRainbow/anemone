@@ -52,7 +52,8 @@ public class Agent extends SimulationObject implements Serializable{
 	private MSimulation msimulation;
 	private NInterface ninterface;
 
-	public Agent(Point2D.Double coords, double viewHeading, PApplet p, Gene[] newGenome) {
+	public Agent(
+			Point2D.Double coords, double viewHeading, PApplet p, Gene[] newGenome) {
 		super(coords);
 		ninterface = new NInterface(configNumSegments);
 		canSee = new ArrayList<SightInformation>();
