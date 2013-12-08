@@ -31,7 +31,7 @@ public class God implements Serializable{
 	private ArrayList<Species> species;
 	// The distances between all genes:
 	private HashMap<AgentPair, Double> distances;
-	private double offspringProportion = 0.2; // ALSO COMPLETELY ARBITRARY
+	private double offspringProportion = 0.5; // ALSO COMPLETELY ARBITRARY
 	
 	// Parameters for use in difference calcuation (can be tweaked).
 	private final double c1 = 0.5;
@@ -85,12 +85,12 @@ public class God implements Serializable{
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 		// Breed each species
 		for (Species specie : species) {
-			children.addAll(breedSpecies(specie));
+			children.addAll(breedSpecies(specie, agents.size()));
 		}
 		return children;
 	}
 	
-	private ArrayList<Gene[]> breedSpecies(Species specie) {
+	private ArrayList<Gene[]> breedSpecies(Species specie, int popSize) {
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 		if (specie.members.size() < 2) {
 			for (AgentFitness agent : specie.members) {
@@ -102,7 +102,7 @@ public class God implements Serializable{
 		for (AgentFitness agent : specie.members) {
 			summedFitness += agent.fitness;
 		}
-		int numOffspring = (int) Math.floor(summedFitness/offspringProportion);
+		int numOffspring = (int) Math.floor((summedFitness * offspringProportion)/popSize);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {

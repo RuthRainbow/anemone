@@ -210,7 +210,7 @@ public class Environment implements Serializable{
     	tick++;
 
     	if (tick % 200 == 0 ) {
-    		if (tick % 400 == 0) {
+    		if (tick % 800 == 0) {
     			ArrayList<Gene[]> nextSharks = sharkGod.BreedWithSpecies(sharks);
     			for (Gene[] gene : nextSharks) {
     				// TODO unhardcode these
@@ -252,7 +252,7 @@ public class Environment implements Serializable{
     		}    	
     		System.out.println("Fish population got to small, breeding.");
     	}
-    	/*if(sharks.size() <= 5) {
+    	if(sharks.size() <= 5) {
   			ArrayList<Gene[]> nextSharks = sharkGod.BreedWithSpecies(sharks);
 			for (Gene[] gene : nextSharks) {
 				// TODO unhardcode these
@@ -264,7 +264,7 @@ public class Environment implements Serializable{
 				tick = 0;
 			}
 			System.out.println("Shark population got to small, breeding.");
-    	}*/
+    	}
     }
 
 	protected void spawnFish(Point2D.Double coords, int heading, Gene[] newGenome) {
