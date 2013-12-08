@@ -4,16 +4,20 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 public class UITheme {
-	private LinkedHashMap<String, Integer> elements = new LinkedHashMap<String, Integer>();
+	public enum Types {
+		SHARK, FISH, FOOD, WALL, BACKGROUND, SIDEPANEL1, NEURON, NEURON_FIRED
+	}
+	
+	private LinkedHashMap<Types, Integer> elements = new LinkedHashMap<Types, Integer>();
 
-	public void setColor(String key, int col){
+	public void setColor(Types key, int col){
 		elements.put(key, col);
 	}
-	public int getColor(String key){
-		return elements.get(key);
+	public int getColor(Types types){
+		return elements.get(types);
 	}
-	public String[] getKeys(){
-		Set<String> keys = elements.keySet();
-		return keys.toArray(new String[keys.size()]);
+	public Types[] getKeys(){
+		Set<Types> keys = elements.keySet();
+		return keys.toArray(new Types[keys.size()]);
 	}
 }

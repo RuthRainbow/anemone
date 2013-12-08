@@ -34,6 +34,7 @@ public class Agent extends SimulationObject implements Serializable{
 	private double fov = 45; //field of view, +-
 	private ArrayList<SightInformation> canSee;
 	private double maxSpeed = 15;
+	private int speciesId;
 
 	/*
 	 * GENOME LAYOUT:
@@ -53,7 +54,7 @@ public class Agent extends SimulationObject implements Serializable{
 	private NInterface ninterface;
 
 	public Agent(
-			Point2D.Double coords, double viewHeading, PApplet p, Gene[] newGenome) {
+			Point2D.Double coords, double viewHeading, PApplet p, Gene[] newGenome, int speciesId) {
 		super(coords);
 		ninterface = new NInterface(configNumSegments);
 		canSee = new ArrayList<SightInformation>();
@@ -61,6 +62,7 @@ public class Agent extends SimulationObject implements Serializable{
 		this.viewHeading = viewHeading;
 		thrust(1);
 		this.genome=newGenome;
+		this.speciesId = speciesId;
 		createSimpleNetwork();
 		calculateNetworkPositions();
 	}
@@ -529,5 +531,9 @@ public class Agent extends SimulationObject implements Serializable{
 	}
 	NInterface getInterface(){
 		return ninterface;
+	}
+	
+	public int getSpeciesId() {
+		return this.speciesId;
 	}
 }

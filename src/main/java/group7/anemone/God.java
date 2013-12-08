@@ -36,8 +36,9 @@ public class God implements Serializable{
 	private final double c1 = 0.5;
 	private final double c2 = 0.5;
 	private final double c3 = 0.5;
-	// Threshold for max distance between species member and representative. TODO find a proper value
-	private final double compatibilityThreshold = 5;
+	// Threshold for max distance between species member and representative.
+	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
+	private final double compatibilityThreshold = 7;
 	
 	public God() {
 		this.species = new ArrayList<Species>();
@@ -50,14 +51,19 @@ public class God implements Serializable{
 	}
 
 	// Method to breed the entire population without species.
-	protected ArrayList<Gene[]> BreedPopulation(ArrayList<Agent> agents) {
+	protected HashMap<Gene[], Integer> BreedPopulation(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<AgentFitness> selectedAgents = Selection(agents);
 		System.out.println("selecting " + selectedAgents.size());
-		return GenerateChildren(selectedAgents, 0);
+		ArrayList<Gene[]> children = GenerateChildren(selectedAgents);
+		HashMap<Gene[], Integer> childrenSpecies = new HashMap<Gene[], Integer>();
+		for (Gene[] child : children) {
+			childrenSpecies.put(child, 0);
+		}
+		return childrenSpecies;
 	}
 	
-	protected ArrayList<Gene[]> BreedWithSpecies(ArrayList<Agent> agents) {
+	protected HashMap<Gene[], Integer> BreedWithSpecies(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
 		// Clear species for a new gen
 		for (Species specie : species) {
@@ -73,21 +79,24 @@ public class God implements Serializable{
 				if (dist < compatibilityThreshold) {
 					foundSpecies = true;
 					specie.addMember(thisAgent);
-					thisAgent.stringRep[0].speciesId = specie.id;
+					thisAgent.speciesId = specie.id;
 				}
 			}
 			if (!foundSpecies) {
 				int newSpeciesId = species.size() + 1;
 				species.add(new Species(thisAgent, newSpeciesId));
-				thisAgent.stringRep[0].speciesId = newSpeciesId;
+				thisAgent.speciesId = newSpeciesId;
 			}
 		}
 		
 		shareFitnesses();
-		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+		HashMap<Gene[], Integer> children = new HashMap<Gene[], Integer>();
 		// Breed each species
 		for (Species specie : species) {
-			children.addAll(breedSpecies(specie, agents.size()));
+			ArrayList<Gene[]> speciesChildren = breedSpecies(specie, agents.size());
+			for (Gene[] child : speciesChildren) {
+				children.put(child, specie.id);
+			}
 		}
 		return children;
 	}
@@ -198,7 +207,7 @@ public class God implements Serializable{
 	}
 
 	protected ArrayList<Gene[]> GenerateChildren(
-			ArrayList<AgentFitness> selectedAgents, int speciesId) {
+			ArrayList<AgentFitness> selectedAgents) {
 		// Crossover - should select partner randomly (unless we are having genders).
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 
@@ -219,8 +228,7 @@ public class God implements Serializable{
 		ArrayList<Gene[]> mutatedChildren = new ArrayList<Gene[]>();
 		// Put every child through mutation process
 		for (Gene[] child : children) {
-			mutatedChildren.add(mutate(child, speciesId));
-			child[0].speciesId = speciesId;
+			mutatedChildren.add(mutate(child));
 		}
 
 		return mutatedChildren;
@@ -237,7 +245,7 @@ public class God implements Serializable{
 			children.add(crossover(mother, father));
 		}
 		for (int i = 0; i < children.size(); i++) {
-			children.set(i, mutate(children.get(i), speciesId));
+			children.set(i, mutate(children.get(i)));
 		}
 		return children;
 	}
@@ -290,13 +298,13 @@ public class God implements Serializable{
 		return childGene;
 	}
 
-	private Gene[] mutate(Gene[] child, int speciesId) {
-		child = structuralMutation(child, speciesId);
+	private Gene[] mutate(Gene[] child) {
+		child = structuralMutation(child);
 		return weightMutation(child);
 	}
 
 	// Mutate a gene structurally
-	public Gene[] structuralMutation(Gene[] child, int speciesId) {
+	public Gene[] structuralMutation(Gene[] child) {
 		List<Gene> mutatedChild = new ArrayList<Gene>();
 		Set<Integer> historicalMarkersSet = new HashSet<Integer>();
 		List<IntPair> edges = new ArrayList<IntPair>();
@@ -327,7 +335,7 @@ public class God implements Serializable{
 						(int) Math.floor(getRandom()*historicalMarkersList.size()));
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(
-						next_marker, child[left].in, child[right].in, 4.0, 1, speciesId);
+						next_marker, child[left].in, child[right].in, 4.0, 1);
 				for (Gene gene : newGenes) {
 					if (newGene.equals(gene)) {
 						newGene = gene;
@@ -345,7 +353,7 @@ public class God implements Serializable{
 				Gene toMutate = mutatedChild.get(
 						(int) Math.floor(getRandom() * mutatedChild.size()));
 				mutatedChild.remove(toMutate);
-				Gene newLeftGene = new Gene(next_marker, toMutate.in, max+1, 4.0, 1, speciesId);
+				Gene newLeftGene = new Gene(next_marker, toMutate.in, max+1, 4.0, 1);
 				for (Gene gene : newGenes) {
 					if (newLeftGene.equals(gene)) {
 						newLeftGene = gene;
@@ -355,7 +363,7 @@ public class God implements Serializable{
 					next_marker++;
 				}
 				mutatedChild.add(newLeftGene);
-				Gene newRightGene = new Gene(next_marker, max+1, toMutate.out, 4.0, 1, speciesId);
+				Gene newRightGene = new Gene(next_marker, max+1, toMutate.out, 4.0, 1);
 				for (Gene gene : newGenes) {
 					if (newRightGene.equals(gene)) {
 						newRightGene = gene;
@@ -522,10 +530,12 @@ public class God implements Serializable{
 	private class AgentFitness implements Comparable<AgentFitness> {
 		protected Gene[] stringRep;
 		protected double fitness;
+		protected int speciesId;
 		
 		public AgentFitness(Agent agent) {
 			this.stringRep = agent.getStringRep();
 			this.fitness = agent.getFitness();
+			this.speciesId = agent.getSpeciesId();
 		}
 		
 		// Method to be used after we have adjusted the fitnesses.

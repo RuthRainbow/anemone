@@ -6,6 +6,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import processing.core.PApplet;
 
@@ -209,27 +210,27 @@ public class Environment implements Serializable{
     	}
     	tick++;
 
-    	if (tick % 250 == 0 ) {
+    	if (tick % 200 == 0) {
     		if (tick % 900 == 0) {
-    			ArrayList<Gene[]> nextSharks = sharkGod.BreedWithSpecies(sharks);
-    			for (Gene[] gene : nextSharks) {
+    			HashMap<Gene[], Integer> nextSharks = sharkGod.BreedWithSpecies(sharks);
+    			for (Gene[] gene : nextSharks.keySet()) {
     				// TODO unhardcode these
     				int x = (int) Math.floor(Math.random() * width);
     				int y = (int) Math.floor(Math.random() * height);
     				int heading = (int) Math.floor(Math.random() * 360);
-    				spawnShark(new Point2D.Double(x,y), heading, gene);
+    				spawnShark(new Point2D.Double(x,y), heading, gene, nextSharks.get(gene));
     				
     			}
     			// Reset tick until next generation
     			tick = 0;
     		}
-    		ArrayList<Gene[]> nextFish = fishGod.BreedWithSpecies(fishes);
-    		for (Gene[] gene : nextFish) {
+    		HashMap<Gene[], Integer> nextFish = fishGod.BreedWithSpecies(fishes);
+    		for (Gene[] gene : nextFish.keySet()) {
     			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * width);
     			int y = (int) Math.floor(Math.random() * height);
     			int heading = (int) Math.floor(Math.random() * 360);
-    			spawnFish(new Point2D.Double(x,y), heading, gene);
+    			spawnFish(new Point2D.Double(x,y), heading, gene, nextFish.get(gene));
     		}
 
     		for(int i = 0; i < fishes.size()/2; i++){
@@ -241,25 +242,25 @@ public class Environment implements Serializable{
     	}
     	
     	if(fishes.size() <= 5) {
-       		ArrayList<Gene[]> nextFish = fishGod.BreedWithSpecies(fishes);
-    		for (Gene[] gene : nextFish) {
+    		HashMap<Gene[], Integer> nextFish = fishGod.BreedWithSpecies(fishes);
+    		for (Gene[] gene : nextFish.keySet()) {
     			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * width);
     			int y = (int) Math.floor(Math.random() * height);
     			int heading = (int) Math.floor(Math.random() * 360);
-    			spawnFish(new Point2D.Double(x,y), heading, gene);
+    			spawnFish(new Point2D.Double(x,y), heading, gene, nextFish.get(gene));
     			tick = 0;
     		}    	
     		System.out.println("Fish population got to small, breeding.");
     	}
     	if(sharks.size() <= 5) {
-  			ArrayList<Gene[]> nextSharks = sharkGod.BreedWithSpecies(sharks);
-			for (Gene[] gene : nextSharks) {
+  			HashMap<Gene[], Integer> nextSharks = sharkGod.BreedWithSpecies(sharks);
+			for (Gene[] gene : nextSharks.keySet()) {
 				// TODO unhardcode these
 				int x = (int) Math.floor(Math.random() * width);
 				int y = (int) Math.floor(Math.random() * height);
 				int heading = (int) Math.floor(Math.random() * 360);
-				spawnShark(new Point2D.Double(x,y), heading, gene);
+				spawnShark(new Point2D.Double(x,y), heading, gene, nextSharks.get(gene));
 				// Reset tick until next generation
 				tick = 0;
 			}
@@ -268,20 +269,20 @@ public class Environment implements Serializable{
     }
 
 	protected void spawnFish(
-			Point2D.Double coords, int heading, Gene[] newGenome) {
-		fishes.add(new Agent(coords, heading, parent, newGenome));
+			Point2D.Double coords, int heading, Gene[] newGenome, int speciesId) {
+		fishes.add(new Agent(coords, heading, parent, newGenome, speciesId));
 	}
 
 	protected void spawnShark(
-			Point2D.Double coords, int heading, Gene[] newGenome) {
-		sharks.add(new Enemy(coords, heading, parent, newGenome));
+			Point2D.Double coords, int heading, Gene[] newGenome, int speciesId) {
+		sharks.add(new Enemy(coords, heading, parent, newGenome, speciesId));
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
 		Gene[] genome = getGenome();
 
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		fishes.add(new Agent(coords, heading, parent, genome));
+		fishes.add(new Agent(coords, heading, parent, genome, 0));
 	}
 
 	private Gene[] getGenome() {
@@ -297,26 +298,24 @@ public class Environment implements Serializable{
 		 * */
 		Gene[] genome = new Gene[3 * 3 * Agent.configNumSegments];
 		int total = 0;
-		// Start from species 0
-		int speciesId = 0;
 		
 		for(int i = 0; i < Agent.configNumSegments; i++){//Food
 			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(total, 3 + i, j, 4.0, 1, speciesId);
+				genome[total] = new Gene(total, 3 + i, j, 4.0, 1);
 				total++;
 			}
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Wall
 			for(int j = 0; j < 3; j++){
 				genome[total] = new Gene(
-						total, 3 + i + Agent.configNumSegments, j, 4.0, 1, speciesId);
+						total, 3 + i + Agent.configNumSegments, j, 4.0, 1);
 				total++;
 			}
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Enemy
 			for(int j = 0; j < 3; j++){
 				genome[total] = new Gene(
-						total, 3 + i + Agent.configNumSegments * 2, j, 4.0, 1, speciesId);
+						total, 3 + i + Agent.configNumSegments * 2, j, 4.0, 1);
 				total++;
 			}
 		}
@@ -327,7 +326,7 @@ public class Environment implements Serializable{
 	protected void addShark(Point2D.Double coords, int heading){
 		Gene[] genome = getGenome();
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		sharks.add(new Enemy(coords, heading, parent, genome));
+		sharks.add(new Enemy(coords, heading, parent, genome, 0));
 	}
 
 	void addFood(Point2D.Double coords){

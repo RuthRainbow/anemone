@@ -1,5 +1,7 @@
 package group7.anemone.UI;
 
+import group7.anemone.UI.UITheme.Types;
+
 import java.awt.event.MouseWheelEvent;
 
 import processing.core.PApplet;
@@ -7,21 +9,21 @@ import processing.core.PFont;
 
 public class UIDropdown extends UIObject{
 	private PFont f;
-	private String[] options = new String[0];
+	private Types[] options = new Types[0];
 	private int selectedIndex = 0;
 	private int hoveredIndex = -1;
 	private boolean showDropdown = false;
 	private int showOffset = 0;
 	private int showCapacity = 6;
 
-	public UIDropdown(PApplet c, int x, int y, int w, String vals[]){
+	public UIDropdown(PApplet c, int x, int y, int w, Types[] vals){
 		super(c, x, y, w, 20);
 
 		f = canvas.createFont("Courier", 12, true);
 		options = vals;
 	}
 
-	public String getSelected(){
+	public Types getSelected(){
 		return options[selectedIndex];
 	}
 	public int getSelectedIndex(){
@@ -39,14 +41,14 @@ public class UIDropdown extends UIObject{
 		canvas.rect(x+width - 20, y, height, height);
 
 		canvas.textFont(f);
-		canvas.text(options[selectedIndex], x + 5, y + 13);
+		canvas.text(String.valueOf(options[selectedIndex]), x + 5, y + 13);
 
 		if(showDropdown){
 			canvas.fill(bgColor);
 			canvas.rect(x, y + 20, width, 20 * Math.min(options.length, showCapacity));
 
 			for(int i = 0; i < Math.min(options.length, showCapacity); i++){
-				String op = options[i + showOffset];
+				String op = String.valueOf(options[i + showOffset]);
 				int tx = x + 5;
 				int ty = y + i * 20 + 33;
 

@@ -15,6 +15,7 @@ import group7.anemone.UI.UILabel;
 import group7.anemone.UI.UIProgress;
 import group7.anemone.UI.UISlider;
 import group7.anemone.UI.UITheme;
+import group7.anemone.UI.UITheme.Types;
 import group7.anemone.UI.UIVision;
 import group7.anemone.UI.UIWindow;
 import group7.anemone.UI.Utilities;
@@ -101,7 +102,7 @@ public class Simulation extends PApplet {
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 0; i++) {
 			int x = (int) Math.floor(Math.random() * env.width);
 			int y = (int) Math.floor(Math.random() * env.height);
 			int heading = (int) Math.floor(Math.random() * 360);
@@ -236,9 +237,9 @@ public class Simulation extends PApplet {
 	}
 
 	public void draw(){
-		background(theme.getColor("Background"));	//Draws background, basically refreshes the screen
-		win.setBackground(theme.getColor("Background"));
-		sidePanel.setBackground(theme.getColor("Sidepanel"));
+		background(theme.getColor(Types.BACKGROUND));	//Draws background, basically refreshes the screen
+		win.setBackground(theme.getColor(Types.BACKGROUND));
+		sidePanel.setBackground(theme.getColor(Types.SIDEPANEL1));
 
 
 		for(int i = 0; i < SIM_TICKS; i++){
@@ -298,9 +299,14 @@ public class Simulation extends PApplet {
 
 			//draw our circle representation for the agent
 			noStroke();
-			if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor((ag instanceof Enemy ? "Enemy" : "Agent")));
-			else fill(theme.getColor((ag instanceof Enemy ? "Enemy" : "Agent")), 100); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
-
+			//if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)));
+			//else fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)), 100); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
+			if (ag instanceof Agent) {
+				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256);
+			} else {
+				fill(theme.getColor(Types.SHARK));
+			}
+			
 			ellipse(ag.getX(), ag.getY(), 20, 20);
 
 			if(agentFocused && ag == selectedAgent){ //keep agent on screen if in focused / tracking mode
@@ -316,13 +322,13 @@ public class Simulation extends PApplet {
 		}
 
 		noStroke();
-		fill(theme.getColor("Food"));
+		fill(theme.getColor(Types.FOOD));
 		for(int i = 0; i < food.size(); i++){ //Runs through arraylist of food, will draw them on the canvas
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
 
-		stroke(theme.getColor("Wall"));
+		stroke(theme.getColor(Types.WALL));
 		noFill();
 		for(Wall wl : walls){ //Runs through arraylist of walls, will draw them on the canvas
 			line((float) wl.getStart().x, (float) wl.getStart().y, (float) wl.getEnd().x, (float) wl.getEnd().y);
@@ -359,14 +365,14 @@ public class Simulation extends PApplet {
 	private void setupUI(){
 		//Set colors of each element of simulation
 		theme = new UITheme();
-		theme.setColor("Background", color(0));
-		theme.setColor("Sidepanel", color(50));
-		theme.setColor("Food", color(0, 255, 0));
-		theme.setColor("Agent", color(255, 127, 0));
-		theme.setColor("Enemy", color(255, 0, 0));
-		theme.setColor("Wall", color(255, 255, 0));
-		theme.setColor("Neuron", color(200));
-		theme.setColor("NeuronFired", color(0, 255, 0));
+		theme.setColor(Types.BACKGROUND, color(0));
+		theme.setColor(Types.SIDEPANEL1, color(50));
+		theme.setColor(Types.FOOD, color(0, 255, 0));
+		theme.setColor(Types.FISH, color(255, 127, 0));
+		theme.setColor(Types.SHARK, color(255, 0, 0));
+		theme.setColor(Types.WALL, color(255, 255, 0));
+		theme.setColor(Types.NEURON, color(200));
+		theme.setColor(Types.NEURON_FIRED, color(0, 255, 0));
 
 		//setup main window for UI elements
 		win = new UIWindow(this, 0, 0, screen.width, screen.height);
@@ -536,11 +542,11 @@ public class Simulation extends PApplet {
 			    translate(offX, offY);
 			    for(MNeuron n : net.getNeurons()){ //draw the neurons
 			    	int isFired = (n.isFiring() ? 255 : 60);
-			    	if(n.getID() >= 3 && n.getID() < 3 + Agent.configNumSegments) fill(theme.getColor("Food"), isFired);
-			    	else if(n.getID() >= 3 + Agent.configNumSegments && n.getID() < 3 + Agent.configNumSegments * 2) fill(theme.getColor("Wall"), isFired);
-			    	else if(n.getID() >= 3 + Agent.configNumSegments * 2 && n.getID() < 3 + Agent.configNumSegments * 3) fill(theme.getColor("Enemy"), isFired);
+			    	if(n.getID() >= 3 && n.getID() < 3 + Agent.configNumSegments) fill(theme.getColor(Types.FOOD), isFired);
+			    	else if(n.getID() >= 3 + Agent.configNumSegments && n.getID() < 3 + Agent.configNumSegments * 2) fill(theme.getColor(Types.WALL), isFired);
+			    	else if(n.getID() >= 3 + Agent.configNumSegments * 2 && n.getID() < 3 + Agent.configNumSegments * 3) fill(theme.getColor(Types.SHARK), isFired);
 			    	else if(n.getID() < 3) fill(0, 255, 255, isFired);
-			    	else fill(theme.getColor("Neuron"), isFired);
+			    	else fill(theme.getColor(Types.NEURON), isFired);
 
 			    	MVec3f vec = n.getCoordinates();
 			    	//clip node if off the display
@@ -562,9 +568,9 @@ public class Simulation extends PApplet {
 			    			&& (n2.y + offY) * zoom < -135) continue;
 
 			    	int isFired = (pre.isFiring() ? 100 : 10);
-			    	if(pre.getID() >= 3 && pre.getID() < 3 + Agent.configNumSegments) stroke(theme.getColor("Food"), isFired);
-			    	else if(pre.getID() >= 3 + Agent.configNumSegments && pre.getID() < 3 + Agent.configNumSegments * 2) stroke(theme.getColor("Wall"), isFired);
-			    	else if(pre.getID() >= 3 + Agent.configNumSegments * 2 && pre.getID() < 3 + Agent.configNumSegments * 3) stroke(theme.getColor("Enemy"), isFired);
+			    	if(pre.getID() >= 3 && pre.getID() < 3 + Agent.configNumSegments) stroke(theme.getColor(Types.FOOD), isFired);
+			    	else if(pre.getID() >= 3 + Agent.configNumSegments && pre.getID() < 3 + Agent.configNumSegments * 2) stroke(theme.getColor(Types.WALL), isFired);
+			    	else if(pre.getID() >= 3 + Agent.configNumSegments * 2 && pre.getID() < 3 + Agent.configNumSegments * 3) stroke(theme.getColor(Types.SHARK), isFired);
 			    	else if(pre.getID() < 3) stroke(0, 255, 255, isFired);
 			    	else stroke(255, isFired);
 

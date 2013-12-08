@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import group7.anemone.Agent;
 import group7.anemone.SightInformation;
+import group7.anemone.UI.UITheme.Types;
 import processing.core.PApplet;
 
 public class UIVision extends UIAngle{
@@ -39,9 +40,9 @@ public class UIVision extends UIAngle{
 		for(SightInformation see : vision){
 			if(theme != null){
 				switch(see.getType()){
-					case SightInformation.TYPE_FOOD: canvas.stroke(theme.getColor("Food")); break;
-					case SightInformation.TYPE_AGENT: canvas.stroke(theme.getColor("Agent")); break;
-					case SightInformation.TYPE_ENEMY: canvas.stroke(theme.getColor("Enemy")); break;
+					case SightInformation.TYPE_FOOD: canvas.stroke(theme.getColor(Types.FOOD)); break;
+					case SightInformation.TYPE_AGENT: canvas.stroke(theme.getColor(Types.FISH)); break;
+					case SightInformation.TYPE_ENEMY: canvas.stroke(theme.getColor(Types.SHARK)); break;
 					case SightInformation.TYPE_WALL: canvas.stroke(r, g, b); break;
 					default: canvas.stroke(r, g, b);
 				}
