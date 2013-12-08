@@ -211,7 +211,7 @@ public class Environment implements Serializable{
 
     	if (tick % 200 == 0 ) {
     		if (tick % 400 == 0) {
-    			ArrayList<Gene[]> nextSharks = fishGod.BreedPopulation(sharks);
+    			ArrayList<Gene[]> nextSharks = sharkGod.BreedWithSpecies(sharks);
     			for (Gene[] gene : nextSharks) {
     				// TODO unhardcode these
     				int x = (int) Math.floor(Math.random() * width);
@@ -223,7 +223,7 @@ public class Environment implements Serializable{
     			// Reset tick until next generation
     			tick = 0;
     		}
-    		ArrayList<Gene[]> nextFish = sharkGod.BreedPopulation(fishes);
+    		ArrayList<Gene[]> nextFish = fishGod.BreedWithSpecies(fishes);
     		for (Gene[] gene : nextFish) {
     			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * width);
@@ -241,7 +241,7 @@ public class Environment implements Serializable{
     	}
     	
     	if(fishes.size() <= 5) {
-       		ArrayList<Gene[]> nextFish = fishGod.BreedPopulation(fishes);
+       		ArrayList<Gene[]> nextFish = fishGod.BreedWithSpecies(fishes);
     		for (Gene[] gene : nextFish) {
     			// TODO unhardcode these
     			int x = (int) Math.floor(Math.random() * width);
@@ -253,7 +253,7 @@ public class Environment implements Serializable{
     		System.out.println("Fish population got to small, breeding.");
     	}
     	/*if(sharks.size() <= 5) {
-  			ArrayList<Gene[]> nextSharks = god.BreedPopulation(sharks, Collision.TYPE_ENEMY);
+  			ArrayList<Gene[]> nextSharks = sharkGod.BreedWithSpecies(sharks);
 			for (Gene[] gene : nextSharks) {
 				// TODO unhardcode these
 				int x = (int) Math.floor(Math.random() * width);

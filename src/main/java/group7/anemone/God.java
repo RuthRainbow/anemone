@@ -92,14 +92,20 @@ public class God implements Serializable{
 	
 	private ArrayList<Gene[]> breedSpecies(Species specie) {
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+		if (specie.members.size() < 2) {
+			for (AgentFitness agent : specie.members) {
+				children.add(agent.stringRep);
+			}
+			return children;
+		}
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
 			summedFitness += agent.fitness;
 		}
-		int numOffspring = (int) Math.ceil(offspringProportion * summedFitness);
+		int numOffspring = (int) Math.floor(summedFitness/offspringProportion);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
-		while (children.size() < numOffspring) {
+		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			children.addAll(CreateOffspring(specie.members.get(i), specie.members.get(i+1)));
 			i += 2;
 		}
