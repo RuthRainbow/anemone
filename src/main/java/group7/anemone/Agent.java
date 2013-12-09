@@ -460,8 +460,8 @@ public class Agent extends SimulationObject implements Serializable{
 		viewHeading += h;
 	}
 	protected void updateHealth(double h){
-		health += h;
-		health = Math.min(1, health);
+		//health += h;
+		//health = Math.min(1, health);
 	}
 
 	protected void updateFitness(double value) {

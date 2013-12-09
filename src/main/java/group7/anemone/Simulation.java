@@ -799,8 +799,8 @@ public class Simulation extends PApplet {
 		ag.changeViewHeading(newAngle - ag.getViewHeading());
 		ag.thrust(thrustIncrease * thrust);
 		ag.changeViewHeading(oldHeading - newAngle);
-		ag.updateHealth(thrust / -300);
-		ag.updateFitness(thrust / -300);
+		ag.updateHealth(thrust / -100);
+		ag.updateFitness(thrust / -100);
 	}
 
 	private void eatFood(Collision cc) {

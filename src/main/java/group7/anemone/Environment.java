@@ -224,6 +224,7 @@ public class Environment implements Serializable{
     			tick = 0;
     		}
     		ArrayList<Genome> nextFish = fishGod.BreedWithSpecies(fishes);
+    		fishes.clear();
     		for (Genome genome : nextFish) {
     			int x = (int) Math.floor(Math.random() * width);
     			int y = (int) Math.floor(Math.random() * height);
