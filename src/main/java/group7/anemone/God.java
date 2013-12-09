@@ -119,10 +119,10 @@ public class God implements Serializable{
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
 			summedFitness += agent.fitness;
-			System.out.println("this agent's fitness is " + agent.fitness);
+			//System.out.println("this agent's fitness is " + agent.fitness);
 		}
-		//int numOffspring = Math.max(2, (int) Math.floor(summedFitness * offspringProportion));
-		int numOffspring = 2;
+		int numOffspring = Math.max(2, (int) Math.ceil(summedFitness * offspringProportion));
+		//int numOffspring = 2;
 		System.out.println("*************** GENERATING " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
@@ -145,11 +145,14 @@ public class God implements Serializable{
 				double fitnessTotal = 0;
 				// average fitness over all other members of this species...
 				for (AgentFitness member : specie.members) {
-					if (!member.equals(agent)) {
+					//if (!member.equals(agent)) {
 						fitnessTotal += member.fitness;
-					}
+					//}
 				}
-				agent.fitness = agent.fitness / fitnessTotal;
+				//System.out.println("fitness was " + agent.fitness);
+				// Check for 0 to avoid NaNs
+				agent.fitness = fitnessTotal == 0 ? 0 : (agent.fitness / Math.abs(fitnessTotal));
+				//System.out.println("shared fitnesses. total was " + fitnessTotal + " now is " + agent.fitness);
 			}
 		}
 	}

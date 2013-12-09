@@ -26,7 +26,7 @@ public class Agent extends SimulationObject implements Serializable{
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
-	private double fitness = 0;
+	private double fitness;
 	private double health = 1;
 	private int age = 0; // Age of agent in number of updates.
 	private double viewHeading = 0; // in degrees 0-360
@@ -62,6 +62,7 @@ public class Agent extends SimulationObject implements Serializable{
 		thrust(1);
 		this.genome = genome;
 		createSimpleNetwork();
+		this.fitness = 0;
 		calculateNetworkPositions();
 	}
 
@@ -287,9 +288,9 @@ public class Agent extends SimulationObject implements Serializable{
 		age++;
 		health -= 0.001;//0.0000001;
 		if (age < 100) {
-			fitness += 0.001;
+			updateFitness(0.001);
 		} else if (age > 200) {
-			fitness -= 0.01;
+			updateFitness(-0.001);
 		}
 	}
 	

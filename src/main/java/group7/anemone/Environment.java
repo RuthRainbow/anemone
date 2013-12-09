@@ -247,7 +247,7 @@ public class Environment implements Serializable{
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
-    		System.out.println("Fish population got to small, generating.");
+    		//System.out.println("Fish population got to small, generating.");
     	}
     	/*if(sharks.size() <= 5) {
     		for (int i = sharks.size(); i < 5; i++) {

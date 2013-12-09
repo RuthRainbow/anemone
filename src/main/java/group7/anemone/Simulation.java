@@ -744,7 +744,7 @@ public class Simulation extends PApplet {
 		if (Math.random() > 0.8) {
 			env.Breed(cc.getAgent(), (Agent) cc.getCollidedObject());
 			// Encourage agents to breed...
-			cc.getAgent().updateFitness(0.01);
+			// cc.getAgent().updateFitness(0.01);
 		}
 		Agent agent1 = cc.getAgent();
 		Agent agent2 = (Agent) cc.getCollidedObject();
@@ -816,7 +816,7 @@ public class Simulation extends PApplet {
 			killAgent(ag);
 			double val = ag.getHealth() / 2;
 			cc.getAgent().updateHealth(val);
-			cc.getAgent().updateFitness(-0.1);
+			cc.getAgent().updateFitness(val);
 		}
 	}
 
