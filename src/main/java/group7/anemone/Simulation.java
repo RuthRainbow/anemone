@@ -81,6 +81,9 @@ public class Simulation extends PApplet {
 	//agent tracking / focused settings
 	boolean agentFocused = false;
 	int trackingBounds = 100;
+	
+	int numStartingAgents = 40;
+	int numStartingSharks = 0;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -96,13 +99,13 @@ public class Simulation extends PApplet {
 		draw_width = screen.width - 250;
 		draw_height = screen.height;
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < numStartingAgents; i++){
 			int x = (int) Math.floor(Math.random() * env.width);
 			int y = (int) Math.floor(Math.random() * env.height);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
-		for (int i = 0; i < 0; i++) {
+		for (int i = 0; i < numStartingSharks; i++) {
 			int x = (int) Math.floor(Math.random() * env.width);
 			int y = (int) Math.floor(Math.random() * env.height);
 			int heading = (int) Math.floor(Math.random() * 360);

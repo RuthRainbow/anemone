@@ -237,11 +237,11 @@ public class Agent extends SimulationObject implements Serializable{
 		else if(speed.y < 0) speed.y += drag.y;
 		
 		if(this.getMovingSpeed() > maxSpeed){
-			System.out.println("Exceeded max speed. Speed: "+this.getMovingSpeed()+", Max: "+maxSpeed);
+			//System.out.println("Exceeded max speed. Speed: "+this.getMovingSpeed()+", Max: "+maxSpeed);
 			double ratio = maxSpeed / this.getMovingSpeed(); 
 			speed.x = speed.x * ratio;
 			speed.y = speed.y * ratio;
-			System.out.println("New speed: "+this.getMovingSpeed());
+			//System.out.println("New speed: "+this.getMovingSpeed());
 		}
 	}
 

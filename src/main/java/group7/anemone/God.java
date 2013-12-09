@@ -120,9 +120,11 @@ public class God implements Serializable{
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
 			summedFitness += agent.fitness;
+			System.out.println("this agent's fitness is " + agent.fitness);
 		}
-		int numOffspring = Math.min(2, (int) Math.floor(summedFitness * offspringProportion));
-		System.out.println("*************** GENERATING " + numOffspring + " children for species " + specie.id);
+		//int numOffspring = Math.max(2, (int) Math.floor(summedFitness * offspringProportion));
+		int numOffspring = 2;
+		System.out.println("*************** GENERATING " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {

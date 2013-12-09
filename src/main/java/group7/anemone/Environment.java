@@ -28,8 +28,8 @@ public class Environment implements Serializable{
 
 	private ArrayList<Collision> collisions;
 	
-	int width = 1500;
-	int height = 1500;
+	int width = 3500;
+	int height = 3500;
 
 	public Environment(PApplet p){
 		this.parent = p;
