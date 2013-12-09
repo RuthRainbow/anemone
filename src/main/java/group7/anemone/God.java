@@ -357,7 +357,7 @@ public class God implements Serializable{
 						(int) Math.floor(getRandom()*historicalMarkersList.size()));
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(
-						nextMarker, child[left].getIn(), child[right].getIn(), 0.0, 1);
+						nextMarker, child[left].getIn(), child[right].getIn(), 1.0, 1);
 				for (Gene gene : newGenes) {
 					if (newGene.equals(gene)) {
 						newGene = gene;
@@ -375,7 +375,7 @@ public class God implements Serializable{
 				Gene toMutate = mutatedChild.get(
 						(int) Math.floor(getRandom() * mutatedChild.size()));
 				mutatedChild.remove(toMutate);
-				Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), max+1, 0.0, 1);
+				Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), max+1, 1.0, 1);
 				for (Gene gene : newGenes) {
 					if (newLeftGene.equals(gene)) {
 						newLeftGene = gene;
@@ -385,7 +385,9 @@ public class God implements Serializable{
 					nextMarker++;
 				}
 				mutatedChild.add(newLeftGene);
-				Gene newRightGene = new Gene(nextMarker, max+1, toMutate.getOut(), 0.0, 1);
+				// Weight should be the same as the current Gene between this two nodes:
+				Gene newRightGene = new Gene(
+						nextMarker, max+1, toMutate.getOut(), toMutate.getWeight(), 1);
 				for (Gene gene : newGenes) {
 					if (newRightGene.equals(gene)) {
 						newRightGene = gene;
