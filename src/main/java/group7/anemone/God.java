@@ -12,17 +12,26 @@ import java.util.Set;
 public class God implements Serializable{
 
 	private static final long serialVersionUID = 619717007643693268L;
-	// NEAT uses an absolutely massive mutation chance
-	private double mutation_chance = 0.03f;
-	private final double twin_chance = 0.05f;
+	
+	// Mutation chances:
+	private final double structuralMutationChance = 0.7f;
+	private final double addConnectionChance = 0.5f;
+	private final double addNodeChance = 0.5f;
+	private final double weightMutationChance = 0.3f;
+	// (chance of decrease is 1 - the chance of increase)
+	private final double weightIncreaseChance = 0.5f;
+	
+	// Crossover chances:
+	private final double twinChance = 0.05f;
+	private final double matchedGeneChance = 0.5f;
 
-	private double best_fitness;
-	private double worst_fitness;
-	private double average_fitness;
-	private int no_improvement_count = 0;
+	private double bestFitness;
+	private double worstFitness;
+	private double averageFitness;
+	private int noImprovementCount = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
-	private int next_marker = 89;
+	private int nextMarker = 89;
 	private ArrayList<Gene> newGenes;
 	
 	// The ordered list of all species, with each represented by a member from the
@@ -30,12 +39,12 @@ public class God implements Serializable{
 	private ArrayList<Species> species;
 	// The distances between all genes:
 	private HashMap<AgentPair, Double> distances;
-	private double offspringProportion = 0.5; // ALSO COMPLETELY ARBITRARY
+	private final double offspringProportion = 0.5f; // ALSO COMPLETELY ARBITRARY
 	
 	// Parameters for use in difference calcuation (can be tweaked).
-	private final double c1 = 0.5; //weighting of excess genes
-	private final double c2 = 0.5; //weighting of disjoint genes
-	private final double c3 = 0.5; //weighting of weight differences
+	private final double c1 = 0.5f; //weighting of excess genes
+	private final double c2 = 0.5f; //weighting of disjoint genes
+	private final double c3 = 0.5f; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	private final double compatibilityThreshold = 22;
@@ -72,24 +81,20 @@ public class God implements Serializable{
 		// Put each agent given for reproduction into a species.
 		for (Agent agent : agents) {
 			// Try to increase efficiency by ignoring awful agents
-			//if (agent.getFitness() > average_fitness/10) {
-				boolean foundSpecies = false;
-				AgentFitness thisAgent = new AgentFitness(agent);
-				for (Species specie : species) {
-					AgentFitness rep = specie.rep;
-					double dist = getDistance(thisAgent, rep);
-					if (dist < compatibilityThreshold) {
-						foundSpecies = true;
-						specie.addMember(thisAgent);
-						thisAgent.speciesId = specie.id;
-					}
+			boolean foundSpecies = false;
+			AgentFitness thisAgent = new AgentFitness(agent);
+			for (Species specie : species) {
+				AgentFitness rep = specie.rep;
+				double dist = getDistance(thisAgent, rep);
+				if (dist < compatibilityThreshold) {
+					foundSpecies = true;
+					specie.addMember(thisAgent);
 				}
-				if (!foundSpecies) {
-					int newSpeciesId = species.size() + 1;
-					species.add(new Species(thisAgent, newSpeciesId));
-					thisAgent.speciesId = newSpeciesId;
-				}
-			//}
+			}
+			if (!foundSpecies) {
+				int newSpeciesId = species.size() + 1;
+				species.add(new Species(thisAgent, newSpeciesId));
+			}
 		}
 		
 		shareFitnesses();
@@ -141,7 +146,7 @@ public class God implements Serializable{
 						fitnessTotal += member.fitness;
 					}
 				}
-				agent.setFitness(agent.fitness / fitnessTotal);
+				agent.fitness = agent.fitness / fitnessTotal;
 			}
 		}
 	}
@@ -184,28 +189,28 @@ public class God implements Serializable{
 
 	protected ArrayList<AgentFitness> Selection(ArrayList<Agent> agents) {
 		ArrayList<AgentFitness> selectedAgents = new ArrayList<AgentFitness>();
-		double last_best = best_fitness;
-		double last_average = average_fitness;
-		average_fitness = 0;
+		double last_best = bestFitness;
+		double last_average = averageFitness;
+		averageFitness = 0;
 		for (Agent agent : agents) {
 			double fitness = agent.getFitness();
-			average_fitness += fitness;
+			averageFitness += fitness;
 			// This number is completely arbitrary, depends on fitness function
 			if (fitness * getRandom() > last_average) {
 				selectedAgents.add(new AgentFitness(agent));
 			}
-			 if (agent.getFitness() > best_fitness) {
-                 best_fitness = agent.getFitness();
-			 } else if (agent.getFitness() < worst_fitness) {
-                 worst_fitness = agent.getFitness();
+			 if (agent.getFitness() > bestFitness) {
+                 bestFitness = agent.getFitness();
+			 } else if (agent.getFitness() < worstFitness) {
+                 worstFitness = agent.getFitness();
 			 }
 		}
-		average_fitness = average_fitness / agents.size();
+		averageFitness = averageFitness / agents.size();
 		// Keep track of the number of generations without improvement.
-		if (last_best >= best_fitness) {
-			no_improvement_count++;
+		if (last_best >= bestFitness) {
+			noImprovementCount++;
 		} else {
-			no_improvement_count--;
+			noImprovementCount--;
 		}
 		return selectedAgents;
 	}
@@ -256,7 +261,7 @@ public class God implements Serializable{
 		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
 
 		children.add(crossover(mother, father));
-		if (getRandom() < twin_chance) {
+		if (getRandom() < twinChance) {
 			children.add(crossover(mother, father));
 		}
 		for (int i = 0; i < children.size(); i++) {
@@ -296,7 +301,7 @@ public class God implements Serializable{
 			Gene gene = dominant[i];
 			if (matches.containsKey(gene)) {
 				// Randomly select matched gene from either parent
-				if (getRandom() < 0.5) {
+				if (getRandom() < matchedGeneChance) {
 					child.add(gene);
 				} else {
 					child.add(matches.get(gene));
@@ -336,10 +341,9 @@ public class God implements Serializable{
 		List<Integer> historicalMarkersList = new ArrayList<Integer>();
 		historicalMarkersList.addAll(historicalMarkersSet);
 
-		// TODO make these mutation chances not magical numbers!
-		if (getRandom() < 0.7) {
+		if (getRandom() < structuralMutationChance) {
 			// Add connection
-			if (getRandom() < 0.5) {
+			if (getRandom() < addConnectionChance) {
 				int left = 0;
 				int right = 0;
 				// Connect two arbitrary nodes - we don't care if they are already connected.
@@ -350,7 +354,7 @@ public class God implements Serializable{
 						(int) Math.floor(getRandom()*historicalMarkersList.size()));
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(
-						next_marker, child[left].in, child[right].in, 4.0, 1);
+						nextMarker, child[left].in, child[right].in, 0.0, 1);
 				for (Gene gene : newGenes) {
 					if (newGene.equals(gene)) {
 						newGene = gene;
@@ -358,34 +362,34 @@ public class God implements Serializable{
 				}
 				mutatedChild.add(newGene);
 				if (!newGenes.contains(newGene)) {
-					next_marker++;
+					nextMarker++;
 				}
 			}
 
 			// Add a new node between two old connections
-			if (getRandom() < 0.5) {
+			if (getRandom() < addNodeChance) {
 				// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
 				Gene toMutate = mutatedChild.get(
 						(int) Math.floor(getRandom() * mutatedChild.size()));
 				mutatedChild.remove(toMutate);
-				Gene newLeftGene = new Gene(next_marker, toMutate.in, max+1, 4.0, 1);
+				Gene newLeftGene = new Gene(nextMarker, toMutate.in, max+1, 0.0, 1);
 				for (Gene gene : newGenes) {
 					if (newLeftGene.equals(gene)) {
 						newLeftGene = gene;
 					}
 				}
 				if (!newGenes.contains(newLeftGene)) {
-					next_marker++;
+					nextMarker++;
 				}
 				mutatedChild.add(newLeftGene);
-				Gene newRightGene = new Gene(next_marker, max+1, toMutate.out, 4.0, 1);
+				Gene newRightGene = new Gene(nextMarker, max+1, toMutate.out, 0.0, 1);
 				for (Gene gene : newGenes) {
 					if (newRightGene.equals(gene)) {
 						newRightGene = gene;
 					}
 				}
 				if (!newGenes.contains(newRightGene)) {
-					next_marker++;
+					nextMarker++;
 				}
 				mutatedChild.add(newRightGene);
 			}
@@ -400,8 +404,8 @@ public class God implements Serializable{
 	// Each weight is subject to random mutation.
 	public Gene[] weightMutation(Gene[] child) {
 		for (Gene gene : child) {
-			if (getRandom() < 0.3) {
-				if (getRandom() < 0.5) {
+			if (getRandom() < weightMutationChance) {
+				if (getRandom() < weightIncreaseChance) {
 					gene.weight += getRandom();
 				} else {
 					gene.weight = Math.abs(gene.weight - getRandom());
@@ -417,7 +421,7 @@ public class God implements Serializable{
 
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
-			if (agent.getFitness() == best_fitness) {
+			if (agent.getFitness() == bestFitness) {
 				if (!elite_agent_in) {
 					children.add(agent.getStringRep());
 				} else {
@@ -439,7 +443,7 @@ public class God implements Serializable{
 
 		boolean elite_agent_in = false;
 		for (Agent agent : agents) {
-			if (agent.getFitness() == best_fitness && !elite_agent_in) {
+			if (agent.getFitness() == bestFitness && !elite_agent_in) {
 				children.add(agent.getStringRep());
 			} else {
 				children.add(RandomlyGenerate());
@@ -518,8 +522,8 @@ public class God implements Serializable{
 	
 	// Class used to hold an entire species.
 	private class Species {
-		protected ArrayList<AgentFitness> members;
-		protected AgentFitness rep;
+		private ArrayList<AgentFitness> members;
+		private AgentFitness rep;
 		private int id;
 		
 		public Species(AgentFitness rep, int id) {
@@ -529,12 +533,12 @@ public class God implements Serializable{
 			this.id =id;
 		}
 		
-		public void addMember(AgentFitness newMember) {
+		private void addMember(AgentFitness newMember) {
 			members.add(newMember);
 			Collections.sort(members);
 		}
 		
-		protected void clear() {
+		private void clear() {
 			members.clear();
 			members.add(rep);
 		}
@@ -543,19 +547,12 @@ public class God implements Serializable{
 	// This class is used so we can easily compare agents by fitness.
 	// Also used to be more lightweight than Agent class.
 	private class AgentFitness implements Comparable<AgentFitness> {
-		protected Gene[] stringRep;
-		protected double fitness;
-		protected int speciesId;
+		private Gene[] stringRep;
+		private double fitness;
 		
 		public AgentFitness(Agent agent) {
 			this.stringRep = agent.getStringRep();
 			this.fitness = agent.getFitness();
-			this.speciesId = agent.getSpeciesId();
-		}
-		
-		// Method to be used after we have adjusted the fitnesses.
-		protected void setFitness(double fitness) {
-			this.fitness = fitness;
 		}
 
 		@Override
