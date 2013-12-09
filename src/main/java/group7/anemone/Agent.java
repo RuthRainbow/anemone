@@ -34,7 +34,6 @@ public class Agent extends SimulationObject implements Serializable{
 	private double fov = 45; //field of view, +-
 	private ArrayList<SightInformation> canSee;
 	private double maxSpeed = 15;
-	private int speciesId;
 
 	/*
 	 * GENOME LAYOUT:
@@ -45,7 +44,7 @@ public class Agent extends SimulationObject implements Serializable{
 	 * 		* VALUE 3: Node that a link connects to
 	 * 		* VALUE 4: Enabled/disabled gene
 	 */
-	private Gene[] genome;
+	private Genome genome;
 
 	public static final int configNumSegments = 10;
 
@@ -54,22 +53,21 @@ public class Agent extends SimulationObject implements Serializable{
 	private NInterface ninterface;
 
 	public Agent(
-			Point2D.Double coords, double viewHeading, PApplet p, Gene[] newGenome, int speciesId) {
+			Point2D.Double coords, double viewHeading, PApplet p, Genome genome) {
 		super(coords);
 		ninterface = new NInterface(configNumSegments);
 		canSee = new ArrayList<SightInformation>();
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
-		this.genome=newGenome;
-		this.speciesId = speciesId;
+		this.genome = genome;
 		createSimpleNetwork();
 		calculateNetworkPositions();
 	}
 
 	public Agent(Gene[] newGenome) {
 		super(new Point2D.Double());
-		this.genome = newGenome;
+		this.genome = new Genome(newGenome);
 	}
 
 	private void createSimpleNetwork() {
@@ -134,9 +132,9 @@ public class Agent extends SimulationObject implements Serializable{
 		mnR.getPreSynapses().add(ssR);
 		*/
 
-		for (int x=0; x<genome.length; x++) {
-			int preNodeID = genome[x].in;
-			int postNodeID = genome[x].out;
+		for (int x=0; x<genome.getLength(); x++) {
+			int preNodeID = genome.getXthIn(x);
+			int postNodeID = genome.getXthOut(x);
 
 
 			int maxNeuron = Math.max(preNodeID, postNodeID); //Finds the max neuron to make sure that there are enough neurons in the arraylist
@@ -153,7 +151,8 @@ public class Agent extends SimulationObject implements Serializable{
 			}
 
 			//Now that we are sure there are enough neurons in the arraylist for links to be made for this gene, we can make the synapse.
-			MSynapse newSyn = new MSynapse(neurons.get(preNodeID), neurons.get(postNodeID), genome[x].weight, genome[x].delay);
+			MSynapse newSyn = new MSynapse(
+					neurons.get(preNodeID), neurons.get(postNodeID), genome.getXthWeight(x), genome.getXthDelay(x));
 			synapses.add(newSyn);
 
 			neurons.get(preNodeID).getPostSynapses().add(newSyn);
@@ -208,7 +207,7 @@ public class Agent extends SimulationObject implements Serializable{
 		msimulation.step();
 	}
 
-	protected Gene[] getStringRep() {
+	protected Genome getStringRep() {
 		return this.genome;
 	}
 
@@ -534,7 +533,7 @@ public class Agent extends SimulationObject implements Serializable{
 	}
 	
 	public int getSpeciesId() {
-		return this.speciesId;
+		return genome.getSpeciesId();
 	}
 
 	public int getAge() {

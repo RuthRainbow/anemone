@@ -82,7 +82,7 @@ public class Simulation extends PApplet {
 	boolean agentFocused = false;
 	int trackingBounds = 100;
 	
-	int numStartingAgents = 40;
+	int numStartingAgents = 10;
 	int numStartingSharks = 0;
 
 	public static void main(String args[]){

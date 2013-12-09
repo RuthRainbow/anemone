@@ -7,15 +7,13 @@ import java.io.Serializable;
  * edge/connector within the network, with a single input and output.
  */
 public class Gene implements Serializable{
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -27536139896199028L;
-	public int historicalMarker;
-	public int in;
-	public int out;
-	public double weight;
-	public int delay;
+	private int historicalMarker;
+	private int in;
+	private int out;
+	private double weight;
+	private int delay;
 
 	Gene(int hist, int in, int out, double wei, int del) {
 		this.historicalMarker = hist;
@@ -32,6 +30,30 @@ public class Gene implements Serializable{
 				" OUT: " + out +
 				" WEIGHT: " + weight +
 				" DELAY: " + delay;
+	}
+	
+	public int getIn() {
+		return this.in;
+	}
+	
+	public int getOut() {
+		return this.out;
+	}
+
+	public double getWeight() {
+		return this.weight;
+	}
+	
+	public int getDelay() {
+		return this.delay;
+	}
+
+	public int getHistoricalMarker() {
+		return this.historicalMarker;
+	}
+
+	public void addWeight(double change) {
+		this.weight = Math.abs(this.weight + change);
 	}
 
 	/*
