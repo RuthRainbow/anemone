@@ -251,7 +251,9 @@ public class Simulation extends PApplet {
 			env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 			handleCollisions();
 			env.killOutsideAgents(env.width, env.height);
-			checkDeaths();
+			if (!env.fitnessOnly) {
+				checkDeaths();
+			}
 			updateUI();
 		}
 
@@ -350,8 +352,13 @@ public class Simulation extends PApplet {
 		if(selectedAgent != null){
 			//agentHeading.setAngle(selectedAgent.getViewHeading());
 			agentHeading.setAgent(selectedAgent);
-			progHealth.setValue(selectedAgent.getHealth());
-			progHealth.setColor((int) (255 - 255 * selectedAgent.getHealth()), (int) (255 * selectedAgent.getHealth()), 0);
+			if (env.fitnessOnly) {
+				progHealth.setValue(selectedAgent.getFitness());
+				progHealth.setColor((int) (255 - 255 * selectedAgent.getFitness()), (int) (255 * selectedAgent.getFitness()), 0);
+			} else {
+				progHealth.setValue(selectedAgent.getHealth());
+				progHealth.setColor((int) (255 - 255 * selectedAgent.getHealth()), (int) (255 * selectedAgent.getHealth()), 0);
+			}
 			sliderX.setValue((double) selectedAgent.getX() / env.width);
 			sliderY.setValue((double) selectedAgent.getY() / env.height);
 
@@ -800,7 +807,7 @@ public class Simulation extends PApplet {
 		ag.thrust(thrustIncrease * thrust);
 		ag.changeViewHeading(oldHeading - newAngle);
 		ag.updateHealth(thrust / -100);
-		ag.updateFitness(thrust / -100);
+		ag.updateFitness(thrust / -200);
 	}
 
 	private void eatFood(Collision cc) {
@@ -810,7 +817,7 @@ public class Simulation extends PApplet {
 			Food fd = (Food) obj;
 			env.removeFood(fd);
 			cc.getAgent().updateHealth(fd.getValue());
-			cc.getAgent().updateFitness(fd.getValue()*5);
+			cc.getAgent().updateFitness(fd.getValue()*10);
 		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
@@ -842,7 +849,7 @@ public class Simulation extends PApplet {
 	//Serialises the environment class to chosen location
 	private void saveEnvironment(){
 		JFileChooser diag = getFileChooser(true);
-		if(diag.showSaveDialog(this) != diag.APPROVE_OPTION) return;
+		if(diag.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
 		try{
 			File file = new File(diag.getSelectedFile().getAbsoluteFile() + ".env");
@@ -860,7 +867,7 @@ public class Simulation extends PApplet {
 	//Deserialises the environment class selected by user
 	private void restoreEnvironment(){
 		JFileChooser diag = getFileChooser(false);
-		if(diag.showOpenDialog(this) != diag.APPROVE_OPTION) return;
+		if(diag.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
 		File file = diag.getSelectedFile();
 		if(!file.exists()){

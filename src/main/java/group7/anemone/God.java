@@ -73,7 +73,7 @@ public class God implements Serializable{
 		return childrenSpecies;
 	}
 	
-	protected ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents) {
+	protected ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
 		newGenes = new ArrayList<Gene>();
 		// Clear species for a new gen
 		for (Species specie : species) {
@@ -102,17 +102,20 @@ public class God implements Serializable{
 		ArrayList<Genome> children = new ArrayList<Genome>();
 		// Breed each species
 		for (Species specie : species) {
-			ArrayList<Genome> speciesChildren = breedSpecies(specie, agents.size());
+			ArrayList<Genome> speciesChildren =
+					breedSpecies(specie, agents.size(), fitnessOnly);
 			children.addAll(speciesChildren);
 		}
 		return children;
 	}
 	
-	private ArrayList<Genome> breedSpecies(Species specie, int popSize) {
+	private ArrayList<Genome> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
 		ArrayList<Genome> children = new ArrayList<Genome>();
 		if (specie.members.size() < 2) {
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
+				children.add(
+						new Genome(mutate(agent.stringRep.getGene()), agent.stringRep.getSpeciesId()));
 			}
 			return children;
 		}
@@ -128,6 +131,10 @@ public class God implements Serializable{
 		int i = 0;
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			ArrayList<Gene[]> childGenes = CreateOffspring(specie.members.get(i), specie.members.get(i+1));
+			if (fitnessOnly) {
+				children.add(specie.members.get(i).stringRep);
+				children.add(specie.members.get(i).stringRep);
+			}
 			for (Gene[] child : childGenes) {
 				children.add(new Genome(child, specie.id));
 			}
@@ -565,9 +572,9 @@ public class God implements Serializable{
 
 		@Override
 		public int compareTo(AgentFitness other) {
-			if (this.fitness > other.fitness) {
+			if (this.fitness < other.fitness) {
 				return 1;
-			} else if (this.fitness < other.fitness) {
+			} else if (this.fitness > other.fitness) {
 				return -1;
 			} else {
 				return 0;

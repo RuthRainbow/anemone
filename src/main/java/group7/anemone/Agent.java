@@ -287,6 +287,7 @@ public class Agent extends SimulationObject implements Serializable{
 
 		age++;
 		health -= 0.001;//0.0000001;
+		fitness -= 0.001;
 		if (age < 100) {
 			updateFitness(0.001);
 		} else if (age > 200) {
@@ -460,8 +461,8 @@ public class Agent extends SimulationObject implements Serializable{
 		viewHeading += h;
 	}
 	protected void updateHealth(double h){
-		//health += h;
-		//health = Math.min(1, health);
+		health += h;
+		health = Math.min(1, health);
 	}
 
 	protected void updateFitness(double value) {

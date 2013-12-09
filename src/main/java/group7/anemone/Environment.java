@@ -28,6 +28,9 @@ public class Environment implements Serializable{
 
 	private ArrayList<Collision> collisions;
 	
+	// Whether to not use health:
+	protected final boolean fitnessOnly = true;
+	
 	int width = 1500;
 	int height = 1500;
 
@@ -211,7 +214,7 @@ public class Environment implements Serializable{
     	tick++;
 
     	if (tick % 200 == 0) {
-    		if (tick % 900 == 0) {
+    		/*if (tick % 900 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks);
     			for (Genome genome : nextSharks) {
     				int x = (int) Math.floor(Math.random() * width);
@@ -222,9 +225,21 @@ public class Environment implements Serializable{
     			}
     			// Reset tick until next generation
     			tick = 0;
+    		}*/
+    		ArrayList<Genome> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
+    		
+    		if (fitnessOnly) {
+    			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
+    			for (int i = 0; i < fishes.size(); i++) {
+    				Genome stringRep = fishes.get(i).getStringRep();
+	    			if (nextFish.contains(stringRep)) {
+	    				nextFish.remove(stringRep);
+	    				nextAgents.add(fishes.get(i));
+	    			}
+	    		}
+	    		fishes.clear();
+	    		fishes.addAll(nextAgents);
     		}
-    		ArrayList<Genome> nextFish = fishGod.BreedWithSpecies(fishes);
-    		fishes.clear();
     		for (Genome genome : nextFish) {
     			int x = (int) Math.floor(Math.random() * width);
     			int y = (int) Math.floor(Math.random() * height);
