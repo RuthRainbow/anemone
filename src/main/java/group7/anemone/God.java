@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
 
 public class God implements Serializable{
 
@@ -50,6 +53,7 @@ public class God implements Serializable{
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	private final double compatibilityThreshold = 20;
+	private final int minReproduced = 2;
 	
 	public God() {
 		this.species = new ArrayList<Species>();
@@ -81,30 +85,23 @@ public class God implements Serializable{
 			specie.clear();
 		}
 		
+		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
 		// Set up threads for each distance calculation to speed this up.
-		ArrayList<Thread> threads = new ArrayList<Thread>();
 		for (Agent agent : agents) {
 			AgentFitness thisAgent = new AgentFitness(agent);
 			for (Species specie : species) {
 				AgentFitness speciesRep = specie.rep;
-				Runnable r = new CalcDistance(thisAgent, speciesRep);
+				Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
 				Thread thread = new Thread(r);
 				thread.run();
-				threads.add(thread);
-				
 			}
 		}
 		
-		// Wait for all threads to complete
-		// TODO do this in a better way than polling
-		boolean completed = false;
-		while (!completed) {
-			completed = true;
-			for (Thread thread : threads) {
-				if (thread.isAlive()) {
-					completed = false;
-				}
-			}
+		// Wait for all threads to complete:
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			// Continue; we'll just have to calculate the distances in sequence.
 		}
 		
 		// Put each agent given for reproduction into a species.
@@ -152,7 +149,8 @@ public class God implements Serializable{
 			summedFitness += agent.fitness;
 			//System.out.println("this agent's fitness is " + agent.fitness);
 		}
-		int numOffspring = Math.max(2, (int) Math.ceil(summedFitness * offspringProportion));
+		int numOffspring = Math.max(
+				minReproduced, (int) Math.ceil(summedFitness * offspringProportion));
 		//int numOffspring = 2;
 		System.out.println("*************** GENERATING " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
@@ -206,6 +204,7 @@ public class God implements Serializable{
 		if (distances.contains(thisAgent)) {
 			return distances.get(thisAgent);
 		} else {
+			System.out.println("had to find by myself :(");
 			AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
 
 			Genome a = thisAgent.stringRep;
@@ -615,11 +614,12 @@ public class God implements Serializable{
 		
 		private AgentFitness thisAgent;
 		private AgentFitness speciesRep;
-		private boolean completed = false;
+		private CountDownLatch latch;
 		
-		public CalcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
+		public CalcDistance(AgentFitness thisAgent, AgentFitness speciesRep, CountDownLatch latch) {
 			this.thisAgent = thisAgent;
 			this.speciesRep = speciesRep;
+			this.latch = latch;
 		}
 
 		@Override
@@ -627,7 +627,7 @@ public class God implements Serializable{
 			AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
 			// Firstly, check if we have already calculated this distance.
 			if (distances.containsKey(agentPair)) {
-				completed = true;
+				latch.countDown();
 				return;
 			}
 			Genome a = thisAgent.stringRep;
@@ -647,7 +647,7 @@ public class God implements Serializable{
 			double distance = (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
 			// Save this distance so we don't need to recalculate:
 			distances.put(agentPair, distance);
-			completed = true;
+			latch.countDown();
 		}
 		
 	}
