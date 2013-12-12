@@ -213,7 +213,7 @@ public class Environment implements Serializable{
     	}
     	tick++;
 
-    	if (tick % 200 == 0) {
+    	if (tick % 300 == 0) {
     		/*if (tick % 900 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks);
     			for (Genome genome : nextSharks) {
