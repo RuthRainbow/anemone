@@ -52,7 +52,7 @@ public class God implements Serializable{
 	private final double c3 = 0.5f; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	private final double compatibilityThreshold = 20;
+	private final double compatibilityThreshold = 16;
 	private final int minReproduced = 2;
 	
 	public God() {
@@ -140,7 +140,11 @@ public class God implements Serializable{
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
 				children.add(
-						new Genome(mutate(agent.stringRep.getGene()), agent.stringRep.getSpeciesId()));
+						new Genome(
+								mutate(agent.stringRep.getGene()),
+								agent.stringRep.getSpeciesId(),
+								agent.stringRep,
+								agent.stringRep));
 			}
 			return children;
 		}
@@ -156,13 +160,15 @@ public class God implements Serializable{
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
-			ArrayList<Gene[]> childGenes = CreateOffspring(specie.members.get(i), specie.members.get(i+1));
+			AgentFitness mother = specie.members.get(i);
+			AgentFitness father = specie.members.get(i+1);
+			ArrayList<Gene[]> childGenes = CreateOffspring(mother, father);
 			if (fitnessOnly) {
-				children.add(specie.members.get(i).stringRep);
-				children.add(specie.members.get(i).stringRep);
+				children.add(mother.stringRep);
+				children.add(mother.stringRep);
 			}
 			for (Gene[] child : childGenes) {
-				children.add(new Genome(child, specie.id));
+				children.add(new Genome(child, specie.id, mother.stringRep, father.stringRep));
 			}
 			i += 2;
 		}
@@ -289,7 +295,8 @@ public class God implements Serializable{
 		ArrayList<Gene[]> children = CreateOffspring(motherFitness, fatherFitness);
 		ArrayList<Genome> childGenomes = new ArrayList<Genome>();
 		for (Gene[] child : children) {
-			childGenomes.add(new Genome(child, father.getSpeciesId()));
+			childGenomes.add(new Genome(
+					child, father.getSpeciesId(), mother.getStringRep(), father.getStringRep()));
 		}
 		return childGenomes;
 	}

@@ -329,7 +329,7 @@ public class Environment implements Serializable{
 			}
 		}
 
-		return new Genome(genome, 0);
+		return new Genome(genome, 0, null, null);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){

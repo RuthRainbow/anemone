@@ -9,10 +9,12 @@ public class Genome implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;
 	private Gene[] genome;
 	private int speciesId;
+	private Parent parents;
 	
-	public Genome(Gene[] genome, int speciesId) {
+	public Genome(Gene[] genome, int speciesId, Genome mother, Genome father) {
 		this.genome = genome;
 		this.speciesId = speciesId;
+		this.parents = new Parent(mother, father);
 	}
 	
 	public Genome(Gene[] genome) {
@@ -54,5 +56,23 @@ public class Genome implements Serializable {
 
 	public Gene getXthGene(int x) {
 		return this.genome[x];
+	}
+	
+	public Genome getMother() {
+		return this.parents.mother;
+	}
+	
+	public Genome getFather() {
+		return this.parents.father;
+	}
+	
+	private class Parent {
+		private Genome mother;
+		private Genome father;
+		
+		public Parent(Genome mother, Genome father) {
+			this.mother = mother;
+			this.father = father;
+		}
 	}
 }
