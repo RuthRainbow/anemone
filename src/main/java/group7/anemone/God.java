@@ -204,7 +204,6 @@ public class God implements Serializable{
 		if (distances.contains(thisAgent)) {
 			return distances.get(thisAgent);
 		} else {
-			System.out.println("had to find by myself :(");
 			AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
 
 			Genome a = thisAgent.stringRep;
