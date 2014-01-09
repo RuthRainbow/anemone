@@ -604,7 +604,7 @@ public class God implements Serializable{
 			this.fitness = agent.getFitness();
 		}
 
-		@Override
+		//@Override
 		public int compareTo(AgentFitness other) {
 			if (this.fitness < other.fitness) {
 				return 1;
@@ -628,7 +628,7 @@ public class God implements Serializable{
 			this.latch = latch;
 		}
 
-		@Override
+		//@Override
 		public synchronized void run() {
 			AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
 			// Firstly, check if we have already calculated this distance.

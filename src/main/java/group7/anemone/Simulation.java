@@ -27,8 +27,11 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
@@ -100,14 +103,14 @@ public class Simulation extends PApplet {
 		draw_height = screen.height;
 
 		for(int i = 0; i < numStartingAgents; i++){
-			int x = (int) Math.floor(Math.random() * env.width);
-			int y = (int) Math.floor(Math.random() * env.height);
+			int x = (int) Math.floor(Math.max((Math.random() * env.width - 20),0)) + 10;
+			int y = (int) Math.floor(Math.max((Math.random() * env.height - 20),0)) + 10;
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
 		for (int i = 0; i < numStartingSharks; i++) {
-			int x = (int) Math.floor(Math.random() * env.width);
-			int y = (int) Math.floor(Math.random() * env.height);
+			int x = (int) Math.floor(Math.max((Math.random() * env.width - 20),0)) + 10;
+			int y = (int) Math.floor(Math.max((Math.random() * env.height - 20),0)) + 10;
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addShark(new Point2D.Double(x, y), heading);
 		}
@@ -115,8 +118,8 @@ public class Simulation extends PApplet {
 		selectedAgent = env.getAllAgents().get(0);
 
 		for(int i = 0; i < 100; i++){
-			int x = (int) Math.floor(Math.random() * env.width);
-			int y = (int) Math.floor(Math.random() * env.height);
+			int x = (int) Math.floor(Math.max((Math.random() * env.width - 10),0)) + 5;
+			int y = (int) Math.floor(Math.max((Math.random() * env.height - 10),0)) + 5;
 			env.addFood(new Point2D.Double(x, y));
 		}
 
@@ -124,6 +127,25 @@ public class Simulation extends PApplet {
 		env.addWall(new Point2D.Double(env.width,0), new Point2D.Double(env.width, env.height));
 		env.addWall(new Point2D.Double(0, env.height), new Point2D.Double(env.width, env.height));
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
+		/*FileWriter write = null;
+		PrintWriter print = null;
+		try {
+			write = new FileWriter(new File("map.txt"));
+			print = new PrintWriter(write);
+			
+			for(int i=0;i<env.width;i++){
+				for(int j=0;j<env.height;j++){
+					print.print((env.map[i][j] == null ? "0" : "1"));
+				}
+				print.println();
+			}
+			
+			print.close();
+			write.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
@@ -247,7 +269,7 @@ public class Simulation extends PApplet {
 
 		for(int i = 0; i < SIM_TICKS; i++){
 			env.updateAllAgents();	//'Ticks' for the new frame, sensors sense, networks network and collisions are checked.
-			env.updateCollisions(); //update the environment with the new collisions
+			//env.updateCollisions(); //update the environment with the new collisions
 			env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 			handleCollisions();
 			env.killOutsideAgents(env.width, env.height);

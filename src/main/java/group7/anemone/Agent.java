@@ -34,6 +34,7 @@ public class Agent extends SimulationObject implements Serializable{
 	private double fov = 45; //field of view, +-
 	private ArrayList<SightInformation> canSee;
 	private double maxSpeed = 15;
+	public double size = 10;
 
 	/*
 	 * GENOME LAYOUT:
@@ -283,9 +284,26 @@ public class Agent extends SimulationObject implements Serializable{
 		//TODO Move the change of coords to the update speed section?? -Seb
 		coords.x += speed.x;	//Changes the coordinates to display distance travelled since last update
 		coords.y += speed.y;
-
+		for(int i=(int) (coords.x-this.size)/5;i<((int) coords.x+this.size)/5;i++){
+			for(int j=(int) (coords.y-this.size)/5;j<((int) coords.y+this.size)/5;j++){
+				if(i < 0) Environment.collisions.add(new Collision(this, Environment.wall.get(3)));
+				if(j < 0) Environment.collisions.add(new Collision(this, Environment.wall.get(0)));
+				if(i >= Environment.width/5) Environment.collisions.add(new Collision(this, Environment.wall.get(1)));
+				if(j >= Environment.height/5) Environment.collisions.add(new Collision(this, Environment.wall.get(2)));
+				
+				if(i < 0 || j < 0 || i >= Environment.width/5 || j >= Environment.height/5){
+					
+				}else if(Environment.map[i][j] != null){
+					//Collision has happened!
+					Environment.collisions.add(new Collision(this, Environment.map[i][j]));
+				}else{
+					Environment.map[i][j] = this;
+				}
+			}
+		}
+		
 		age++;
-		health -= 0.001;//0.0000001;
+		health -= 0.001;
 		fitness -= 0.001;
 		if (age < 100) {
 			updateFitness(0.001);

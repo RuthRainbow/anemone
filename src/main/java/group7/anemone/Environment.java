@@ -24,15 +24,16 @@ public class Environment implements Serializable{
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
 	private ArrayList<Food> food;
-	private ArrayList<Wall> wall;
+	public static ArrayList<Wall> wall;
+	public static SimulationObject[][] map;
 
-	private ArrayList<Collision> collisions;
+	public static ArrayList<Collision> collisions;
 	
 	// Whether to not use health:
 	protected final boolean fitnessOnly = true;
 	
-	int width = 1500;
-	int height = 1500;
+	static int width = 1000;
+	static int height = 1000;
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -42,37 +43,39 @@ public class Environment implements Serializable{
 		this.sharks = new ArrayList<Agent>();
 		this.food = new ArrayList<Food>();
 		this.wall = new ArrayList<Wall>();
+		this.map = new SimulationObject[width/5+1][height/5+1];
 	}
 
     // Method to get all collisions that occurred in the environment
-    public ArrayList<Collision> updateCollisions() {
+    /*public ArrayList<Collision> updateCollisions() {
     	collisions = new ArrayList<Collision>();
 
     	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
 
     		for (Agent aa: getAllAgents()) { // check if collides to any other agent
         		if(ag == aa) continue;
-
-        		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
+        		
+        		if(ag.getCoordinates().distance(aa.getCoordinates()) <= ag.size*2){
+        			
         			collisions.add(new Collision(ag, aa));
         		}
     		}
 
     		for (Food fd: food) { //check collisions to food
-        		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
+        		if(ag.getCoordinates().distance(fd.getCoordinates()) <= ag.size + 2){
         			collisions.add(new Collision(ag, fd));
         		}
     		}
 
     		for (Wall wl: wall) {
-    			if (wl.getLine().ptLineDist(ag.getCoordinates()) < 10){
+    			if (wl.getLine().ptLineDist(ag.getCoordinates()) < ag.size){
     				collisions.add(new Collision(ag, wl));
     			}
     		}
 		}
 
     	return collisions;
-    }
+    }*/
 
     public void updateAgentsSight() {
     	//update what each agent can see
@@ -205,6 +208,23 @@ public class Environment implements Serializable{
     }
 
     protected void updateAllAgents(){
+    	//map = new SimulationObject[width][height];
+    	for(int i = 0; i < width/5+1; i++){
+    		for(int j = 0; j < height/5+1; j++){
+        		map[i][j] = null;
+        	}
+    	}
+    	
+    	collisions = new ArrayList<Collision>();
+    	
+    	for(Food fd : food){
+    		for(int i=(int) (fd.getX()-fd.size)/5;i<((int) fd.getX()+fd.size)/5;i++){
+    			for(int j=(int) (fd.getY()-fd.size)/5;j<((int) fd.getY()+fd.size)/5;j++){
+    				map[i][j] = fd;
+    			}
+    		}
+    	}
+    	
     	for (Agent fish: fishes) { //drawing the ikkle fishes
     		fish.update();
     	}
@@ -241,15 +261,15 @@ public class Environment implements Serializable{
 	    		fishes.addAll(nextAgents);
     		}
     		for (Genome genome : nextFish) {
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
+    			int x = (int) Math.floor(Math.max((Math.random() * Environment.width - 20),0)) + 10;
+    			int y = (int) Math.floor(Math.max((Math.random() * Environment.height - 20),0)) + 10;
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
 
     		for(int i = 0; i < fishes.size()/2; i++){
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
+    			int x = (int) Math.floor(Math.max((Math.random() * Environment.width - 10),0)) + 5;
+    			int y = (int) Math.floor(Math.max((Math.random() * Environment.height - 10),0)) + 5;
     			addFood(new Point2D.Double(x, y));
     		}
 
@@ -291,7 +311,13 @@ public class Environment implements Serializable{
 		Genome genome = getGenome();
 
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		fishes.add(new Agent(coords, heading, parent, genome));
+		Agent ag = new Agent(coords, heading, parent, genome);
+		fishes.add(ag);
+		for(int i=(int) (coords.x-ag.size)/5;i<((int) coords.x+ag.size)/5;i++){
+			for(int j=(int) (coords.y-ag.size)/5;j<((int) coords.y+ag.size)/5;j++){
+					map[i][j] = ag;
+			}
+		}
 	}
 
 	private Genome getGenome() {
@@ -339,7 +365,14 @@ public class Environment implements Serializable{
 	}
 
 	void addFood(Point2D.Double coords){
-		food.add(new Food(coords));
+		Food fd = new Food(coords);
+		food.add(fd);
+		
+		for(int i=(int) (coords.x-fd.size)/5;i<((int) coords.x+fd.size)/5;i++){
+			for(int j=(int) (coords.y-fd.size)/5;j<((int) coords.y+fd.size)/5;j++){
+				map[i][j] = fd;
+			}
+		}
 	}
 
 	void addWall(Point2D.Double start, Point2D.Double end){
