@@ -2,7 +2,6 @@ package group7.anemone;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,13 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Executors;
 
 public class God implements Serializable{
 
 	private static final long serialVersionUID = 619717007643693268L;
-	
+
+	/** Start of possible graphical vars **/
+
 	// Mutation chances:
 	private final double structuralMutationChance = 0.7f;
 	private final double addConnectionChance = 0.5f;
@@ -25,10 +24,22 @@ public class God implements Serializable{
 	private final double weightMutationChance = 0.3f;
 	// (chance of decrease is 1 - the chance of increase)
 	private final double weightIncreaseChance = 0.5f;
-	
+
 	// Crossover chances:
 	private final double twinChance = 0.05f;
 	private final double matchedGeneChance = 0.5f;
+
+	private final double offspringProportion = 0.5f; // ALSO COMPLETELY ARBITRARY
+	// Parameters for use in difference calcuation (can be tweaked).
+	private final double c1 = 0.5f; //weighting of excess genes
+	private final double c2 = 0.5f; //weighting of disjoint genes
+	private final double c3 = 0.5f; //weighting of weight differences
+	// Threshold for max distance between species member and representative.
+	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
+	private final double compatibilityThreshold = 16;
+	private final int minReproduced = 2;
+
+	/** End of possible graphical vars **/
 
 	private double bestFitness;
 	private double worstFitness;
@@ -38,23 +49,13 @@ public class God implements Serializable{
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
 	private int nextMarker = 89;
 	private ArrayList<Gene> newGenes;
-	
+
 	// The ordered list of all species, with each represented by a member from the
 	// previous generation.
 	private ArrayList<Species> species;
 	// The distances between all genes:
 	private ConcurrentHashMap<AgentPair, Double> distances;
-	private final double offspringProportion = 0.5f; // ALSO COMPLETELY ARBITRARY
-	
-	// Parameters for use in difference calcuation (can be tweaked).
-	private final double c1 = 0.5f; //weighting of excess genes
-	private final double c2 = 0.5f; //weighting of disjoint genes
-	private final double c3 = 0.5f; //weighting of weight differences
-	// Threshold for max distance between species member and representative.
-	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	private final double compatibilityThreshold = 16;
-	private final int minReproduced = 2;
-	
+
 	public God() {
 		this.species = new ArrayList<Species>();
 		this.distances = new ConcurrentHashMap<God.AgentPair, Double>();
@@ -77,14 +78,14 @@ public class God implements Serializable{
 		}
 		return childrenSpecies;
 	}
-	
+
 	protected ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
 		newGenes = new ArrayList<Gene>();
 		// Clear species for a new gen
 		for (Species specie : species) {
 			specie.clear();
 		}
-		
+
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
 		// Set up threads for each distance calculation to speed this up.
 		for (Agent agent : agents) {
@@ -96,14 +97,14 @@ public class God implements Serializable{
 				thread.run();
 			}
 		}
-		
+
 		// Wait for all threads to complete:
 		try {
 			latch.await();
 		} catch (InterruptedException e) {
 			// Continue; we'll just have to calculate the distances in sequence.
 		}
-		
+
 		// Put each agent given for reproduction into a species.
 		for (Agent agent : agents) {
 			// Try to increase efficiency by ignoring awful agents
@@ -122,7 +123,7 @@ public class God implements Serializable{
 				species.add(new Species(thisAgent, newSpeciesId));
 			}
 		}
-		
+
 		shareFitnesses();
 		ArrayList<Genome> children = new ArrayList<Genome>();
 		// Breed each species
@@ -133,7 +134,7 @@ public class God implements Serializable{
 		}
 		return children;
 	}
-	
+
 	private ArrayList<Genome> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
 		ArrayList<Genome> children = new ArrayList<Genome>();
 		if (specie.members.size() < 2) {
@@ -156,7 +157,7 @@ public class God implements Serializable{
 		int numOffspring = Math.max(
 				minReproduced, (int) Math.ceil(summedFitness * offspringProportion));
 		//int numOffspring = 2;
-		System.out.println("*************** GENERATING " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
+		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
@@ -195,16 +196,16 @@ public class God implements Serializable{
 			}
 		}
 	}
-	
+
 	protected int sharingFunction(double distance) {
 		if (distance > compatibilityThreshold) {
-			return 0; // Seems pointless. Why not only compare with dudes from the same species, 
+			return 0; // Seems pointless. Why not only compare with dudes from the same species,
 			// if all others will be made 0?!
 		} else {
 			return 1;
 		}
 	}
-	
+
 	// Return computability distance between two networks (see NEAT speciation).
 	protected double getDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		if (distances.contains(thisAgent)) {
@@ -288,7 +289,7 @@ public class God implements Serializable{
 
 		return mutatedChildren;
 	}
-	
+
 	protected ArrayList<Genome> createOffspring(Agent mother, Agent father) {
 		AgentFitness motherFitness = new AgentFitness(mother);
 		AgentFitness fatherFitness = new AgentFitness(father);
@@ -542,17 +543,17 @@ public class God implements Serializable{
 	           return "(" + first + ", " + second + ")";
 	    }
 	}
-	
+
 	// Class to hold two agents together so we can map to a distance.
 	private class AgentPair {
 		private AgentFitness first;
 		private AgentFitness second;
-		
+
 		public AgentPair(AgentFitness first, AgentFitness second) {
 			this.first = first;
 			this.second = second;
 		}
-		
+
 		@Override
 		public boolean equals(Object other) {
 			if (!(other instanceof AgentPair)) {
@@ -568,37 +569,37 @@ public class God implements Serializable{
 	    	}
 		}
 	}
-	
+
 	// Class used to hold an entire species.
 	private class Species {
 		private ArrayList<AgentFitness> members;
 		private AgentFitness rep;
 		private int id;
-		
+
 		public Species(AgentFitness rep, int id) {
 			this.rep = rep;
 			members = new ArrayList<AgentFitness>();
 			members.add(rep);
 			this.id =id;
 		}
-		
+
 		private void addMember(AgentFitness newMember) {
 			members.add(newMember);
 			Collections.sort(members);
 		}
-		
+
 		private void clear() {
 			members.clear();
 			members.add(rep);
 		}
 	}
-	
+
 	// This class is used so we can easily compare agents by fitness.
 	// Also used to be more lightweight than Agent class.
 	private class AgentFitness implements Comparable<AgentFitness> {
 		private Genome stringRep;
 		private double fitness;
-		
+
 		public AgentFitness(Agent agent) {
 			this.stringRep = agent.getStringRep();
 			this.fitness = agent.getFitness();
@@ -615,13 +616,13 @@ public class God implements Serializable{
 			}
 		}
 	}
-	
+
 	private class CalcDistance implements Runnable {
-		
+
 		private AgentFitness thisAgent;
 		private AgentFitness speciesRep;
 		private CountDownLatch latch;
-		
+
 		public CalcDistance(AgentFitness thisAgent, AgentFitness speciesRep, CountDownLatch latch) {
 			this.thisAgent = thisAgent;
 			this.speciesRep = speciesRep;
@@ -655,6 +656,6 @@ public class God implements Serializable{
 			distances.put(agentPair, distance);
 			latch.countDown();
 		}
-		
+
 	}
 }
