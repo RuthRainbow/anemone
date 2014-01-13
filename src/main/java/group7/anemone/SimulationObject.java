@@ -11,6 +11,7 @@ public class SimulationObject implements Serializable{
 	 */
 	private static final long serialVersionUID = 1887973287289968272L;
 	protected Point2D.Double coords;
+	public boolean positionupdated = false;
 	
 	SimulationObject(Point2D.Double coords) {
 		this.coords = coords;

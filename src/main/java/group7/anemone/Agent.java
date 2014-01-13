@@ -35,6 +35,7 @@ public class Agent extends SimulationObject implements Serializable{
 	private ArrayList<SightInformation> canSee;
 	private double maxSpeed = 15;
 	public double size = 10;
+	
 
 	/*
 	 * GENOME LAYOUT:
@@ -293,15 +294,16 @@ public class Agent extends SimulationObject implements Serializable{
 				
 				if(i < 0 || j < 0 || i >= Environment.width/5 || j >= Environment.height/5){
 					
-				}else if(Environment.map[i][j] != null){
+				}else if(Environment.map[i][j] != null && Environment.map[i][j].positionupdated == true){
 					//Collision has happened!
 					Environment.collisions.add(new Collision(this, Environment.map[i][j]));
 				}else{
 					Environment.map[i][j] = this;
+					
 				}
 			}
 		}
-		
+		this.positionupdated = true;
 		age++;
 		health -= 0.001;
 		fitness -= 0.001;

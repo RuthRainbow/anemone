@@ -209,10 +209,13 @@ public class Environment implements Serializable{
 
     protected void updateAllAgents(){
     	//map = new SimulationObject[width][height];
-    	for(int i = 0; i < width/5+1; i++){
+    	/*for(int i = 0; i < width/5+1; i++){
     		for(int j = 0; j < height/5+1; j++){
         		map[i][j] = null;
         	}
+    	}*/
+    	for(Agent ag : fishes){
+    		ag.positionupdated = false;
     	}
     	
     	collisions = new ArrayList<Collision>();
@@ -316,6 +319,7 @@ public class Environment implements Serializable{
 		for(int i=(int) (coords.x-ag.size)/5;i<((int) coords.x+ag.size)/5;i++){
 			for(int j=(int) (coords.y-ag.size)/5;j<((int) coords.y+ag.size)/5;j++){
 					map[i][j] = ag;
+					ag.positionupdated = true;
 			}
 		}
 	}

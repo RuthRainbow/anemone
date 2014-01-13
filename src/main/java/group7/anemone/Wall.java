@@ -13,6 +13,7 @@ public class Wall extends SimulationObject implements Serializable{
 	private Double start;
 	private Double end;
 	private Line2D.Double line;
+	public boolean positionupdated = true;
 	
 	Wall(Double start, Double end) {
 		super(start);
