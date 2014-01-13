@@ -18,26 +18,26 @@ public class God implements Serializable{
 	/** Start of possible graphical vars **/
 
 	// Mutation chances:
-	private final double structuralMutationChance = 0.7f;
-	private final double addConnectionChance = 0.5f;
-	private final double addNodeChance = 0.5f;
-	private final double weightMutationChance = 0.3f;
+	public double structuralMutationChance = 0.7f;
+	public double addConnectionChance = 0.5f;
+	public double addNodeChance = 0.5f;
+	public double weightMutationChance = 0.3f;
 	// (chance of decrease is 1 - the chance of increase)
-	private final double weightIncreaseChance = 0.5f;
+	public double weightIncreaseChance = 0.5f;
 
 	// Crossover chances:
-	private final double twinChance = 0.05f;
-	private final double matchedGeneChance = 0.5f;
+	public double twinChance = 0.05f;
+	public double matchedGeneChance = 0.5f;
 
-	private final double offspringProportion = 0.5f; // ALSO COMPLETELY ARBITRARY
+	public double offspringProportion = 0.5f; // ALSO COMPLETELY ARBITRARY
 	// Parameters for use in difference calcuation (can be tweaked).
-	private final double c1 = 0.5f; //weighting of excess genes
-	private final double c2 = 0.5f; //weighting of disjoint genes
-	private final double c3 = 0.5f; //weighting of weight differences
+	public double c1 = 0.5f; //weighting of excess genes
+	public double c2 = 0.5f; //weighting of disjoint genes
+	public double c3 = 0.5f; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	private final double compatibilityThreshold = 16;
-	private final int minReproduced = 2;
+	public double compatibilityThreshold = 16;
+	public double minReproduced = 2;
 
 	/** End of possible graphical vars **/
 
@@ -155,7 +155,7 @@ public class God implements Serializable{
 			//System.out.println("this agent's fitness is " + agent.fitness);
 		}
 		int numOffspring = Math.max(
-				minReproduced, (int) Math.ceil(summedFitness * offspringProportion));
+				(int) minReproduced, (int) Math.ceil(summedFitness * offspringProportion));
 		//int numOffspring = 2;
 		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
@@ -605,7 +605,6 @@ public class God implements Serializable{
 			this.fitness = agent.getFitness();
 		}
 
-		@Override
 		public int compareTo(AgentFitness other) {
 			if (this.fitness < other.fitness) {
 				return 1;
@@ -629,7 +628,6 @@ public class God implements Serializable{
 			this.latch = latch;
 		}
 
-		@Override
 		public synchronized void run() {
 			AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
 			// Firstly, check if we have already calculated this distance.

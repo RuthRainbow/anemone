@@ -7,23 +7,23 @@ import java.awt.event.MouseWheelEvent;
 import processing.core.PApplet;
 import processing.core.PFont;
 
-public class UIDropdown extends UIObject{
+public class UIDropdown<E> extends UIObject{
 	private PFont f;
-	private Types[] options = new Types[0];
+	private E[] options;
 	private int selectedIndex = 0;
 	private int hoveredIndex = -1;
 	private boolean showDropdown = false;
 	private int showOffset = 0;
 	private int showCapacity = 6;
 
-	public UIDropdown(PApplet c, int x, int y, int w, Types[] vals){
+	public UIDropdown(PApplet c, int x, int y, int w, E[] vals){
 		super(c, x, y, w, 20);
 
 		f = canvas.createFont("Courier", 12, true);
 		options = vals;
 	}
 
-	public Types getSelected(){
+	public E getSelected(){
 		return options[selectedIndex];
 	}
 	public int getSelectedIndex(){

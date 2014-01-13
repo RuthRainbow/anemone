@@ -14,6 +14,8 @@ import group7.anemone.UI.UIDropdown;
 import group7.anemone.UI.UILabel;
 import group7.anemone.UI.UIProgress;
 import group7.anemone.UI.UISlider;
+import group7.anemone.UI.UITab;
+import group7.anemone.UI.UITextField;
 import group7.anemone.UI.UITheme;
 import group7.anemone.UI.UITheme.Types;
 import group7.anemone.UI.UIVision;
@@ -47,7 +49,9 @@ public class Simulation extends PApplet {
 
 	//UI Elements
 	UIWindow win;
+	UITab sideTabs;
 	UIWindow sidePanel;
+	UIWindow neatParams;
 	UIWindow btnGroupModes;
 	UIWindow winStats;
 	UIWindow winTheme;
@@ -56,7 +60,8 @@ public class Simulation extends PApplet {
 	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust, btnToggleFocused;
 	UIVision agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed, lblSimTPS;
-	UIDropdown themeDrop;
+	UIDropdown<Types> themeDrop;
+	UIDropdown<God> godDrop;
 	UIColorWheel themeColorWheel;
 	UITheme theme;
 	UIProgress progHealth;
@@ -386,11 +391,16 @@ public class Simulation extends PApplet {
 
 		//setup main window for UI elements
 		win = new UIWindow(this, 0, 0, screen.width, screen.height);
-		sidePanel = new UIWindow(this, 250, 0, 250, screen.height);
-		sidePanel.setIsLeft(false);
-		sidePanel.setBackground(50);
-		sidePanel.setFixedBackground(true);
-
+		sideTabs = new UITab(this, 250, 0, 250, screen.height);
+		sideTabs.setIsLeft(false);
+		sideTabs.setBackground(50);
+		sideTabs.setFixedBackground(true);
+		
+		sidePanel = sideTabs.addTab("Information");//new UIWindow(this, 250, 0, 250, screen.height);
+		neatParams = sideTabs.addTab("NEAT Params");
+		neatParams.setBackground(30);
+		setupNEATParams();
+		
 		neuralVisual = new UIDrawable3D(this, 0, 250, 250, 250);
 		sidePanel.addObject(neuralVisual);
 
@@ -404,7 +414,7 @@ public class Simulation extends PApplet {
 			}
 		});
 		win.addObject(sim);
-		win.addObject(sidePanel);
+		win.addObject(sideTabs);
 
 		//Buttons to change the current mode
 		btnGroupModes = new UIWindow(this, 0, 0, 250, 150);
@@ -668,16 +678,16 @@ public class Simulation extends PApplet {
 		themeColorWheel.setVisible(false);
 		themeColorWheel.setEventHandler(new UIAction(){
 			public void change(UIColorWheel wheel){
-				theme.setColor(themeDrop.getSelected(), wheel.getColor());
+				theme.setColor((Types) themeDrop.getSelected(), wheel.getColor());
 			}
 		});
 		winTheme.addObject(themeColorWheel);
 
-		themeDrop = new UIDropdown(this, 25, 10, 200, theme.getKeys());
+		themeDrop = new UIDropdown<Types>(this, 25, 10, 200, theme.getKeys());
 		themeDrop.setVisible(false);
 		themeDrop.setEventHandler(new UIAction(){
 			public void change(UIDropdown drop){
-				themeColorWheel.setColor(theme.getColor(drop.getSelected()));
+				themeColorWheel.setColor(theme.getColor((Types) drop.getSelected()));
 			}
 		});
 		winTheme.addObject(themeDrop);
@@ -699,6 +709,47 @@ public class Simulation extends PApplet {
 				mouseWheel(event);
 			}
 		});
+	}
+	
+	private String neatParameters[] = {
+			"structuralMutationChance", "addConnectionChance", "addConnectionChance", "addConnectionChance", "weightIncreaseChance", 
+			"twinChance", "matchedGeneChance", "offspringProportion", 
+			"c1", "c2", "c3", 
+			"compatibilityThreshold", "minReproduced"
+	};
+	private void setupNEATParams(){
+		//godDrop = new UIDropdown<God>(this, 5, 0, 250, env.getAllGods());
+		//neatParams.addObject(godDrop);
+		for(int i = 0; i < neatParameters.length; i++){
+			addNEATParamInput(neatParameters[i], i + 1);
+		}
+	}
+	private void addNEATParamInput(String name, int offset){
+		UILabel label = new UILabel(this, 0, offset * 50, name);
+		UITextField input = new UITextField(this, 0, offset * 50 + 20, 250, getNEATParam(name));
+		input.setEventHandler(new UIAction(){
+			public void change(UITextField input){
+				setNEATParam(input.getName(), input.getText());
+			}
+		});
+		input.setName(name);
+		neatParams.addObject(label);
+		neatParams.addObject(input);
+	}
+	private String getNEATParam(String name){
+		try{
+			return env.fishGod.getClass().getField(name).get(env.fishGod).toString();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	private void setNEATParam(String name, String val){
+		try{
+			env.fishGod.getClass().getField(name).set(env.fishGod, Double.valueOf(val));
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	private UIButton addModeButton(final int mode, String txt, int pos, int r, int g, int b){
 		UIButton btn = new UIButton(this, pos, 20, 50, 50, txt);

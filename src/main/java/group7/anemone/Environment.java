@@ -18,7 +18,7 @@ public class Environment implements Serializable{
 	private static final long serialVersionUID = 2740658645450395424L;
 	transient PApplet parent;
 	// God & clock needed for breeding every n generations
-	private God fishGod;
+	public God fishGod;
 	private God sharkGod;
 	private int tick = 0;
 	private ArrayList<Agent> fishes;
@@ -375,6 +375,11 @@ public class Environment implements Serializable{
 	}
 	protected ArrayList<Wall> getAllWalls(){
 		return wall;
+	}
+	protected God[] getAllGods(){
+		return new God[]{
+				fishGod, sharkGod
+		};
 	}
 
 	protected void Breed(Agent mother, Agent father) {

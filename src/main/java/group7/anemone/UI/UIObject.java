@@ -28,6 +28,8 @@ public class UIObject {
 	private boolean isLeft = true;
 	private boolean isTop = true;
 	
+	private String name = "";
+	
 	private UIObject parent;
 
 	public UIObject(PApplet c, int x, int y, int w, int h){
@@ -92,6 +94,12 @@ public class UIObject {
 	}
 	public void toggleVisible(){
 		isVisible = !isVisible;
+	}
+	public void setName(String name){
+		this.name = name;
+	}
+	public String getName(){
+		return name;
 	}
 
 	public void moved(){}
