@@ -125,9 +125,13 @@ public class Simulation extends PApplet {
 			env.addFood(new Point2D.Double(x, y));
 		}
 
+		//Top wall
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(env.width, 0));
+		//Right wall
 		env.addWall(new Point2D.Double(env.width,0), new Point2D.Double(env.width, env.height));
+		//Bottom wall
 		env.addWall(new Point2D.Double(0, env.height), new Point2D.Double(env.width, env.height));
+		//Left wall
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
 	}
 	public void mousePressed(){

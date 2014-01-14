@@ -63,12 +63,25 @@ public class Environment implements Serializable{
         			collisions.add(new Collision(ag, fd));
         		}
     		}
-
-    		for (Wall wl: wall) {
+    		
+    		if(ag.coords.x < 10){
+    			collisions.add(new Collision(ag, wall.get(3)));
+    		}
+    		if(ag.coords.y < 10){
+    			collisions.add(new Collision(ag, wall.get(0)));    			
+    		} 
+    		if(ag.coords.x > (width - 10)){
+    			collisions.add(new Collision(ag, wall.get(1)));
+    		} 
+    		if(ag.coords.y > (height - 10)){
+    			collisions.add(new Collision(ag, wall.get(2)));
+    		}
+    		
+    		/*for (Wall wl: wall) {
     			if (wl.getLine().ptLineDist(ag.getCoordinates()) < 10){
     				collisions.add(new Collision(ag, wl));
     			}
-    		}
+    		}*/
 		}
 
     	return collisions;
