@@ -133,6 +133,12 @@ public class Simulation extends PApplet {
 		env.addWall(new Point2D.Double(0, env.height), new Point2D.Double(env.width, env.height));
 		//Left wall
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
+		
+		//internal walls
+		/*
+		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
+		env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
+		env.addWall(new Point2D.Double(0,0),new Point2D.Double(env.width,env.height));*/
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
@@ -845,12 +851,13 @@ public class Simulation extends PApplet {
 
 		Wall wl = (Wall) cc.getCollidedObject();
 		double distanceToWall = wl.getLine().ptLineDist(ag.coords);
-		double thrustIncrease = (10-distanceToWall)/100 + 1;
+		double thrustIncrease = (10-distanceToWall)/50 + 1;
 		boolean leftWall = wl.getLine().ptLineDist(new Point2D.Double(0,env.height/2)) == 0;
 		boolean rightWall = wl.getLine().ptLineDist(new Point2D.Double(env.width,env.height/2)) == 0;
 		boolean topWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,0)) == 0;
 		boolean bottomWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,env.height)) == 0;
 		
+		//TODO make this work for artbitary walls
 		if(leftWall) ag.coords.x += (10 - distanceToWall);
 		else if (rightWall) ag.coords.x -= (10 - distanceToWall);
 		else if (topWall) ag.coords.y += (10 - distanceToWall);

@@ -3,6 +3,7 @@ package group7.anemone;
 import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
+import java.awt.geom.Line2D.Double;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -77,17 +78,22 @@ public class Environment implements Serializable{
     			collisions.add(new Collision(ag, wall.get(2)));
     		}
     		
-    		/*for (Wall wl: wall) {
-    			if (wl.getLine().ptLineDist(ag.getCoordinates()) < 10){
+    		for (Wall wl: wall) {
+    			boolean wallDist = wl.getLine().ptLineDist(ag.getCoordinates()) < 10.0;
+        		boolean startDist = wallDist && ag.getCoordinates().distance(wl.getStart()) < wl.getLength();
+        		boolean endDist = wallDist && startDist && ag.getCoordinates().distance(wl.getEnd()) < wl.getLength();
+    			if (endDist){
     				collisions.add(new Collision(ag, wl));
     			}
-    		}*/
+    		}
 		}
 
     	return collisions;
     }
 
-    public void updateAgentsSight() {
+    
+
+	public void updateAgentsSight() {
     	//update what each agent can see
     	for (Agent ag: getAllAgents()) {
 
