@@ -12,15 +12,9 @@ public class Enemy extends Agent implements Serializable {
 	 */
 	private static final long serialVersionUID = 3142943967920947865L;
 
-	public Enemy(
-			Double coords, double viewHeading, PApplet p, Genome genome) {
-		super(coords, viewHeading, p, genome);
-		
+	public Enemy(Double coords, double viewHeading, PApplet p,
+                Genome genome)
+        {
+		super(coords, viewHeading, p, genome);	
 	}
-
-	public Enemy(Gene[] newGenome) {
-		super(newGenome);
-		
-	}
-
 }

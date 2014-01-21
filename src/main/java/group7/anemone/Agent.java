@@ -1,5 +1,6 @@
 package group7.anemone;
 
+import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MNeuronParams;
@@ -15,157 +16,131 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import java.util.HashSet;
+
 import processing.core.PApplet;
 
 public class Agent extends SimulationObject implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6755516656827008579L;
 	transient PApplet parent;
+        
+        /* Anatomical parameters. */
+        public static final int configNumSegments = 10;
+        private double visionRange = 100;
+	private double fov = 45;
+        private double maxSpeed = 15;
+        
+        /* Physics state. */
 	private Point2D.Double speed = new Point2D.Double(0, 0);
 	private Point2D.Double thrust = new Point2D.Double(0, 0);
 	private Point2D.Double drag = new Point2D.Double(0, 0);
+        private double viewHeading = 0; // in degrees 0-360
+        
+        /* The agent's genome (from which the brain is generated). */
+        private Genome genome;
+        
+        /* Brain state. */
+        private MNetwork mnetwork;
+        
+        /* Brain simulation instance. */
+        private MSimulation msimulation;
+        
+        /* Interface between the world and the brain. */
+	private NInterface ninterface = new NInterface(configNumSegments);
+        
+        /* Health state and stats. */
 	private double fitness = 2;
 	private double health = 1;
 	private int age = 0; // Age of agent in number of updates.
-	private double viewHeading = 0; // in degrees 0-360
-	private double visionRange = 100; //how far they can see into the distance
-	private double fov = 45; //field of view, +-
-	private ArrayList<SightInformation> canSee;
-	private double maxSpeed = 15;
+        
+        /* Objects  of interest within the agent's visual field. */
+	private ArrayList<SightInformation> canSee =
+		new ArrayList<SightInformation>();
 
-	/*
-	 * GENOME LAYOUT:
-	 * 		* Each index is an individual gene
-	 * 		* Each gene has 4 values.
-	 * 		* VALUE 1: Historical Marker (Not very biological, maybe we can change how this part works later.
-	 * 		* VALUE 2: Node where a link originates from
-	 * 		* VALUE 3: Node that a link connects to
-	 * 		* VALUE 4: Enabled/disabled gene
-	 */
-	private Genome genome;
-
-	public static final int configNumSegments = 10;
-
-	private MNetwork mnetwork;
-	private MSimulation msimulation;
-	private NInterface ninterface;
-
-	public Agent(
-			Point2D.Double coords, double viewHeading, PApplet p, Genome genome) {
+        /**
+         * Instanciates an agent at a given coordinate in the simulation, with
+         * a given orientation and genome.
+         * 
+         * The constructor uses genome to construct the neural network which
+         * is simulated in order to influence the physical state of the agent.
+         * 
+         * @param coords		initial agent position within the world
+         * @param viewHeading	initial orientation of the agent
+         * @param p		
+         * @param genome	the genome to be used to construct the brain
+         */
+	public Agent(Point2D.Double coords, double viewHeading, PApplet p,
+                Genome genome)
+        {
 		super(coords);
-		ninterface = new NInterface(configNumSegments);
-		canSee = new ArrayList<SightInformation>();
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
 		this.genome = genome;
-		createSimpleNetwork();
+		createNeuralNet();
 		calculateNetworkPositions();
 	}
 
-	public Agent(Gene[] newGenome) {
-		super(new Point2D.Double());
-		this.genome = new Genome(newGenome);
-	}
-
-	private void createSimpleNetwork() {
+	private void createNeuralNet() {
 		MSimulationConfig simConfig = new MSimulationConfig();
+		HashMap<Integer, MNeuron> neuronMap =
+			new HashMap<Integer, MNeuron>();
 		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
 		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
-		MNeuronParams nparams = new MNeuronParams();
-		MNeuronState nstate = new MNeuronState();
 
-		/* Set the neurons to RS (regular spiking) neurons. */
-		nparams.a = 0.1;
-		nparams.b = 0.2;
-		nparams.c = -65.0;
-		nparams.d = 8.0;
-		
-		//Set default neuron coordinates
-		nparams.spatialCoords = new MVec3f(0, 0, 0);
-
-		/* Set the neurons to start in a resting state. */
-		nstate.v = -65.0;
-		nstate.u = 0.0;
-		nstate.I = 0.0;
-
-		/* Create the neurons. */
-
-		/*
-		MNeuron sn1 = new MNeuron(nparams, nstate, 0);
-		MNeuron sn2 = new MNeuron(nparams, nstate, 1);
-		MNeuron snL = new MNeuron(nparams, nstate, 2);
-		MNeuron snR = new MNeuron(nparams, nstate, 3);
-		MNeuron mn = new MNeuron(nparams, nstate, 4);
-		MNeuron mnL = new MNeuron(nparams, nstate, 5);
-		MNeuron mnR = new MNeuron(nparams, nstate, 6);
-
-		neurons.add(sn1);
-		neurons.add(sn2);
-		neurons.add(snL);
-		neurons.add(snR);
-		neurons.add(mn);
-		neurons.add(mnL);
-		neurons.add(mnR);
-
-		// Create the synapses.
-		MSynapse ss1 = new MSynapse(sn1, mn, 4.0, 1);
-		MSynapse ss2 = new MSynapse(sn2, mn, 4.0, 1);
-		MSynapse ssL = new MSynapse(snL, mnL, 4.0, 1);
-		MSynapse ssR = new MSynapse(snR, mnR, 4.0, 1);
-
-		synapses.add(ss1);
-		synapses.add(ss2);
-		synapses.add(ssL);
-		synapses.add(ssR);
-
-		// This should probably be done by MNetwork.
-		sn1.getPostSynapses().add(ss1);
-		sn2.getPostSynapses().add(ss2);
-		snL.getPostSynapses().add(ssL);
-		snR.getPostSynapses().add(ssR);
-		mn.getPreSynapses().add(ss1);
-		mn.getPreSynapses().add(ss2);
-		mnL.getPreSynapses().add(ssL);
-		mnR.getPreSynapses().add(ssR);
-		*/
-
-		for (int x=0; x<genome.getLength(); x++) {
-			int preNodeID = genome.getXthIn(x);
-			int postNodeID = genome.getXthOut(x);
-
-
-			int maxNeuron = Math.max(preNodeID, postNodeID); //Finds the max neuron to make sure that there are enough neurons in the arraylist
-			maxNeuron++;
-			if (maxNeuron>neurons.size()) {
-				int initialSize = neurons.size();
-				//If the neuron linked to is beyond the current scope of the network, you know you'll need at least that many, so we had better make them now
-				int difference = maxNeuron-initialSize;
-				for(int y=0; y<difference; y++) {
-					int newNeuronID = initialSize+y;
-					//System.out.println("Adding neuron ID: " + newNeuronID);
-					neurons.add(new MNeuron(nparams, nstate, newNeuronID));
-				}
-			}
-
-			//Now that we are sure there are enough neurons in the arraylist for links to be made for this gene, we can make the synapse.
-			MSynapse newSyn = new MSynapse(
-					neurons.get(preNodeID), neurons.get(postNodeID), genome.getXthWeight(x), genome.getXthDelay(x));
-			synapses.add(newSyn);
-
-			neurons.get(preNodeID).getPostSynapses().add(newSyn);
-			neurons.get(postNodeID).getPreSynapses().add(newSyn);
+		/* Create a set of neuron identifiers. */
+		HashSet<Integer> nidSet = new HashSet<Integer>();
+		for (Gene g : genome.getGene()) {
+			nidSet.add(new Integer(g.getIn()));
+			nidSet.add(new Integer(g.getOut()));
 		}
-
+		
+		/* Create neurons. */
+		for (Integer id : nidSet) {
+			/* Create a simple RS neuron. */
+			MNeuron neuron = MFactory.createRSNeuron(id.intValue());
+			
+			/* Add it to temporary NID->Neuron map. */
+			neuronMap.put(id, neuron);
+			
+			/* Add neuron to the list. */
+			neurons.add(neuron);
+		}
+		
+		/* Create synapses. */
+		for (Gene g : genome.getGene()) {
+			/* Get the synapse information. */
+			double weight = g.getWeight();
+			int delay = g.getDelay();
+			Integer preNid = new Integer(g.getIn());
+			Integer postNid = new Integer(g.getOut());
+			
+			/* Find the pre and post neurons. */
+			MNeuron preNeuron = neuronMap.get(preNid);
+			MNeuron postNeuron = neuronMap.get(postNid);
+			
+			/* Create the synapse. */
+			MSynapse synapse = new MSynapse(preNeuron, postNeuron,
+				weight, delay);
+			
+			/*
+			Add the synapse to the pre and post neuron synapse list
+			*/
+			preNeuron.getPostSynapses().add(synapse);
+			postNeuron.getPreSynapses().add(synapse);
+			
+			/* Add the synapse to the list. */
+			synapses.add(synapse);
+		}
+		
 		/* Create the network. */
-		this.mnetwork = new MNetwork(neurons, synapses, 0.0f, 0.0f, 0.0f);
-
+		this.mnetwork = new MNetwork(neurons, synapses, 0.0f, 0.0f,
+			0.0f);
+		
 		/* Set the simulation configuration parameters. */
 		simConfig.eventHorizon = 20;
 
-		/* Create the simulation. */
+		/* Create the simulation instance with our network. */
 		this.msimulation = new MSimulation(this.mnetwork, simConfig);
 	}
 
@@ -446,8 +421,7 @@ public class Agent extends SimulationObject implements Serializable{
 	}
 	ArrayList<SightInformation> getCanSee(){return canSee;}
 
-	private void setThrust(double x, double y){
-		//This will be called by the neural network to
+	private void setThrust(double x, double y) {
 		thrust.x = x;
 		thrust.y = y;
 	}

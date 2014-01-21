@@ -12,9 +12,6 @@ import java.util.ArrayList;
  * - Implement methods for accessing state information (eg, voltage).
  */
 public class MNeuron implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4920400729701021728L;
 
 	/* Neuron parameters (shouldn't change). */

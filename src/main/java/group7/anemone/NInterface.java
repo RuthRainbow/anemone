@@ -9,9 +9,6 @@ import java.io.Serializable;
  * Efferent organs are updated by the neural network and read by the simulation.
  */
 class NInterface implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6748348291714735362L;
 	public NIAffectors affectors;
 	public NIEffectors effectors;

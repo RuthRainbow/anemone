@@ -7,11 +7,13 @@ import java.io.Serializable;
  */
 public class Genome implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;
-	private Gene[] genome;
-	private int speciesId;
+	private final Gene[] genome;
+	private final int speciesId;
 	private Parent parents;
 	
-	public Genome(Gene[] genome, int speciesId, Genome mother, Genome father) {
+	public Genome(Gene[] genome, int speciesId, Genome mother,
+                Genome father)
+        {
 		this.genome = genome;
 		this.speciesId = speciesId;
 		this.parents = new Parent(mother, father);
