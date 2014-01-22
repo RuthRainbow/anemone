@@ -24,18 +24,18 @@ public class Agent extends SimulationObject implements Serializable{
         
         /* Anatomical parameters. */
         public static final int configNumSegments = 10;
-        private double visionRange = 100;
-	private double fov = 45;
-        private double maxSpeed = 15;
+        private final double visionRange = 100;
+	private final double fov = 45;
+        private final double maxSpeed = 15;
         
         /* Physics state. */
-	private Point2D.Double speed = new Point2D.Double(0, 0);
-	private Point2D.Double thrust = new Point2D.Double(0, 0);
-	private Point2D.Double drag = new Point2D.Double(0, 0);
+	private final Point2D.Double speed = new Point2D.Double(0, 0);
+	private final Point2D.Double thrust = new Point2D.Double(0, 0);
+	private final Point2D.Double drag = new Point2D.Double(0, 0);
         private double viewHeading = 0; // in degrees 0-360
         
         /* The agent's genome (from which the brain is generated). */
-        private Genome genome;
+        private final Genome genome;
         
         /* Brain state. */
         private MNetwork mnetwork;
@@ -44,7 +44,7 @@ public class Agent extends SimulationObject implements Serializable{
         private MSimulation msimulation;
         
         /* Interface between the world and the brain. */
-	private NInterface ninterface = new NInterface(configNumSegments);
+	private final NInterface ninterface = new NInterface(configNumSegments);
         
         /* Health state and stats. */
 	private double fitness = 2;
@@ -144,16 +144,11 @@ public class Agent extends SimulationObject implements Serializable{
 		/* Create the simulation instance with our network. */
 		this.msimulation = new MSimulation(this.mnetwork, simConfig);
 	}
-
-	/**
-	 * Applies sensory input from the interface to the brain and steps the
-	 * brain simulation.
-	 */
-	private void updateMNetwork() {
+	
+	private void applySensoryInputToBrain() {
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
-		int thrustNeuronID = 0;
-		int turnNegativeNeuronID = 1;
-		int turnPositiveNeuronID = 2;
+		
+		/* Temporarily hardcode id's of neurons of interest. */
 		int numVSegs = Agent.configNumSegments;
 		int firstVFoodNid = 3;
 		int lastVFoodNid = firstVFoodNid + numVSegs - 1;
@@ -162,7 +157,10 @@ public class Agent extends SimulationObject implements Serializable{
 		int firstVEnemyNid = lastVWallNid + 1;
 		int lastVEnemyNid = firstVEnemyNid + numVSegs - 1;
 
-		/* Update the network using the interface. */
+		/*
+		Provide input current the network using the sensory
+		components of the interface.
+		*/
 		for (MNeuron n : neurons) {
 			double current;
 			int index;
@@ -186,7 +184,23 @@ public class Agent extends SimulationObject implements Serializable{
 				current = ninterface.affectors.vEnemy[index];
 				n.addCurrent(current);
 			}
-			
+		}
+	}
+
+	/**
+	 * Applies sensory input from the interface to the brain and steps the
+	 * brain simulation.
+	 */
+	private void updateMNetwork() {
+		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
+		int thrustNeuronID = 0;
+		int turnNegativeNeuronID = 1;
+		int turnPositiveNeuronID = 2;
+		
+		/*
+		TODO: This also performs motor actions. Move this somewhere else.
+		*/
+		for (MNeuron n : neurons) {
 			/*
 			Perform physical actions if effector neurons are firing.
 			*/
@@ -248,10 +262,8 @@ public class Agent extends SimulationObject implements Serializable{
 		}
 	}
 
-	/*
-	 * TODO:
-	 * - Update the motor proprioreceptors (ninterface.affectors.m*)
-	 * - Normalisation.
+	/**
+	 * Updates the sensory components of neural interface.
 	 */
 	void updateSensors(){
 		int visionDim = ninterface.affectors.getVisionDim();
@@ -287,6 +299,7 @@ public class Agent extends SimulationObject implements Serializable{
 
 	void update(){
 		updateSensors();
+		applySensoryInputToBrain();
 		for(int i = 0; i < 64; i++){
 			updateMNetwork();
 		}
