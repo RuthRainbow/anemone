@@ -111,4 +111,11 @@ public class Utilities {
 	    } 
 	    return new Point2D.Double(cx, cy); 
 	}
+	public static double[] quadratic(double a, double b, double c) {
+		double[] result = new double[2];
+		result[0] = (-b + Math.sqrt(b*b - 4*a*c))/2*a;
+		result[1] = (-b - Math.sqrt(b*b - 4*a*c))/2*a;
+		return result;
+	}
+
 }

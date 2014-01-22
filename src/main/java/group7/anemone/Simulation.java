@@ -862,7 +862,7 @@ public class Simulation extends PApplet {
 		else if (rightWall) ag.coords.x -= (10 - distanceToWall);
 		else if (topWall) ag.coords.y += (10 - distanceToWall);
 		else if (bottomWall) ag.coords.y -= (10 - distanceToWall);
-
+		else ag.coords = internalWallBounce(wl,ag);
 
 		ag.stop();
 		ag.changeViewHeading(newAngle - ag.getViewHeading());
@@ -870,6 +870,32 @@ public class Simulation extends PApplet {
 		ag.changeViewHeading(oldHeading - newAngle);
 		ag.updateHealth(thrust / -100);
 		ag.updateFitness(thrust / -200);
+	}
+
+	private Point2D.Double internalWallBounce(Wall wl, Agent ag ) {
+		Line2D.Double line = wl.getLine();
+		Point2D.Double coords = ag.coords;
+		double m = (line.y2-line.y1)/(line.x2-line.x1);
+        double c = line.y1 - m*line.x1;
+        double r = 10;
+        double a = coords.x;
+        double b = coords.y;
+        double x = 1 + m;
+        double y = 2*m*(c-b);
+        double z = (c-b)*(c-b) + a*a +2*a - r*r;
+        double[] Xcoord = Utilities.quadratic(x, y, z);
+        double[] Ycoord = new double[2];
+        Ycoord[0] = m*Xcoord[0] + c;
+        Ycoord[1] = m*Xcoord[1] + c;
+        System.out.println("Original position: "+ag.coords.x+" "+ag.coords.y);
+        Point2D.Double closestWallPoint = Utilities.getClosestPoint(line, ag.coords);
+        System.out.println("Closest wall point: "+closestWallPoint.x+" "+closestWallPoint.y);
+        double wallToNewPositionAngle = Utilities.angleBetweenPoints(closestWallPoint.x, closestWallPoint.y, ag.coords.x, ag.coords.y);
+        Point2D.Double newAgentPosition = (Point2D.Double) Utilities.generateLine(closestWallPoint, 10, wallToNewPositionAngle).getP2();
+        System.out.println("New position: "+ag.coords.x+" "+ag.coords.y);
+        System.out.println("Distance to wall after: "+wl.getLine().ptLineDist(ag.getCoordinates()));
+        
+		return newAgentPosition;
 	}
 
 	private void eatFood(Collision cc) {
