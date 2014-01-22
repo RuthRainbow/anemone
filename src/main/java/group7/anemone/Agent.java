@@ -3,8 +3,6 @@ package group7.anemone;
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
-import group7.anemone.MNetwork.MNeuronParams;
-import group7.anemone.MNetwork.MNeuronState;
 import group7.anemone.MNetwork.MSimulation;
 import group7.anemone.MNetwork.MSimulationConfig;
 import group7.anemone.MNetwork.MSynapse;
@@ -81,6 +79,9 @@ public class Agent extends SimulationObject implements Serializable{
 		calculateNetworkPositions();
 	}
 
+	/**
+	 * Uses the agent's genome to construct a neural network.
+	 */
 	private void createNeuralNet() {
 		MSimulationConfig simConfig = new MSimulationConfig();
 		HashMap<Integer, MNeuron> neuronMap =
@@ -144,41 +145,71 @@ public class Agent extends SimulationObject implements Serializable{
 		this.msimulation = new MSimulation(this.mnetwork, simConfig);
 	}
 
+	/**
+	 * Applies sensory input from the interface to the brain and steps the
+	 * brain simulation.
+	 */
 	private void updateMNetwork() {
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
 		int thrustNeuronID = 0;
 		int turnNegativeNeuronID = 1;
 		int turnPositiveNeuronID = 2;
+		int numVSegs = Agent.configNumSegments;
+		int firstVFoodNid = 3;
+		int lastVFoodNid = firstVFoodNid + numVSegs - 1;
+		int firstVWallNid = lastVFoodNid + 1;
+		int lastVWallNid = firstVWallNid + numVSegs - 1;
+		int firstVEnemyNid = lastVWallNid + 1;
+		int lastVEnemyNid = firstVEnemyNid + numVSegs - 1;
 
-		/* Apply inputs from sensors to network. */
+		/* Update the network using the interface. */
 		for (MNeuron n : neurons) {
+			double current;
+			int index;
 			int id = n.getID();
 			
-			if(id >= 3 && id < 3 + Agent.configNumSegments){
-				n.addCurrent(ninterface.affectors.vFood[id - 3]);
-			}else if(id >= 3 + Agent.configNumSegments && id < 3 + Agent.configNumSegments * 2){
-				n.addCurrent(ninterface.affectors.vWall[id - 3 - Agent.configNumSegments]);
-			}else if(id >= 3 + Agent.configNumSegments * 2 && id < 3 + Agent.configNumSegments * 3){
-				n.addCurrent(ninterface.affectors.vEnemy[id - 3 - Agent.configNumSegments * 2]);
+			/* If the neuron is a food visual neuron. */
+			if (id >= firstVFoodNid && id <= lastVFoodNid){
+				index = id - 3;
+				current = ninterface.affectors.vFood[index];
+				n.addCurrent(current);
+			}
+			/* If the neuron is a wall visual neuron. */
+			else if (id >= firstVWallNid && id <= lastVWallNid) {
+				index = id - numVSegs - 3;
+				current = ninterface.affectors.vWall[index];
+				n.addCurrent(current);
+			}
+			/* If the neuron is an enemy visual neuron. */
+			else if (id >= firstVEnemyNid && id <= lastVEnemyNid) {
+				index = id - 2*numVSegs - 3;
+				current = ninterface.affectors.vEnemy[index];
+				n.addCurrent(current);
 			}
 			
-			if (n.getID()==thrustNeuronID) {
+			/*
+			Perform physical actions if effector neurons are firing.
+			*/
+			if (n.getID() == thrustNeuronID) {
 				if (n.isFiring()) {
 					thrust(2);
 				}
 			}
-			if (n.getID()==turnNegativeNeuronID) {
+			if (n.getID() == turnNegativeNeuronID) {
 				if (n.isFiring()) {
 					changeViewHeading(-5.0);
 				}
 			}
-			if (n.getID()==turnPositiveNeuronID) {
+			if (n.getID() == turnPositiveNeuronID) {
 				if (n.isFiring()) {
 					changeViewHeading(5.0);
 				}
 			}
 		}
 
+		/*
+		Having applied the network inputs, update the brain simulation.
+		*/
 		msimulation.step();
 	}
 
@@ -211,11 +242,9 @@ public class Agent extends SimulationObject implements Serializable{
 		else if(speed.y < 0) speed.y += drag.y;
 		
 		if(this.getMovingSpeed() > maxSpeed){
-			//System.out.println("Exceeded max speed. Speed: "+this.getMovingSpeed()+", Max: "+maxSpeed);
 			double ratio = maxSpeed / this.getMovingSpeed(); 
 			speed.x = speed.x * ratio;
 			speed.y = speed.y * ratio;
-			//System.out.println("New speed: "+this.getMovingSpeed());
 		}
 	}
 
@@ -231,20 +260,28 @@ public class Agent extends SimulationObject implements Serializable{
 		/* Update food vision variables. */
 		for (int i=0; i<visionDim; i++) {
 			/* Food sensory neurons. */
-			distance = viewingObjectOfTypeInSegment(i, Collision.TYPE_FOOD);
-			ninterface.affectors.vFood[i] = distance < 0.0 ? 0.0 : distance;
+			distance = viewingObjectOfTypeInSegment(i,
+				Collision.TYPE_FOOD);
+			ninterface.affectors.vFood[i] =
+				distance < 0.0 ? 0.0 : distance;
 
 			/* Ally sensory neurons. */
-			distance = viewingObjectOfTypeInSegment(i, Collision.TYPE_AGENT);
-			ninterface.affectors.vAlly[i] = distance < 0.0 ? 0.0 : distance;
+			distance = viewingObjectOfTypeInSegment(i,
+				Collision.TYPE_AGENT);
+			ninterface.affectors.vAlly[i] =
+				distance < 0.0 ? 0.0 : distance;
 
 			/* Enemy sensory neurons. */
-			distance = viewingObjectOfTypeInSegment(i, Collision.TYPE_ENEMY);
-			ninterface.affectors.vEnemy[i] = distance < 0.0 ? 0.0 : distance;
+			distance = viewingObjectOfTypeInSegment(i,
+				Collision.TYPE_ENEMY);
+			ninterface.affectors.vEnemy[i] =
+				distance < 0.0 ? 0.0 : distance;
 
 			/* Wall sensory neurons. */
-			distance = viewingObjectOfTypeInSegment(i, Collision.TYPE_WALL);
-			ninterface.affectors.vWall[i] = distance < 0.0 ? 0.0 : distance;
+			distance = viewingObjectOfTypeInSegment(i,
+				Collision.TYPE_WALL);
+			ninterface.affectors.vWall[i] =
+				distance < 0.0 ? 0.0 : distance;
 		}
 	}
 

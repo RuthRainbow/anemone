@@ -10,9 +10,6 @@ import java.io.Serializable;
  * simulation to update agent bearing/speed etc.
  */
 class NIEffectors implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2371546578849005327L;
 	public double thrust;
 	public double yawLeft, yawRight;

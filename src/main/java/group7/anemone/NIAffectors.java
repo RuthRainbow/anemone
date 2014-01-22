@@ -12,9 +12,6 @@ import java.util.Arrays;
  * be read by a neural network.
  */
 class NIAffectors implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2922282260295687327L;
 	public double[] vFood, vAlly, vEnemy, vWall;
 	public double mFront, mRight, mBack, mLeft;
