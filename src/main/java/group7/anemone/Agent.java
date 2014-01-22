@@ -145,6 +145,10 @@ public class Agent extends SimulationObject implements Serializable{
 		this.msimulation = new MSimulation(this.mnetwork, simConfig);
 	}
 	
+	/**
+	 * Uses the sensory components of the interface to provide sensory
+	 * input current to the brain.
+	 */
 	private void applySensoryInputToBrain() {
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
 		
@@ -235,7 +239,7 @@ public class Agent extends SimulationObject implements Serializable{
 		return this.fitness;
 	}
 
-	void updateSpeed(){//update speed to be ...
+	void updatePhysics() {//update speed to be ...
 		//calculate new drag value, average of speed x / y
 		drag.x = Math.abs(speed.x / 100);
 		drag.y = Math.abs(speed.y / 100);
@@ -260,6 +264,11 @@ public class Agent extends SimulationObject implements Serializable{
 			speed.x = speed.x * ratio;
 			speed.y = speed.y * ratio;
 		}
+	}
+	
+	void updatePosition() {
+		coords.x += speed.x;
+		coords.y += speed.y;
 	}
 
 	/**
@@ -303,14 +312,11 @@ public class Agent extends SimulationObject implements Serializable{
 		for(int i = 0; i < 64; i++){
 			updateMNetwork();
 		}
-		updateSpeed();
-
-		//TODO Move the change of coords to the update speed section?? -Seb
-		coords.x += speed.x;	//Changes the coordinates to display distance travelled since last update
-		coords.y += speed.y;
+		updatePhysics();
+		updatePosition();
 
 		age++;
-		health -= 0.001;//0.0000001;
+		health -= 0.001;
 		fitness -= 0.001;
 		if (age < 100) {
 			updateFitness(0.001);
@@ -480,7 +486,7 @@ public class Agent extends SimulationObject implements Serializable{
 		double y = strength * Math.sin(viewHeading * Math.PI / 180);
 		setThrust(x, y);
 	}
-	protected void changeViewHeading(double h){//This will be called by the neural network to change the current view heading
+	protected void changeViewHeading(double h){
 		viewHeading += h;
 	}
 	protected void updateHealth(double h){
