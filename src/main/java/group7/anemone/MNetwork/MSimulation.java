@@ -8,9 +8,6 @@ import java.util.ArrayList;
  * and provides methods for integrating (stepping) its simulation.
  */
 public class MSimulation implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6811313613723305104L;
 
 	/* Network configuration. */
@@ -33,7 +30,7 @@ public class MSimulation implements Serializable{
 	 */
 	public MSimulation(MNetwork network, MSimulationConfig config) {
 		/* Initialise the simulation configuration. */
-		this.config = new MSimulationConfig();
+		this.config = new MSimulationConfig(config);
 
 		/* Get a reference to the network. */
 		this.network = network;
@@ -96,7 +93,10 @@ public class MSimulation implements Serializable{
 	private void addFutureEvents() {
 		for (MNeuron n : network.getNeurons()) {
 			if (n.isFiring()) {
-				/* Add this neuron's postsynapses to the event table. */
+				/*
+				Add this neuron's postsynapses to the event
+				table.
+				*/
 				queueNeuronSynapses(n);
 			}
 		}

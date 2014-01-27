@@ -1,6 +1,7 @@
 package group7.anemone.MNetwork;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.ArrayList;
 
 /**
@@ -8,49 +9,35 @@ import java.util.ArrayList;
  * that together describe a network.
  */
 public class MNetwork implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6478084195441289384L;
 	private ArrayList<MNeuron> neurons;
 	private ArrayList<MSynapse> synapses;
-	private final float width, height, depth;
 
-	public MNetwork(ArrayList<MNeuron> neurons, ArrayList<MSynapse> synapses,
-		float width, float height, float depth)
+	public MNetwork(Collection<MNeuron> neurons,
+		Collection<MSynapse> synapses)
 	{
-		this.neurons = neurons;
-		this.synapses = synapses;
-		this.width = width;
-		this.height = height;
-		this.depth = depth;
+		this.neurons = new ArrayList<MNeuron>(neurons);
+		this.synapses = new ArrayList<MSynapse>(synapses);
 	}
 
 	public ArrayList<MNeuron> getNeurons() {
-		return neurons;
+		ArrayList<MNeuron> tmpNeurons = new ArrayList<MNeuron>(neurons);
+		
+		return tmpNeurons;
 	}
 
 	public ArrayList<MSynapse> getSynapses() {
-		return synapses;
-	}
-
-	public float getWidth() {
-		return width;
-	}
-
-	public float getHeight() {
-		return height;
-	}
-
-	public float getDepth() {
-		return depth;
+		ArrayList<MSynapse> tmpSynapses =
+			new ArrayList<MSynapse>(synapses);
+		
+		return tmpSynapses;
 	}
 	
 	public float getVertexNumber() {
 		return neurons.size();
 	}
 	
-	public void setNeurons(ArrayList<MNeuron> newNeurons) {
-		neurons = newNeurons;
+	public void setNeurons(Collection<MNeuron> newNeurons) {
+		neurons = new ArrayList<MNeuron>(newNeurons);
 	}
 }

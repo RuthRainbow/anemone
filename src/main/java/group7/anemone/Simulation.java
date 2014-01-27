@@ -578,7 +578,7 @@ public class Simulation extends PApplet {
 			    	else if(n.getID() < 3) fill(0, 255, 255, isFired);
 			    	else fill(theme.getColor(Types.NEURON), isFired);
 
-			    	MVec3f vec = n.getCoordinates();
+			    	MVec3f vec = n.getCoords();
 			    	//clip node if off the display
 			    	if((vec.y + offY) * zoom < -135) continue;
 
@@ -590,8 +590,8 @@ public class Simulation extends PApplet {
 			    for(MSynapse s : net.getSynapses()){ //draw the links between the neurons
 			    	MNeuron pre = s.getPreNeuron();
 			    	MNeuron post = s.getPostNeuron();
-			    	MVec3f n1 = pre.getCoordinates();
-			    	MVec3f n2 = post.getCoordinates();
+			    	MVec3f n1 = pre.getCoords();
+			    	MVec3f n2 = post.getCoords();
 
 			    	//clip edge if both nodes above clipping
 			    	if((n1.y + offY) * zoom < -135
