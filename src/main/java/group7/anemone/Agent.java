@@ -218,12 +218,12 @@ public class Agent extends SimulationObject implements Serializable {
 			}
 			if (n.getID() == turnNegativeNeuronID) {
 				if (n.isFiring()) {
-					changeViewHeading(-5.0);
+					changeViewHeading(-20.0);
 				}
 			}
 			if (n.getID() == turnPositiveNeuronID) {
 				if (n.isFiring()) {
-					changeViewHeading(5.0);
+					changeViewHeading(20.0);
 				}
 			}
 		}
