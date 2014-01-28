@@ -69,15 +69,14 @@ public class MNeuron implements Serializable{
 		if (isFiring()) {
 			state.v = params.c;
 			state.u += params.d;
-			state.I = 0;
 		}
 
 		/* Perform update of Izhikevich model. */
 		state.v += 0.5*(0.04*state.v*state.v + 5*state.v + 140
 			- state.u + state.I);
-		state.v += 0.5*(0.04*state.v*state.v + 5*state.v + 140
-			- state.u + state.I);
 		state.u += params.a*(params.b*state.v - state.u);
+                
+                state.I = 0.0;
 	}
 
 	public void addCurrent(double I) {

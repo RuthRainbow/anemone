@@ -402,7 +402,7 @@ public class God implements Serializable{
 						(int) Math.floor(getRandom()*historicalMarkersList.size()));
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(
-						nextMarker, child[left].getIn(), child[right].getIn(), 1.0, 1);
+						nextMarker, child[left].getIn(), child[right].getIn(), 30.0, 1);
 				for (Gene gene : newGenes) {
 					if (newGene.equals(gene)) {
 						newGene = gene;
@@ -420,7 +420,7 @@ public class God implements Serializable{
 				Gene toMutate = mutatedChild.get(
 						(int) Math.floor(getRandom() * mutatedChild.size()));
 				mutatedChild.remove(toMutate);
-				Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), max+1, 1.0, 1);
+				Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), max+1, 30.0, 1);
 				for (Gene gene : newGenes) {
 					if (newLeftGene.equals(gene)) {
 						newLeftGene = gene;

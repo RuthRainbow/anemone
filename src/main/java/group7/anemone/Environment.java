@@ -329,21 +329,21 @@ public class Environment implements Serializable{
 		
 		for(int i = 0; i < Agent.configNumSegments; i++){//Food
 			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(total, 3 + i, j, 4.0, 1);
+				genome[total] = new Gene(total, 3 + i, j, 30.0, 1);
 				total++;
 			}
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Wall
 			for(int j = 0; j < 3; j++){
 				genome[total] = new Gene(
-						total, 3 + i + Agent.configNumSegments, j, 4.0, 1);
+						total, 3 + i + Agent.configNumSegments, j, 30.0, 1);
 				total++;
 			}
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Enemy
 			for(int j = 0; j < 3; j++){
 				genome[total] = new Gene(
-						total, 3 + i + Agent.configNumSegments * 2, j, 4.0, 1);
+						total, 3 + i + Agent.configNumSegments * 2, j, 30.0, 1);
 				total++;
 			}
 		}

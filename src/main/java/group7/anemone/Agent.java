@@ -181,15 +181,15 @@ public class Agent extends SimulationObject implements Serializable {
 			if (id >= firstVFoodNid && id <= lastVFoodNid) {
 				index = id - 3;
 				current = ninterface.affectors.vFood[index];
-				n.addCurrent(current);
+				n.addCurrent(60.0*current);
 			} /* If the neuron is a wall visual neuron. */ else if (id >= firstVWallNid && id <= lastVWallNid) {
 				index = id - numVSegs - 3;
 				current = ninterface.affectors.vWall[index];
-				n.addCurrent(current);
+				n.addCurrent(60.0*current);
 			} /* If the neuron is an enemy visual neuron. */ else if (id >= firstVEnemyNid && id <= lastVEnemyNid) {
 				index = id - 2 * numVSegs - 3;
 				current = ninterface.affectors.vEnemy[index];
-				n.addCurrent(current);
+				n.addCurrent(60.0*current);
 			}
 		}
 	}
@@ -322,7 +322,7 @@ public class Agent extends SimulationObject implements Serializable {
 	void update() {
 		updateSensors();
 		applySensoryInputToBrain();
-		for (int i = 0; i < 64; i++) {
+		for (int i = 0; i < 4; i++) {
 			updateMNetwork();
 		}
 		updatePhysics();
