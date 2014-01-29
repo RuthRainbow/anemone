@@ -16,6 +16,9 @@ import java.util.Random;
 
 import java.util.HashSet;
 
+import Genetics.Gene;
+import Genetics.Genome;
+
 import processing.core.PApplet;
 
 public class Agent extends SimulationObject implements Serializable {
@@ -234,11 +237,11 @@ public class Agent extends SimulationObject implements Serializable {
 		msimulation.step();
 	}
 
-	protected Genome getStringRep() {
+	public Genome getStringRep() {
 		return this.genome;
 	}
 
-	protected double getFitness() {
+	public double getFitness() {
 		return this.fitness;
 	}
 

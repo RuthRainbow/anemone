@@ -9,6 +9,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import Genetics.Gene;
+import Genetics.Genome;
+import Genetics.God;
+
 import processing.core.PApplet;
 
 public class Environment implements Serializable{

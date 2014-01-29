@@ -1,4 +1,6 @@
-package group7.anemone;
+package Genetics;
+
+import group7.anemone.Agent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,10 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 public class God implements Serializable{
-
 	private static final long serialVersionUID = 619717007643693268L;
 
 	/** Start of possible graphical vars **/
@@ -30,14 +30,14 @@ public class God implements Serializable{
 	public double matchedGeneChance = 0.5f;
 
 	public double offspringProportion = 0.5f; // ALSO COMPLETELY ARBITRARY
-	// Parameters for use in difference calcuation (can be tweaked).
+	// Parameters for use in difference calculation (can be tweaked).
 	public double c1 = 0.5f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 16;
-	public double minReproduced = 2;
+	public double compatibilityThreshold = 4;
+	public double minReproduced = 10;
 
 	/** End of possible graphical vars **/
 
@@ -79,51 +79,13 @@ public class God implements Serializable{
 		return childrenSpecies;
 	}
 
-	protected ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
+	public ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
 		newGenes = new ArrayList<Gene>();
-		// Clear species for a new gen
-		for (Species specie : species) {
-			specie.clear();
+		
+		if (species.size() == 0) {
+			species.add(new Species(new AgentFitness(agents.get(0)),0));
 		}
-
-		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
-		// Set up threads for each distance calculation to speed this up.
-		for (Agent agent : agents) {
-			AgentFitness thisAgent = new AgentFitness(agent);
-			for (Species specie : species) {
-				AgentFitness speciesRep = specie.rep;
-				Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
-				Thread thread = new Thread(r);
-				thread.run();
-			}
-		}
-
-		// Wait for all threads to complete:
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			// Continue; we'll just have to calculate the distances in sequence.
-		}
-
-		// Put each agent given for reproduction into a species.
-		for (Agent agent : agents) {
-			// Try to increase efficiency by ignoring awful agents
-			boolean foundSpecies = false;
-			AgentFitness thisAgent = new AgentFitness(agent);
-			for (Species specie : species) {
-				AgentFitness rep = specie.rep;
-				double dist = getDistance(thisAgent, rep);
-				if (dist < compatibilityThreshold) {
-					foundSpecies = true;
-					specie.addMember(thisAgent);
-				}
-			}
-			if (!foundSpecies) {
-				int newSpeciesId = species.size() + 1;
-				species.add(new Species(thisAgent, newSpeciesId));
-			}
-		}
-
+		
 		shareFitnesses();
 		ArrayList<Genome> children = new ArrayList<Genome>();
 		// Breed each species
@@ -132,6 +94,10 @@ public class God implements Serializable{
 					breedSpecies(specie, agents.size(), fitnessOnly);
 			children.addAll(speciesChildren);
 		}
+		// Pre calculate the distances of new children so this is faster next round.
+		Runnable r = new CalcDistance(children);
+		Thread thread = new Thread(r);
+		thread.run();
 		return children;
 	}
 
@@ -140,8 +106,7 @@ public class God implements Serializable{
 		if (specie.members.size() < 2) {
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
-				children.add(
-						new Genome(
+				children.add(new Genome(
 								mutate(agent.stringRep.getGene()),
 								agent.stringRep.getSpeciesId(),
 								agent.stringRep,
@@ -173,6 +138,12 @@ public class God implements Serializable{
 			}
 			i += 2;
 		}
+		// If not enough children, repeat some random offspring:
+		i = 0;
+		while (children.size() < numOffspring) {
+			children.add(children.get(i % children.size()));
+			i += 1;
+		}
 		return children;
 	}
 
@@ -185,14 +156,10 @@ public class God implements Serializable{
 				double fitnessTotal = 0;
 				// average fitness over all other members of this species...
 				for (AgentFitness member : specie.members) {
-					//if (!member.equals(agent)) {
-						fitnessTotal += member.fitness;
-					//}
+					fitnessTotal += member.fitness;
 				}
-				//System.out.println("fitness was " + agent.fitness);
 				// Check for 0 to avoid NaNs
 				agent.fitness = fitnessTotal == 0 ? 0 : (agent.fitness / Math.abs(fitnessTotal));
-				//System.out.println("shared fitnesses. total was " + fitnessTotal + " now is " + agent.fitness);
 			}
 		}
 	}
@@ -205,32 +172,38 @@ public class God implements Serializable{
 			return 1;
 		}
 	}
+	
+	// Compute distance between thisAgent and speciesRep (see NEAT specification).
+	protected double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
+		AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
+
+		Genome a = thisAgent.stringRep;
+		Genome b = speciesRep.stringRep;
+		int numExcess = Math.abs(a.getLength() - b.getLength());
+		int numDisjoint = 0;
+		double weightDiff = 0.0;
+		int minLength = Math.min(a.getLength(), b.getLength());
+		int maxLength = Math.max(a.getLength(), b.getLength());
+		for (int i = 0; i < minLength; i++) {
+			if (a.getXthHistoricalMarker(i) != b.getXthHistoricalMarker(i)) {
+				numDisjoint++;
+			} else {
+				weightDiff += Math.abs(a.getXthWeight(i) - b.getXthWeight(i));
+			}
+		}
+		double distance = (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
+		// Save this distance so we don't need to recalculate:
+		distances.put(agentPair, distance);
+		return distance;
+	}
 
 	// Return computability distance between two networks (see NEAT speciation).
+	// Only calculate if not previously stored.
 	protected double getDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		if (distances.contains(thisAgent)) {
 			return distances.get(thisAgent);
 		} else {
-			AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
-
-			Genome a = thisAgent.stringRep;
-			Genome b = speciesRep.stringRep;
-			int numExcess = Math.abs(a.getLength() - b.getLength());
-			int numDisjoint = 0;
-			double weightDiff = 0.0;
-			int minLength = Math.min(a.getLength(), b.getLength());
-			int maxLength = Math.max(a.getLength(), b.getLength());
-			for (int i = 0; i < minLength; i++) {
-				if (a.getXthHistoricalMarker(i) != b.getXthHistoricalMarker(i)) {
-					numDisjoint++;
-				} else {
-					weightDiff += Math.abs(a.getXthWeight(i) - b.getXthWeight(i));
-				}
-			}
-			double distance = (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
-			// Save this distance so we don't need to recalculate:
-			distances.put(agentPair, distance);
-			return distance;
+			return calcDistance(thisAgent, speciesRep);
 		}
 	}
 
@@ -465,44 +438,6 @@ public class God implements Serializable{
 		return child;
 	}
 
-	/*// Packing social disaster - all elite individuals randomised except 1
-	protected ArrayList<Gene[]> SocialDisasterPacking(ArrayList<Agent> agents, int type) {
-		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
-
-		boolean elite_agent_in = false;
-		for (Agent agent : agents) {
-			if (agent.getFitness() == bestFitness) {
-				if (!elite_agent_in) {
-					children.add(agent.getStringRep());
-				} else {
-					children.add(RandomlyGenerate());
-				}
-			} else {
-				children.add(agent.getStringRep());
-			}
-		}
-
-		return children;
-	}
-
-	// Judgement day social disaster - all individuals randomised except 1 elite
-	// (might be SUPER EXPENSIVE)
-	protected ArrayList<Gene[]> SocialDisasterJudgement(ArrayList<Agent> agents, int type) {
-		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
-
-
-		boolean elite_agent_in = false;
-		for (Agent agent : agents) {
-			if (agent.getFitness() == bestFitness && !elite_agent_in) {
-				children.add(agent.getStringRep());
-			} else {
-				children.add(RandomlyGenerate());
-			}
-		}
-
-		return children;
-	}*/
-
 	// Return the string representation of a new agent.
 	protected Gene[] RandomlyGenerate() {
 		throw new NotImplementedException();
@@ -604,6 +539,11 @@ public class God implements Serializable{
 			this.stringRep = agent.getStringRep();
 			this.fitness = agent.getFitness();
 		}
+		
+		public AgentFitness(Genome genome) {
+			this.stringRep = genome;
+			this.fitness = 0;
+		}
 
 		public int compareTo(AgentFitness other) {
 			if (this.fitness < other.fitness) {
@@ -615,44 +555,40 @@ public class God implements Serializable{
 			}
 		}
 	}
+	
+	/* Calculate distances whilst the simulation is running. */
+	private class CalcDistance implements Runnable { 
+		private ArrayList<Genome> agents;
 
-	private class CalcDistance implements Runnable {
-
-		private AgentFitness thisAgent;
-		private AgentFitness speciesRep;
-		private CountDownLatch latch;
-
-		public CalcDistance(AgentFitness thisAgent, AgentFitness speciesRep, CountDownLatch latch) {
-			this.thisAgent = thisAgent;
-			this.speciesRep = speciesRep;
-			this.latch = latch;
+		public CalcDistance(ArrayList<Genome> allChildren) {
+			this.agents = allChildren;
 		}
 
 		public synchronized void run() {
-			AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
-			// Firstly, check if we have already calculated this distance.
-			if (distances.containsKey(agentPair)) {
-				latch.countDown();
-				return;
+			// Clear species for a new gen
+			for (Species specie : species) {
+				specie.clear();
 			}
-			Genome a = thisAgent.stringRep;
-			Genome b = speciesRep.stringRep;
-			int numExcess = Math.abs(a.getLength() - b.getLength());
-			int numDisjoint = 0;
-			double weightDiff = 0.0;
-			int minLength = Math.min(a.getLength(), b.getLength());
-			int maxLength = Math.max(a.getLength(), b.getLength());
-			for (int i = 0; i < minLength; i++) {
-				if (a.getXthHistoricalMarker(i) != b.getXthHistoricalMarker(i)) {
-					numDisjoint++;
-				} else {
-					weightDiff += Math.abs(a.getXthWeight(i) - b.getXthWeight(i));
+
+			// Put each agent given for reproduction into a species.
+			for (Genome agent : this.agents) {
+				boolean foundSpecies = false;
+				AgentFitness thisAgent = new AgentFitness(agent);
+				for (Species specie : species) {
+					AgentFitness rep = specie.rep;
+					// IF NEEDED THIS COULD BE THREADED!!!!
+					double dist = getDistance(thisAgent, rep);
+					
+					if (dist < compatibilityThreshold) {
+						foundSpecies = true;
+						specie.addMember(thisAgent);
+					}
+				}
+				if (!foundSpecies) {
+					int newSpeciesId = species.size() + 1;
+					species.add(new Species(thisAgent, newSpeciesId));
 				}
 			}
-			double distance = (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
-			// Save this distance so we don't need to recalculate:
-			distances.put(agentPair, distance);
-			latch.countDown();
 		}
 
 	}

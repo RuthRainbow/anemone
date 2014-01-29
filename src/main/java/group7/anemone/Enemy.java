@@ -3,6 +3,8 @@ package group7.anemone;
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 
+import Genetics.Genome;
+
 import processing.core.PApplet;
 
 public class Enemy extends Agent implements Serializable {

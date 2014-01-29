@@ -1,6 +1,8 @@
-package group7.anemone;
+package Genetics;
+
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /*
  * Immutable genome class to hold the Gene array along with a species id.
@@ -12,8 +14,7 @@ public class Genome implements Serializable {
 	private Parent parents;
 	
 	public Genome(Gene[] genome, int speciesId, Genome mother,
-                Genome father)
-        {
+                Genome father) {
 		this.genome = genome;
 		this.speciesId = speciesId;
 		this.parents = new Parent(mother, father);
@@ -22,6 +23,11 @@ public class Genome implements Serializable {
 	public Genome(Gene[] genome) {
 		this.genome = genome;
 		this.speciesId = 0;
+	}
+	
+	@Override
+	public String toString() {
+		return "Genome: " + Arrays.toString(this.genome) + " Species: " + this.speciesId;
 	}
 	
 	public int getLength() {

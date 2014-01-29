@@ -1,4 +1,4 @@
-package group7.anemone;
+package Genetics;
 
 import java.io.Serializable;
 
@@ -15,7 +15,7 @@ public class Gene implements Serializable{
 	private double weight;
 	private int delay;
 
-	Gene(int hist, int in, int out, double wei, int del) {
+	public Gene(int hist, int in, int out, double wei, int del) {
 		this.historicalMarker = hist;
 		this.in = in;
 		this.out = out;
