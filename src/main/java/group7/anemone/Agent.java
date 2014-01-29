@@ -342,17 +342,17 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	//Pre-calculates the coordinates of each neuron in the network
-	private ArrayList<MNeuron> placed;
+	//private ArrayList<MNeuron> placed;
 	private HashMap<Integer, Integer> maxInLevel;
-	private int maxLevel = 0;
-	private int maxHeight = 0;
+	//private int maxLevel = 0;
+	//private int maxHeight = 0;
 
 	private void calculateNetworkPositions() {
-		placed = new ArrayList<MNeuron>(); //store coordinates of placed neurons
+		//placed = new ArrayList<MNeuron>(); //store coordinates of placed neurons
 		maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
 		maxInLevel.put(0, 0);
-		maxLevel = 0;
-		maxHeight = 0;
+		//maxLevel = 0;
+		//maxHeight = 0;
 
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
 		ArrayList<MSynapse> synapses = mnetwork.getSynapses();
@@ -493,16 +493,16 @@ public class Agent extends SimulationObject implements Serializable {
 
 	}
 
-	private void addNode(int level, int max, MNeuron node) {
+	/*private void addNode(int level, int max, MNeuron node) {
 		//if(node.getCoordinates() == null)
 		node.getCoords().x = level * 20;
 		node.getCoords().y = max;
 		node.getCoords().z = 0;
 		maxInLevel.put(level, max + 20);
 		placed.add(node);
-	}
+	}*/
 
-	private int maxValue(int level) {
+	/*private int maxValue(int level) {
 		int max = 0;
 		if (!maxInLevel.containsKey(level)) {
 			maxInLevel.put(level, 0);
@@ -512,7 +512,7 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 		maxHeight = Math.max(maxHeight, (max / 20));
 		return max;
-	}
+	}*/
 
 	protected void updateCanSee(ArrayList<SightInformation> see) {
 		canSee = see;

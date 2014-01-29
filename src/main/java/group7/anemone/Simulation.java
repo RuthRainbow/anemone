@@ -697,8 +697,8 @@ public class Simulation extends PApplet {
 
 		themeDrop = new UIDropdown<Types>(this, 25, 10, 200, theme.getKeys());
 		themeDrop.setVisible(false);
-		themeDrop.setEventHandler(new UIAction(){
-			public void change(UIDropdown drop){
+		themeDrop.setEventHandler(new UIAction() {
+			public void change(@SuppressWarnings("rawtypes") UIDropdown drop) {
 				themeColorWheel.setColor(theme.getColor((Types) drop.getSelected()));
 			}
 		});

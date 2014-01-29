@@ -3,7 +3,6 @@ package group7.anemone.BPNetwork;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.lang.System.*;
 
 
 public class BPNetwork {

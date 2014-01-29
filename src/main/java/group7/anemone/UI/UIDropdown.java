@@ -1,7 +1,5 @@
 package group7.anemone.UI;
 
-import group7.anemone.UI.UITheme.Types;
-
 import java.awt.event.MouseWheelEvent;
 
 import processing.core.PApplet;
@@ -11,7 +9,7 @@ public class UIDropdown<E> extends UIObject{
 	private PFont f;
 	private E[] options;
 	private int selectedIndex = 0;
-	private int hoveredIndex = -1;
+	//private int hoveredIndex = -1;
 	private boolean showDropdown = false;
 	private int showOffset = 0;
 	private int showCapacity = 6;

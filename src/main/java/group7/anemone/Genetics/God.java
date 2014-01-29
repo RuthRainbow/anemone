@@ -44,7 +44,7 @@ public class God implements Serializable{
 	private double bestFitness;
 	private double worstFitness;
 	private double averageFitness;
-	private int noImprovementCount = 0;
+	//private int noImprovementCount = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
 	private int nextMarker = 89;
@@ -209,7 +209,7 @@ public class God implements Serializable{
 
 	protected ArrayList<AgentFitness> Selection(ArrayList<Agent> agents) {
 		ArrayList<AgentFitness> selectedAgents = new ArrayList<AgentFitness>();
-		double last_best = bestFitness;
+		//double last_best = bestFitness;
 		double last_average = averageFitness;
 		averageFitness = 0;
 		for (Agent agent : agents) {
@@ -227,11 +227,11 @@ public class God implements Serializable{
 		}
 		averageFitness = averageFitness / agents.size();
 		// Keep track of the number of generations without improvement.
-		if (last_best >= bestFitness) {
+		/*if (last_best >= bestFitness) {
 			noImprovementCount++;
 		} else {
 			noImprovementCount--;
-		}
+		}*/
 		return selectedAgents;
 	}
 

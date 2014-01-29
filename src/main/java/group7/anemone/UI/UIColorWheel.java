@@ -1,6 +1,7 @@
 package group7.anemone.UI;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 public class UIColorWheel extends UIObject{
 	private int px;
@@ -14,7 +15,7 @@ public class UIColorWheel extends UIObject{
 
 		currentColor = canvas.color(255);
 
-		canvas.colorMode(canvas.HSB, 360, 100, 100);
+		canvas.colorMode(PConstants.HSB, 360, 100, 100);
 		colors = new int[101][width][height];
 		for(int h = 0; h <= 100; h++){
 			for(int a = 0; a < width; a++){
@@ -35,7 +36,7 @@ public class UIColorWheel extends UIObject{
 				}
 			}
 		}
-		canvas.colorMode(canvas.RGB, 255);
+		canvas.colorMode(PConstants.RGB, 255);
 
 		moved();
 	}

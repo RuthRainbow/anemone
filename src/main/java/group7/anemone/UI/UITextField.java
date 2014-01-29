@@ -1,6 +1,7 @@
 package group7.anemone.UI;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PFont;
 
 public class UITextField extends UIObject{
@@ -122,13 +123,13 @@ public class UITextField extends UIObject{
 	}
 	public boolean keyReleased(){
 		if(focused){
-			if(canvas.key == canvas.CODED){
-				if(canvas.keyCode == canvas.RIGHT){
+			if(canvas.key == PConstants.CODED){
+				if(canvas.keyCode == PConstants.RIGHT){
 					cursorPosition = Math.min(cursorPosition+1, value.length());
-				}else if(canvas.keyCode == canvas.LEFT){
+				}else if(canvas.keyCode == PConstants.LEFT){
 					cursorPosition = Math.max(cursorPosition-1, 0);
 				}
-			}else if(canvas.keyCode == canvas.BACKSPACE){
+			}else if(canvas.keyCode == PConstants.BACKSPACE){
 				if(cursorPosition > cursorStart){
 					value = value.substring(0, cursorStart) + value.substring(cursorPosition);
 					cursorPosition = cursorStart;
@@ -140,7 +141,7 @@ public class UITextField extends UIObject{
 					cursorPosition--;
 					cursorStart--;
 				}
-			}else if(canvas.keyCode == canvas.DELETE){
+			}else if(canvas.keyCode == PConstants.DELETE){
 				if(cursorPosition > cursorStart){
 					value = value.substring(0, cursorStart) + value.substring(cursorPosition);
 					cursorPosition = cursorStart;

@@ -6,11 +6,9 @@ import group7.anemone.Genetics.God;
 import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
-import java.awt.geom.Line2D.Double;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 import processing.core.PApplet;

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 
 public class UITab extends UIWindow{
-	private UIWindow container;
 	private ArrayList<UIWindow> tabs = new ArrayList<UIWindow>();
 	private ArrayList<UIButton> buttons = new ArrayList<UIButton>();
 	private int currentTab = 0;

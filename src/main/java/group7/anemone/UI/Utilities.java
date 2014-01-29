@@ -2,7 +2,6 @@ package group7.anemone.UI;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 import processing.core.PApplet;
 
