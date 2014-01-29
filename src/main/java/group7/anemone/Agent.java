@@ -1,5 +1,7 @@
 package group7.anemone;
 
+import group7.anemone.Genetics.Gene;
+import group7.anemone.Genetics.Genome;
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
@@ -16,8 +18,6 @@ import java.util.Random;
 
 import java.util.HashSet;
 
-import Genetics.Gene;
-import Genetics.Genome;
 
 import processing.core.PApplet;
 

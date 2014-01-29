@@ -1,4 +1,4 @@
-package Genetics;
+package group7.anemone.Genetics;
 
 import group7.anemone.MNetwork.MNeuronParams;
 

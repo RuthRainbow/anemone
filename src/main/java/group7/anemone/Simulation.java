@@ -1,5 +1,6 @@
 package group7.anemone;
 
+import group7.anemone.Genetics.God;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MSynapse;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import Genetics.God;
 
 import processing.core.PApplet;
 import processing.core.PFont;

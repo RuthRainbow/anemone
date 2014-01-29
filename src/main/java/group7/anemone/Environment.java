@@ -1,5 +1,8 @@
 package group7.anemone;
 
+import group7.anemone.Genetics.Gene;
+import group7.anemone.Genetics.Genome;
+import group7.anemone.Genetics.God;
 import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
@@ -9,9 +12,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import Genetics.Gene;
-import Genetics.Genome;
-import Genetics.God;
 
 import processing.core.PApplet;
 

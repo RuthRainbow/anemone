@@ -1,4 +1,4 @@
-import Genetics.God;
+import group7.anemone.Genetics.God;
 import junit.framework.TestCase;
 
 public class GodTest extends TestCase {
