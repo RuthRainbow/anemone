@@ -1,5 +1,6 @@
 package group7.anemone.Genetics;
 
+import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuronParams;
 
 public class NeatNode {
@@ -7,7 +8,17 @@ public class NeatNode {
 	int id;
 
 	public NeatNode(int id, MNeuronParams params) {
-		this.params = params;
+		this.params = new MNeuronParams(params);
 		this.id = id;
+	}
+	
+	public static NeatNode createRSNeatNode(int id) {
+		MNeuronParams params;
+		NeatNode node;
+		
+		params = MFactory.createRSNeuronParams();
+		node = new NeatNode(id, params);
+		
+		return node;
 	}
 }

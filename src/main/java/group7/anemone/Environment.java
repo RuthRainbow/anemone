@@ -3,6 +3,7 @@ package group7.anemone;
 import group7.anemone.Genetics.Gene;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.God;
+import group7.anemone.Genetics.NeatNode;
 import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
@@ -326,31 +327,23 @@ public class Environment implements Serializable{
 		 * Delay
 		 *
 		 * */
-		Gene[] genome = new Gene[3 * 3 * Agent.configNumSegments];
 		int total = 0;
+		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
 		
 		for(int i = 0; i < Agent.configNumSegments; i++){//Food
-			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(total, 3 + i, j, 30.0, 1);
-				total++;
-			}
+			NeatNode node = NeatNode.createRSNeatNode(total++);
+			nodes.add(node);
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Wall
-			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(
-						total, 3 + i + Agent.configNumSegments, j, 30.0, 1);
-				total++;
-			}
+			NeatNode node = NeatNode.createRSNeatNode(total++);
+			nodes.add(node);
 		}
 		for(int i = 0; i < Agent.configNumSegments; i++){//Enemy
-			for(int j = 0; j < 3; j++){
-				genome[total] = new Gene(
-						total, 3 + i + Agent.configNumSegments * 2, j, 30.0, 1);
-				total++;
-			}
+			NeatNode node = NeatNode.createRSNeatNode(total++);
+			nodes.add(node);
 		}
 
-		return new Genome(genome, 0, null, null);
+		return new Genome(new Gene[0], nodes, 0, null, null);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){

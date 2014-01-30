@@ -2,6 +2,8 @@ package group7.anemone.Genetics;
 
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /*
@@ -10,19 +12,17 @@ import java.util.Arrays;
 public class Genome implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;
 	private final Gene[] genome;
+	private final ArrayList<NeatNode> nodes;
 	private final int speciesId;
 	private Parent parents;
 	
-	public Genome(Gene[] genome, int speciesId, Genome mother,
-                Genome father) {
+	public Genome(Gene[] genome, Collection<NeatNode> nodes, int speciesId,
+		Genome mother, Genome father)
+	{
 		this.genome = genome;
+		this.nodes = new ArrayList<NeatNode>(nodes);
 		this.speciesId = speciesId;
 		this.parents = new Parent(mother, father);
-	}
-	
-	public Genome(Gene[] genome) {
-		this.genome = genome;
-		this.speciesId = 0;
 	}
 	
 	@Override
