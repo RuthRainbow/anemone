@@ -127,4 +127,9 @@ public class MNeuron implements Serializable{
 	public void setPostSynapses(Collection<MSynapse> synapses) {
 		this.postSynapses = new ArrayList<MSynapse>(synapses);
 	}
+	
+	@Override
+	public String toString() {
+		return ""+this.nid;
+	}
 }

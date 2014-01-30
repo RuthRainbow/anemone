@@ -15,7 +15,6 @@ public class God implements Serializable{
 	private static final long serialVersionUID = 619717007643693268L;
 
 	/** Start of possible graphical vars **/
-
 	// Mutation chances:
 	public double structuralMutationChance = 0.7f;
 	public double addConnectionChance = 0.5f;
@@ -37,7 +36,6 @@ public class God implements Serializable{
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 0.3;
 	public double minReproduced = 5;
-
 	/** End of possible graphical vars **/
 
 	private double bestFitness;
@@ -46,7 +44,7 @@ public class God implements Serializable{
 	//private int noImprovementCount = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
-	private int nextMarker = 89;
+	private int nextMarker = 0;
 	private ArrayList<Gene> newGenes;
 
 	// The ordered list of all species, with each represented by a member from the
@@ -332,22 +330,22 @@ public class God implements Serializable{
 		return new Genome(childGene, dominant.getNodes(), -1, dominant, recessive);
 	}
 
+	// Possibly mutate a child structurally or by changing edge weights.
+	// TODO add parameter mutation.
 	private Genome mutate(Genome child) {
 		child = structuralMutation(child);
 		return weightMutation(child);
 	}
 
-	// Mutate a gene structurally
-	public Genome structuralMutation(Genome child) {
-		List<Gene> mutatedChildGenes = new ArrayList<Gene>();
-		List<Pair<Integer>> edges = new ArrayList<Pair<Integer>>();
+	// Mutate a genome structurally
+	private Genome structuralMutation(Genome child) {
+		List<Gene> edgeList = new ArrayList<Gene>();
 		int max = 0;
 		for (Gene gene : child.getGene()) {
 			// Copy across all genes to new child 
-			mutatedChildGenes.add(gene);
+			edgeList.add(gene);
 			max = Math.max(gene.getIn().id, max);
 			max = Math.max(gene.getOut().id, max);
-			edges.add(new Pair<Integer>(gene.getIn().id, gene.getOut().id));
 		}
 
 		List<NeatNode> nodeList = child.getNodes();
@@ -355,20 +353,20 @@ public class God implements Serializable{
 		if (getRandom() < structuralMutationChance) {
 			// Add a new connection between any two nodes
 			if (getRandom() < addConnectionChance) {
-				addConnection(nodeList, mutatedChildGenes);
+				addConnection(nodeList, edgeList);
 			}
 
-			// Add a new node between two old connections
-			if (getRandom() < addNodeChance && edges.size() > 1) {
-				addNodeBetweenEdges(mutatedChildGenes, max);
+			// Add a new node in the middle of an old connection/edge.
+			if (getRandom() < addNodeChance && edgeList.size() > 0) {
+				max = addNodeBetweenEdges(edgeList, max, nodeList);
 			}
 		}
-		Gene[] mutatedGene = new Gene[mutatedChildGenes.size()];
-		for (int i = 0; i < mutatedChildGenes.size(); i++) {
-			mutatedGene[i] = mutatedChildGenes.get(i);
+		Gene[] mutatedGeneArray = new Gene[edgeList.size()];
+		for (int i = 0; i < edgeList.size(); i++) {
+			mutatedGeneArray[i] = edgeList.get(i);
 		}
 		return new Genome(
-				mutatedGene,
+				mutatedGeneArray,
 				nodeList,
 				child.getSpeciesId(),
 				child.getMother(),
@@ -376,47 +374,53 @@ public class God implements Serializable{
 	}
 	
 	// Add a connection between two existing nodes
-	private void addConnection(List<NeatNode> nodeList, List<Gene> mutatedChildGenes) {
-		NeatNode left;
-		NeatNode right;
+	private void addConnection(List<NeatNode> nodeList, List<Gene> edgeList) {
 		// Connect two arbitrary nodes - we don't care if they are already connected.
 		// (Similar to growing multiple synapses).
-		left = nodeList.get(
+		NeatNode left = nodeList.get(
 				(int) Math.floor(getRandom()*nodeList.size()));
-		right = nodeList.get(
+		NeatNode right = nodeList.get(
 				(int) Math.floor(getRandom()*nodeList.size()));
-		// If this mutated gene has already been created this gen, don't create another
 		Gene newGene = new Gene(
-				nextMarker, left, right, 30.0, 1);
+				nextMarker, left, right, 30.0, 1); // TODO check weight.
+		// If this mutated gene has already been created this gen, don't create another
 		for (Gene gene : newGenes) {
 			if (newGene.equals(gene)) {
 				newGene = gene;
 			}
 		}
-		mutatedChildGenes.add(newGene);
+		edgeList.add(newGene);
 		if (!newGenes.contains(newGene)) {
 			nextMarker++;
+			newGenes.add(newGene);
 		}
 	}
 
 	// Add a node between two pre-existing edges
-	private void addNodeBetweenEdges(List<Gene> mutatedChildGenes, int max) {
+	private int addNodeBetweenEdges(List<Gene> edgeList, int max, List<NeatNode> nodeList) {
 		// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
-		Gene toMutate = mutatedChildGenes.get(
-				(int) Math.floor(getRandom() * mutatedChildGenes.size()));
-		mutatedChildGenes.remove(toMutate);
+		Gene toMutate = edgeList.get(
+				(int) Math.floor(getRandom() * edgeList.size()));
+		edgeList.remove(toMutate);
 		// Make a new intermediate node TODO can do this more randomly than default params.
-		NeatNode newNode = new NeatNode(max + 1, MFactory.createRSNeuronParams());
+		// Increment max to keep track of max node id.
+		max += 1;
+		NeatNode newNode = new NeatNode(nextMarker, MFactory.createRSNeuronParams());
+		nodeList.add(newNode);
 		Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), newNode, 30.0, 1);
+		// If this mutated gene has already been created this gen, don't create another
 		for (Gene gene : newGenes) {
 			if (newLeftGene.equals(gene)) {
 				newLeftGene = gene;
+				max -= 1;
 			}
 		}
+		// Only increment the marker if this gene is new.
 		if (!newGenes.contains(newLeftGene)) {
 			nextMarker++;
+			newGenes.add(newLeftGene);
 		}
-		mutatedChildGenes.add(newLeftGene);
+		edgeList.add(newLeftGene);
 		// Weight should be the same as the current Gene between this two nodes:
 		Gene newRightGene = new Gene(
 				nextMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
@@ -427,12 +431,14 @@ public class God implements Serializable{
 		}
 		if (!newGenes.contains(newRightGene)) {
 			nextMarker++;
+			newGenes.add(newRightGene);
 		}
-		mutatedChildGenes.add(newRightGene);
+		edgeList.add(newRightGene);
+		return max;
 	}
 
 	// Each weight is subject to random mutation.
-	public Genome weightMutation(Genome child) {
+	private Genome weightMutation(Genome child) {
 		for (Gene gene : child.getGene()) {
 			if (getRandom() < weightMutationChance) {
 				if (getRandom() < weightIncreaseChance) {

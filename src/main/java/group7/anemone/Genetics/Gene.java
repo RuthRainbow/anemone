@@ -15,12 +15,12 @@ public class Gene implements Serializable{
 	private double weight;
 	private int delay;
 
-	public Gene(int hist, NeatNode in, NeatNode out, double wei, int del) {
+	public Gene(int hist, NeatNode in, NeatNode out, double weight, int delay) {
 		this.historicalMarker = hist;
 		this.in = in;
 		this.out = out;
-		this.weight = wei;
-		this.delay = del;
+		this.weight = weight;
+		this.delay = delay;
 	}
 
 	@Override

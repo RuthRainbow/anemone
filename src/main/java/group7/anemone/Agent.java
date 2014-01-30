@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import java.util.HashSet;
-
-
 import processing.core.PApplet;
 
 public class Agent extends SimulationObject implements Serializable {
@@ -130,7 +127,6 @@ public class Agent extends SimulationObject implements Serializable {
 			/* Create the synapse. */
 			MSynapse synapse = new MSynapse(preNeuron, postNeuron,
 				weight, delay);
-
 			/*
 			 Add the synapse to the pre and post neuron synapse list
 			 */
