@@ -2,9 +2,13 @@ package group7.anemone;
 
 import group7.anemone.Genetics.Gene;
 import group7.anemone.Genetics.Genome;
-import group7.anemone.MNetwork.MFactory;
+import group7.anemone.Genetics.NeatNode;
+
 import group7.anemone.MNetwork.MNetwork;
+import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuron;
+import group7.anemone.MNetwork.MNeuronParams;
+import group7.anemone.MNetwork.MNeuronState;
 import group7.anemone.MNetwork.MSimulation;
 import group7.anemone.MNetwork.MSimulationConfig;
 import group7.anemone.MNetwork.MSynapse;
@@ -92,17 +96,15 @@ public class Agent extends SimulationObject implements Serializable {
 		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
 		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
 
-		/* Create a set of neuron identifiers. */
-		HashSet<Integer> nidSet = new HashSet<Integer>();
-		for (Gene g : genome.getGene()) {
-			nidSet.add(new Integer(g.getIn()));
-			nidSet.add(new Integer(g.getOut()));
-		}
-
 		/* Create neurons. */
-		for (Integer id : nidSet) {
-			/* Create a simple RS neuron. */
-			MNeuron neuron = MFactory.createRSNeuron(id.intValue());
+		for (NeatNode nn : genome.getNodes()) {
+			int id = nn.getId();
+			MNeuronParams params = nn.getParams();
+			MNeuronState state =
+				MFactory.createInitialRSNeuronState();
+			
+			/* Create a neuron. */
+			MNeuron neuron = new MNeuron(params, state, id);
 
 			/* Add it to temporary NID->Neuron map. */
 			neuronMap.put(id, neuron);
@@ -114,10 +116,12 @@ public class Agent extends SimulationObject implements Serializable {
 		/* Create synapses. */
 		for (Gene g : genome.getGene()) {
 			/* Get the synapse information. */
+			NeatNode preNode = g.getIn();
+			NeatNode postNode = g.getOut();
 			double weight = g.getWeight();
 			int delay = g.getDelay();
-			Integer preNid = new Integer(g.getIn());
-			Integer postNid = new Integer(g.getOut());
+			Integer preNid = new Integer(preNode.getId());
+			Integer postNid = new Integer(postNode.getId());
 
 			/* Find the pre and post neurons. */
 			MNeuron preNeuron = neuronMap.get(preNid);

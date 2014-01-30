@@ -21,4 +21,12 @@ public class NeatNode {
 		
 		return node;
 	}
+	
+	public MNeuronParams getParams() {
+		return new MNeuronParams(params);
+	}
+	
+	public int getId() {
+		return id;
+	}
 }
