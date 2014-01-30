@@ -16,9 +16,6 @@ import processing.core.PApplet;
 
 public class Environment implements Serializable{
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 2740658645450395424L;
 	transient PApplet parent;
 	// God & clock needed for breeding every n generations
@@ -342,7 +339,7 @@ public class Environment implements Serializable{
 			NeatNode node = NeatNode.createRSNeatNode(total++);
 			nodes.add(node);
 		}
-
+		
 		return new Genome(new Gene[0], nodes, 0, null, null);
 	}
 

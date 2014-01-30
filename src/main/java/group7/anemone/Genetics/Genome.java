@@ -7,23 +7,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /*
- * Immutable genome class to hold the Gene array along with a species id.
+ * Genome class to hold the Gene array along with a species id.
  */
 public class Genome implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;
 	// Genes represent edges
 	private final Gene[] genome;
 	private final ArrayList<NeatNode> nodes;
-	private final int speciesId;
+	private int speciesId;
 	private Parents parents;
 	
 	public Genome(Gene[] genome, Collection<NeatNode> nodes, int speciesId,
-		Genome mother, Genome father)
-	{
+		Genome mother, Genome father) {
 		this.genome = genome;
 		this.nodes = new ArrayList<NeatNode>(nodes);
 		this.speciesId = speciesId;
 		this.parents = new Parents(mother, father);
+	}
+	
+	public void setSpecies(int speciesId) {
+		this.speciesId = speciesId;
 	}
 	
 	@Override

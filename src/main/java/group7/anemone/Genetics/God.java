@@ -7,10 +7,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class God implements Serializable{
@@ -30,15 +28,15 @@ public class God implements Serializable{
 	public double twinChance = 0.05f;
 	public double matchedGeneChance = 0.5f;
 
-	public double offspringProportion = 0.5f; // ALSO COMPLETELY ARBITRARY
+	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
 	// Parameters for use in difference calculation (can be tweaked).
-	public double c1 = 0.5f; //weighting of excess genes
+	public double c1 = 0.3f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 4;
-	public double minReproduced = 10;
+	public double compatibilityThreshold = 0.3;
+	public double minReproduced = 5;
 
 	/** End of possible graphical vars **/
 
@@ -68,13 +66,13 @@ public class God implements Serializable{
 	}
 
 	// Method to breed the entire population without species.
-	protected HashMap<Gene[], Integer> BreedPopulation(ArrayList<Agent> agents) {
+	protected HashMap<Genome, Integer> BreedPopulation(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<AgentFitness> selectedAgents = Selection(agents);
 		System.out.println("selecting " + selectedAgents.size());
-		ArrayList<Gene[]> children = GenerateChildren(selectedAgents);
-		HashMap<Gene[], Integer> childrenSpecies = new HashMap<Gene[], Integer>();
-		for (Gene[] child : children) {
+		ArrayList<Genome> children = GenerateChildren(selectedAgents);
+		HashMap<Genome, Integer> childrenSpecies = new HashMap<Genome, Integer>();
+		for (Genome child : children) {
 			childrenSpecies.put(child, 0);
 		}
 		return childrenSpecies;
@@ -108,7 +106,7 @@ public class God implements Serializable{
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
 				children.add(new Genome(
-								mutate(agent.stringRep.getGene()),
+								mutate(agent.stringRep).getGene(),
 								agent.stringRep.getNodes(),
 								agent.stringRep.getSpeciesId(),
 								agent.stringRep,
@@ -130,19 +128,10 @@ public class God implements Serializable{
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			AgentFitness mother = specie.members.get(i);
 			AgentFitness father = specie.members.get(i+1);
-			ArrayList<Gene[]> childGenes = CreateOffspring(mother, father);
+			children.addAll(CreateOffspring(mother, father));
 			if (fitnessOnly) {
 				children.add(mother.stringRep);
 				children.add(mother.stringRep);
-			}
-			for (Gene[] child : childGenes) {
-				children.add(
-						new Genome(
-								child,
-								mother.stringRep.getNodes(),
-								specie.id,
-								mother.stringRep,
-								father.stringRep));
 			}
 			i += 2;
 		}
@@ -180,7 +169,17 @@ public class God implements Serializable{
 			return 1;
 		}
 	}
-	
+
+	// Return computability distance between two networks (see NEAT speciation).
+	// Only calculate if not previously stored.
+	protected double getDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
+		if (distances.contains(thisAgent)) {
+			return distances.get(thisAgent);
+		} else {
+			return calcDistance(thisAgent, speciesRep);
+		}
+	}
+
 	// Compute distance between thisAgent and speciesRep (see NEAT specification).
 	protected double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		Pair<AgentFitness> agentPair = new Pair<AgentFitness>(thisAgent, speciesRep);
@@ -199,20 +198,11 @@ public class God implements Serializable{
 				weightDiff += Math.abs(a.getXthWeight(i) - b.getXthWeight(i));
 			}
 		}
+		if (maxLength == 0) maxLength = 1; // Avoid divide by zero.
 		double distance = (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
 		// Save this distance so we don't need to recalculate:
 		distances.put(agentPair, distance);
 		return distance;
-	}
-
-	// Return computability distance between two networks (see NEAT speciation).
-	// Only calculate if not previously stored.
-	protected double getDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
-		if (distances.contains(thisAgent)) {
-			return distances.get(thisAgent);
-		} else {
-			return calcDistance(thisAgent, speciesRep);
-		}
 	}
 
 	protected ArrayList<AgentFitness> Selection(ArrayList<Agent> agents) {
@@ -243,10 +233,10 @@ public class God implements Serializable{
 		return selectedAgents;
 	}
 
-	protected ArrayList<Gene[]> GenerateChildren(
+	protected ArrayList<Genome> GenerateChildren(
 			ArrayList<AgentFitness> selectedAgents) {
 		// Crossover - should select partner randomly (unless we are having genders).
-		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+		ArrayList<Genome> children = new ArrayList<Genome>();
 
 		while (selectedAgents.size() > 1) {
 			AgentFitness mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
@@ -262,9 +252,9 @@ public class God implements Serializable{
 			//}
 		}
 
-		ArrayList<Gene[]> mutatedChildren = new ArrayList<Gene[]>();
+		ArrayList<Genome> mutatedChildren = new ArrayList<Genome>();
 		// Put every child through mutation process
-		for (Gene[] child : children) {
+		for (Genome child : children) {
 			mutatedChildren.add(mutate(child));
 		}
 
@@ -274,25 +264,15 @@ public class God implements Serializable{
 	protected ArrayList<Genome> createOffspring(Agent mother, Agent father) {
 		AgentFitness motherFitness = new AgentFitness(mother);
 		AgentFitness fatherFitness = new AgentFitness(father);
-		ArrayList<Gene[]> children = CreateOffspring(motherFitness, fatherFitness);
-		ArrayList<Genome> childGenomes = new ArrayList<Genome>();
-		for (Gene[] child : children) {
-			childGenomes.add(
-					new Genome(
-							child,
-							mother.getStringRep().getNodes(),
-							father.getSpeciesId(),
-							mother.getStringRep(),
-							father.getStringRep()));
-		}
-		return childGenomes;
+		ArrayList<Genome> children = CreateOffspring(motherFitness, fatherFitness);
+		return children;
 	}
 
 	// Method to create offspring from 2 given parents.
-	protected ArrayList<Gene[]> CreateOffspring(
+	protected ArrayList<Genome> CreateOffspring(
 			AgentFitness mother, AgentFitness father) {
 		newGenes = new ArrayList<Gene>();
-		ArrayList<Gene[]> children = new ArrayList<Gene[]>();
+		ArrayList<Genome> children = new ArrayList<Genome>();
 
 		children.add(crossover(mother, father));
 		if (getRandom() < twinChance) {
@@ -304,7 +284,7 @@ public class God implements Serializable{
 		return children;
 	}
 
-	protected Gene[] crossover(AgentFitness mother, AgentFitness father) {
+	protected Genome crossover(AgentFitness mother, AgentFitness father) {
 		if (mother.fitness > father.fitness) {
 			return crossover(mother.stringRep, father.stringRep);
 		} else {
@@ -315,7 +295,7 @@ public class God implements Serializable{
 	// Method for crossover - return crossover method you want.
 	// The mother should always be the parent with the highest fitness.
 	// TODO may be a problem if they have equal fitness that one is always dominant
-	private Gene[] crossover(Genome dominant, Genome recessive) {
+	private Genome crossover(Genome dominant, Genome recessive) {
 		List<Gene> child = new ArrayList<Gene>();
 
 		// "Match" genes...
@@ -349,100 +329,111 @@ public class God implements Serializable{
 		for (int i = 0; i < child.size(); i++) {
 			childGene[i] = child.get(i);
 		}
-		return childGene;
+		return new Genome(childGene, dominant.getNodes(), -1, dominant, recessive);
 	}
 
-	private Gene[] mutate(Gene[] child) {
+	private Genome mutate(Genome child) {
 		child = structuralMutation(child);
 		return weightMutation(child);
 	}
 
 	// Mutate a gene structurally
-	public Gene[] structuralMutation(Gene[] child) {
+	public Genome structuralMutation(Genome child) {
 		List<Gene> mutatedChildGenes = new ArrayList<Gene>();
-		Set<NeatNode> historicalMarkersSet = new HashSet<NeatNode>();
 		List<Pair<Integer>> edges = new ArrayList<Pair<Integer>>();
 		int max = 0;
-		for (Gene gene : child) {
+		for (Gene gene : child.getGene()) {
 			// Copy across all genes to new child 
 			mutatedChildGenes.add(gene);
-			historicalMarkersSet.add(gene.getIn());
-			historicalMarkersSet.add(gene.getOut());
 			max = Math.max(gene.getIn().id, max);
 			max = Math.max(gene.getOut().id, max);
 			edges.add(new Pair<Integer>(gene.getIn().id, gene.getOut().id));
 		}
 
-		List<NeatNode> historicalMarkersList = new ArrayList<NeatNode>();
-		historicalMarkersList.addAll(historicalMarkersSet);
+		List<NeatNode> nodeList = child.getNodes();
 
 		if (getRandom() < structuralMutationChance) {
-			// Add connection
+			// Add a new connection between any two nodes
 			if (getRandom() < addConnectionChance) {
-				int left = 0;
-				int right = 0;
-				// Connect two arbitrary nodes - we don't care if they are already connected.
-				// (Similar to growing multiple synapses).
-				left = historicalMarkersList.get(
-						(int) Math.floor(getRandom()*historicalMarkersList.size())).id;
-				right = historicalMarkersList.get(
-						(int) Math.floor(getRandom()*historicalMarkersList.size())).id;
-				// If this mutated gene has already been created this gen, don't create another
-				Gene newGene = new Gene(
-						nextMarker, child[left].getIn(), child[right].getIn(), 30.0, 1);
-				for (Gene gene : newGenes) {
-					if (newGene.equals(gene)) {
-						newGene = gene;
-					}
-				}
-				mutatedChildGenes.add(newGene);
-				if (!newGenes.contains(newGene)) {
-					nextMarker++;
-				}
+				addConnection(nodeList, mutatedChildGenes);
 			}
 
 			// Add a new node between two old connections
-			if (getRandom() < addNodeChance) {
-				// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
-				Gene toMutate = mutatedChildGenes.get(
-						(int) Math.floor(getRandom() * mutatedChildGenes.size()));
-				mutatedChildGenes.remove(toMutate);
-				// Make a new intermediate node TODO can do this more randomly than default params.
-				NeatNode newNode = new NeatNode(max + 1, MFactory.createRSNeuronParams());
-				Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), newNode, 30.0, 1);
-				for (Gene gene : newGenes) {
-					if (newLeftGene.equals(gene)) {
-						newLeftGene = gene;
-					}
-				}
-				if (!newGenes.contains(newLeftGene)) {
-					nextMarker++;
-				}
-				mutatedChildGenes.add(newLeftGene);
-				// Weight should be the same as the current Gene between this two nodes:
-				Gene newRightGene = new Gene(
-						nextMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
-				for (Gene gene : newGenes) {
-					if (newRightGene.equals(gene)) {
-						newRightGene = gene;
-					}
-				}
-				if (!newGenes.contains(newRightGene)) {
-					nextMarker++;
-				}
-				mutatedChildGenes.add(newRightGene);
+			if (getRandom() < addNodeChance && edges.size() > 1) {
+				addNodeBetweenEdges(mutatedChildGenes, max);
 			}
 		}
 		Gene[] mutatedGene = new Gene[mutatedChildGenes.size()];
 		for (int i = 0; i < mutatedChildGenes.size(); i++) {
 			mutatedGene[i] = mutatedChildGenes.get(i);
 		}
-		return mutatedGene;
+		return new Genome(
+				mutatedGene,
+				nodeList,
+				child.getSpeciesId(),
+				child.getMother(),
+				child.getFather());
+	}
+	
+	// Add a connection between two existing nodes
+	private void addConnection(List<NeatNode> nodeList, List<Gene> mutatedChildGenes) {
+		NeatNode left;
+		NeatNode right;
+		// Connect two arbitrary nodes - we don't care if they are already connected.
+		// (Similar to growing multiple synapses).
+		left = nodeList.get(
+				(int) Math.floor(getRandom()*nodeList.size()));
+		right = nodeList.get(
+				(int) Math.floor(getRandom()*nodeList.size()));
+		// If this mutated gene has already been created this gen, don't create another
+		Gene newGene = new Gene(
+				nextMarker, left, right, 30.0, 1);
+		for (Gene gene : newGenes) {
+			if (newGene.equals(gene)) {
+				newGene = gene;
+			}
+		}
+		mutatedChildGenes.add(newGene);
+		if (!newGenes.contains(newGene)) {
+			nextMarker++;
+		}
+	}
+
+	// Add a node between two pre-existing edges
+	private void addNodeBetweenEdges(List<Gene> mutatedChildGenes, int max) {
+		// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
+		Gene toMutate = mutatedChildGenes.get(
+				(int) Math.floor(getRandom() * mutatedChildGenes.size()));
+		mutatedChildGenes.remove(toMutate);
+		// Make a new intermediate node TODO can do this more randomly than default params.
+		NeatNode newNode = new NeatNode(max + 1, MFactory.createRSNeuronParams());
+		Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), newNode, 30.0, 1);
+		for (Gene gene : newGenes) {
+			if (newLeftGene.equals(gene)) {
+				newLeftGene = gene;
+			}
+		}
+		if (!newGenes.contains(newLeftGene)) {
+			nextMarker++;
+		}
+		mutatedChildGenes.add(newLeftGene);
+		// Weight should be the same as the current Gene between this two nodes:
+		Gene newRightGene = new Gene(
+				nextMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
+		for (Gene gene : newGenes) {
+			if (newRightGene.equals(gene)) {
+				newRightGene = gene;
+			}
+		}
+		if (!newGenes.contains(newRightGene)) {
+			nextMarker++;
+		}
+		mutatedChildGenes.add(newRightGene);
 	}
 
 	// Each weight is subject to random mutation.
-	public Gene[] weightMutation(Gene[] child) {
-		for (Gene gene : child) {
+	public Genome weightMutation(Genome child) {
+		for (Gene gene : child.getGene()) {
 			if (getRandom() < weightMutationChance) {
 				if (getRandom() < weightIncreaseChance) {
 					gene.addWeight(getRandom());
@@ -569,17 +560,19 @@ public class God implements Serializable{
 				AgentFitness thisAgent = new AgentFitness(agent);
 				for (Species specie : species) {
 					AgentFitness rep = specie.rep;
-					// IF NEEDED THIS COULD BE THREADED!!!!
+					// TODO IF NEEDED THIS COULD BE THREADED!!!!
 					double dist = getDistance(thisAgent, rep);
 					
 					if (dist < compatibilityThreshold) {
 						foundSpecies = true;
 						specie.addMember(thisAgent);
+						agent.setSpecies(specie.id);
 					}
 				}
 				if (!foundSpecies) {
 					int newSpeciesId = species.size() + 1;
 					species.add(new Species(thisAgent, newSpeciesId));
+					agent.setSpecies(newSpeciesId);
 				}
 			}
 		}
