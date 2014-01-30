@@ -55,11 +55,11 @@ public class God implements Serializable{
 	// previous generation.
 	private ArrayList<Species> species;
 	// The distances between all genes:
-	private ConcurrentHashMap<AgentPair, Double> distances;
+	private ConcurrentHashMap<Pair<AgentFitness>, Double> distances;
 
 	public God() {
 		this.species = new ArrayList<Species>();
-		this.distances = new ConcurrentHashMap<God.AgentPair, Double>();
+		this.distances = new ConcurrentHashMap<God.Pair<AgentFitness>, Double>();
 	}
 
 	// This is inside it's own method to make unittesting easier.
@@ -183,7 +183,7 @@ public class God implements Serializable{
 	
 	// Compute distance between thisAgent and speciesRep (see NEAT specification).
 	protected double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
-		AgentPair agentPair = new AgentPair(thisAgent, speciesRep);
+		Pair<AgentFitness> agentPair = new Pair<AgentFitness>(thisAgent, speciesRep);
 
 		Genome a = thisAgent.stringRep;
 		Genome b = speciesRep.stringRep;
@@ -361,7 +361,7 @@ public class God implements Serializable{
 	public Gene[] structuralMutation(Gene[] child) {
 		List<Gene> mutatedChildGenes = new ArrayList<Gene>();
 		Set<NeatNode> historicalMarkersSet = new HashSet<NeatNode>();
-		List<IntPair> edges = new ArrayList<IntPair>();
+		List<Pair<Integer>> edges = new ArrayList<Pair<Integer>>();
 		int max = 0;
 		for (Gene gene : child) {
 			// Copy across all genes to new child 
@@ -370,7 +370,7 @@ public class God implements Serializable{
 			historicalMarkersSet.add(gene.getOut());
 			max = Math.max(gene.getIn().id, max);
 			max = Math.max(gene.getOut().id, max);
-			edges.add(new IntPair(gene.getIn().id, gene.getOut().id));
+			edges.add(new Pair<Integer>(gene.getIn().id, gene.getOut().id));
 		}
 
 		List<NeatNode> historicalMarkersList = new ArrayList<NeatNode>();
@@ -466,52 +466,24 @@ public class God implements Serializable{
 		public NotImplementedException(){}
 	}
 
-	// Allows us to check if in and out are both the same.
-	public class IntPair {
-	    private int first;
-	    private int second;
+	// Class to hold two objects together so we can map to a distance.
+	private class Pair<E> {
+		private E first;
+		private E second;
 
-	    public IntPair(int first, int second) {
-	    	this.first = first;
-	    	this.second = second;
-	    }
-
-	    public boolean equals(Object other) {
-	    	if (!(other instanceof IntPair)) {
-	    		return false;
-	    	} else {
-	    		IntPair otherPair = (IntPair) other;
-	    		if (this.first == otherPair.first && this.second == otherPair.second ||
-	    				this.first == otherPair.second && this.second == otherPair.first) {
-	    			return true;
-	    		} else {
-	    			return false;
-	    		}
-	    	}
-	    }
-
-	    public String toString()
-	    {
-	           return "(" + first + ", " + second + ")";
-	    }
-	}
-
-	// Class to hold two agents together so we can map to a distance.
-	private class AgentPair {
-		private AgentFitness first;
-		private AgentFitness second;
-
-		public AgentPair(AgentFitness first, AgentFitness second) {
+		public Pair(E first, E second) {
 			this.first = first;
 			this.second = second;
 		}
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof AgentPair)) {
+			if (!(other instanceof Pair<?>)) {
 	    		return false;
 	    	} else {
-	    		AgentPair otherPair = (AgentPair) other;
+	    		// We need pairs to be of the same type to compare.
+	    		@SuppressWarnings("unchecked")
+				Pair<E> otherPair = (Pair<E>) other;
 	    		if (this.first == otherPair.first && this.second == otherPair.second ||
 	    				this.first == otherPair.second && this.second == otherPair.first) {
 	    			return true;
@@ -520,6 +492,10 @@ public class God implements Serializable{
 	    		}
 	    	}
 		}
+		
+		public String toString() {
+	           return "(" + first.toString() + ", " + second.toString() + ")";
+	    }
 	}
 
 	// Class used to hold an entire species.
