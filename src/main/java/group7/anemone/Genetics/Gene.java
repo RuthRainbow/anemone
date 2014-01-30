@@ -10,12 +10,12 @@ public class Gene implements Serializable{
 
 	private static final long serialVersionUID = -27536139896199028L;
 	private int historicalMarker;
-	private int in;
-	private int out;
+	private NeatNode in;
+	private NeatNode out;
 	private double weight;
 	private int delay;
 
-	public Gene(int hist, int in, int out, double wei, int del) {
+	public Gene(int hist, NeatNode in, NeatNode out, double wei, int del) {
 		this.historicalMarker = hist;
 		this.in = in;
 		this.out = out;
@@ -32,11 +32,11 @@ public class Gene implements Serializable{
 				" DELAY: " + delay;
 	}
 	
-	public int getIn() {
+	public NeatNode getIn() {
 		return this.in;
 	}
 	
-	public int getOut() {
+	public NeatNode getOut() {
 		return this.out;
 	}
 

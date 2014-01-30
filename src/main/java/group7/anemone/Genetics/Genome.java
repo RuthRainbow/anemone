@@ -11,10 +11,11 @@ import java.util.Arrays;
  */
 public class Genome implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;
+	// Genes represent edges
 	private final Gene[] genome;
 	private final ArrayList<NeatNode> nodes;
 	private final int speciesId;
-	private Parent parents;
+	private Parents parents;
 	
 	public Genome(Gene[] genome, Collection<NeatNode> nodes, int speciesId,
 		Genome mother, Genome father)
@@ -22,7 +23,7 @@ public class Genome implements Serializable {
 		this.genome = genome;
 		this.nodes = new ArrayList<NeatNode>(nodes);
 		this.speciesId = speciesId;
-		this.parents = new Parent(mother, father);
+		this.parents = new Parents(mother, father);
 	}
 	
 	@Override
@@ -34,11 +35,11 @@ public class Genome implements Serializable {
 		return this.genome.length;
 	}
 	
-	public int getXthIn(int x) {
+	public NeatNode getXthIn(int x) {
 		return this.genome[x].getIn();
 	}
 	
-	public int getXthOut(int x) {
+	public NeatNode getXthOut(int x) {
 		return this.genome[x].getOut();
 	}
 	
@@ -57,6 +58,10 @@ public class Genome implements Serializable {
 	public int getSpeciesId() {
 		return this.speciesId;
 	}
+	
+	public ArrayList<NeatNode> getNodes() {
+		return this.nodes;
+	}
 
 	public int getXthHistoricalMarker(int x) {
 		return this.genome[x].getHistoricalMarker();
@@ -74,11 +79,11 @@ public class Genome implements Serializable {
 		return this.parents.father;
 	}
 	
-	private class Parent {
+	private class Parents {
 		private Genome mother;
 		private Genome father;
 		
-		public Parent(Genome mother, Genome father) {
+		public Parents(Genome mother, Genome father) {
 			this.mother = mother;
 			this.father = father;
 		}

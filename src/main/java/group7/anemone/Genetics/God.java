@@ -1,6 +1,7 @@
 package group7.anemone.Genetics;
 
 import group7.anemone.Agent;
+import group7.anemone.MNetwork.MFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -108,6 +109,7 @@ public class God implements Serializable{
 				children.add(agent.stringRep);
 				children.add(new Genome(
 								mutate(agent.stringRep.getGene()),
+								agent.stringRep.getNodes(),
 								agent.stringRep.getSpeciesId(),
 								agent.stringRep,
 								agent.stringRep));
@@ -134,7 +136,13 @@ public class God implements Serializable{
 				children.add(mother.stringRep);
 			}
 			for (Gene[] child : childGenes) {
-				children.add(new Genome(child, specie.id, mother.stringRep, father.stringRep));
+				children.add(
+						new Genome(
+								child,
+								mother.stringRep.getNodes(),
+								specie.id,
+								mother.stringRep,
+								father.stringRep));
 			}
 			i += 2;
 		}
@@ -269,8 +277,13 @@ public class God implements Serializable{
 		ArrayList<Gene[]> children = CreateOffspring(motherFitness, fatherFitness);
 		ArrayList<Genome> childGenomes = new ArrayList<Genome>();
 		for (Gene[] child : children) {
-			childGenomes.add(new Genome(
-					child, father.getSpeciesId(), mother.getStringRep(), father.getStringRep()));
+			childGenomes.add(
+					new Genome(
+							child,
+							mother.getStringRep().getNodes(),
+							father.getSpeciesId(),
+							mother.getStringRep(),
+							father.getStringRep()));
 		}
 		return childGenomes;
 	}
@@ -346,20 +359,21 @@ public class God implements Serializable{
 
 	// Mutate a gene structurally
 	public Gene[] structuralMutation(Gene[] child) {
-		List<Gene> mutatedChild = new ArrayList<Gene>();
-		Set<Integer> historicalMarkersSet = new HashSet<Integer>();
+		List<Gene> mutatedChildGenes = new ArrayList<Gene>();
+		Set<NeatNode> historicalMarkersSet = new HashSet<NeatNode>();
 		List<IntPair> edges = new ArrayList<IntPair>();
 		int max = 0;
-		for (Gene gene:child) {
-			mutatedChild.add(gene);
+		for (Gene gene : child) {
+			// Copy across all genes to new child 
+			mutatedChildGenes.add(gene);
 			historicalMarkersSet.add(gene.getIn());
 			historicalMarkersSet.add(gene.getOut());
-			max = Math.max(gene.getIn(), max);
-			max = Math.max(gene.getOut(), max);
-			edges.add(new IntPair(gene.getIn(), gene.getOut()));
+			max = Math.max(gene.getIn().id, max);
+			max = Math.max(gene.getOut().id, max);
+			edges.add(new IntPair(gene.getIn().id, gene.getOut().id));
 		}
 
-		List<Integer> historicalMarkersList = new ArrayList<Integer>();
+		List<NeatNode> historicalMarkersList = new ArrayList<NeatNode>();
 		historicalMarkersList.addAll(historicalMarkersSet);
 
 		if (getRandom() < structuralMutationChance) {
@@ -370,9 +384,9 @@ public class God implements Serializable{
 				// Connect two arbitrary nodes - we don't care if they are already connected.
 				// (Similar to growing multiple synapses).
 				left = historicalMarkersList.get(
-						(int) Math.floor(getRandom()*historicalMarkersList.size()));
+						(int) Math.floor(getRandom()*historicalMarkersList.size())).id;
 				right = historicalMarkersList.get(
-						(int) Math.floor(getRandom()*historicalMarkersList.size()));
+						(int) Math.floor(getRandom()*historicalMarkersList.size())).id;
 				// If this mutated gene has already been created this gen, don't create another
 				Gene newGene = new Gene(
 						nextMarker, child[left].getIn(), child[right].getIn(), 30.0, 1);
@@ -381,7 +395,7 @@ public class God implements Serializable{
 						newGene = gene;
 					}
 				}
-				mutatedChild.add(newGene);
+				mutatedChildGenes.add(newGene);
 				if (!newGenes.contains(newGene)) {
 					nextMarker++;
 				}
@@ -390,10 +404,12 @@ public class God implements Serializable{
 			// Add a new node between two old connections
 			if (getRandom() < addNodeChance) {
 				// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
-				Gene toMutate = mutatedChild.get(
-						(int) Math.floor(getRandom() * mutatedChild.size()));
-				mutatedChild.remove(toMutate);
-				Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), max+1, 30.0, 1);
+				Gene toMutate = mutatedChildGenes.get(
+						(int) Math.floor(getRandom() * mutatedChildGenes.size()));
+				mutatedChildGenes.remove(toMutate);
+				// Make a new intermediate node TODO can do this more randomly than default params.
+				NeatNode newNode = new NeatNode(max + 1, MFactory.createRSNeuronParams());
+				Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), newNode, 30.0, 1);
 				for (Gene gene : newGenes) {
 					if (newLeftGene.equals(gene)) {
 						newLeftGene = gene;
@@ -402,10 +418,10 @@ public class God implements Serializable{
 				if (!newGenes.contains(newLeftGene)) {
 					nextMarker++;
 				}
-				mutatedChild.add(newLeftGene);
+				mutatedChildGenes.add(newLeftGene);
 				// Weight should be the same as the current Gene between this two nodes:
 				Gene newRightGene = new Gene(
-						nextMarker, max+1, toMutate.getOut(), toMutate.getWeight(), 1);
+						nextMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
 				for (Gene gene : newGenes) {
 					if (newRightGene.equals(gene)) {
 						newRightGene = gene;
@@ -414,12 +430,12 @@ public class God implements Serializable{
 				if (!newGenes.contains(newRightGene)) {
 					nextMarker++;
 				}
-				mutatedChild.add(newRightGene);
+				mutatedChildGenes.add(newRightGene);
 			}
 		}
-		Gene[] mutatedGene = new Gene[mutatedChild.size()];
-		for (int i = 0; i < mutatedChild.size(); i++) {
-			mutatedGene[i] = mutatedChild.get(i);
+		Gene[] mutatedGene = new Gene[mutatedChildGenes.size()];
+		for (int i = 0; i < mutatedChildGenes.size(); i++) {
+			mutatedGene[i] = mutatedChildGenes.get(i);
 		}
 		return mutatedGene;
 	}
@@ -450,6 +466,7 @@ public class God implements Serializable{
 		public NotImplementedException(){}
 	}
 
+	// Allows us to check if in and out are both the same.
 	public class IntPair {
 	    private int first;
 	    private int second;
