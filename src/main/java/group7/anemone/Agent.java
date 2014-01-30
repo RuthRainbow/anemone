@@ -202,14 +202,22 @@ public class Agent extends SimulationObject implements Serializable {
 	 * brain simulation.
 	 */
 	private void updateMNetwork() {
+		/*
+		 Having applied the network inputs, update the brain simulation.
+		 */
+		msimulation.step();
+	}
+	
+	/**
+	 * Inspects the brain's motor neurons for activity and performs motor
+	 * actions accordingly (thrust and turning).
+	 */
+	private void applyMotorOutputs() {
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
 		int thrustNeuronID = 0;
 		int turnNegativeNeuronID = 1;
 		int turnPositiveNeuronID = 2;
-
-		/*
-		 TODO: This also performs motor actions. Move this somewhere else.
-		 */
+		
 		for (MNeuron n : neurons) {
 			/*
 			 Perform physical actions if effector neurons are firing.
@@ -230,11 +238,6 @@ public class Agent extends SimulationObject implements Serializable {
 				}
 			}
 		}
-
-		/*
-		 Having applied the network inputs, update the brain simulation.
-		 */
-		msimulation.step();
 	}
 
 	public Genome getStringRep() {
@@ -328,6 +331,7 @@ public class Agent extends SimulationObject implements Serializable {
 		for (int i = 0; i < 4; i++) {
 			updateMNetwork();
 		}
+		applyMotorOutputs();
 		updatePhysics();
 		updatePosition();
 
