@@ -31,6 +31,8 @@ public class Environment implements Serializable{
 	
 	// Whether to not use health:
 	protected final boolean fitnessOnly = true;
+	//whether a fully connected network should be created.
+	protected final boolean FLAG_CONNECT_ALL= true;
 	
 	int width = 1500;
 	int height = 1500;
@@ -361,12 +363,14 @@ public class Environment implements Serializable{
 		Full connectivity - for every sensory neuron, connect it to each
 		motor neuron.
 		*/
-		for (NeatNode vn : visualNodes) {
-			for (NeatNode mn : motorNodes) {
-				int preID = vn.getId();
-				int postID = mn.getId();
-				Gene g = new Gene(total++, vn, mn, 30.0, 1);
-				edges.add(g);
+		if(FLAG_CONNECT_ALL){
+			for (NeatNode vn : visualNodes) {
+				for (NeatNode mn : motorNodes) {
+					int preID = vn.getId();
+					int postID = mn.getId();
+					Gene g = new Gene(total++, vn, mn, 30.0, 1);
+					edges.add(g);
+				}
 			}
 		}
 		
