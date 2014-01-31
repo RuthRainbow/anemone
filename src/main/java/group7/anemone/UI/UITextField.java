@@ -151,6 +151,9 @@ public class UITextField extends UIObject{
 				}else if(cursorPosition < value.length()){
 					value = value.substring(0, cursorPosition) + value.substring(cursorPosition + 1);
 				}
+			}else if(canvas.keyCode == PConstants.ENTER){
+				focused = false;
+				events.change(this);
 			}else{
 				value = value.substring(0, cursorPosition) + canvas.key + value.substring(cursorPosition);
 				cursorPosition++;
