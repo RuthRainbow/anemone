@@ -16,10 +16,10 @@ public class God implements Serializable{
 
 	/** Start of possible graphical vars **/
 	// Mutation chances:
-	public double structuralMutationChance = 0.7f;
-	public double addConnectionChance = 0.5f;
-	public double addNodeChance = 0.5f;
-	public double weightMutationChance = 0.3f;
+	public double structuralMutationChance = 0.9f;
+	public double addConnectionChance = 0.8f;
+	public double addNodeChance = 0.8f;
+	public double weightMutationChance = 0.8f;
 	// (chance of decrease is 1 - the chance of increase)
 	public double weightIncreaseChance = 0.5f;
 
@@ -34,7 +34,7 @@ public class God implements Serializable{
 	public double c3 = 0.5f; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 0.3;
+	public double compatibilityThreshold = 0.4;
 	public double minReproduced = 5;
 	/** End of possible graphical vars **/
 
@@ -382,17 +382,17 @@ public class God implements Serializable{
 		NeatNode right = nodeList.get(
 				(int) Math.floor(getRandom()*nodeList.size()));
 		Gene newGene = new Gene(
-				nextMarker, left, right, 30.0, 1); // TODO check weight.
+				nextMarker, left, right, 30.0, 1);
 		// If this mutated gene has already been created this gen, don't create another
 		for (Gene gene : newGenes) {
 			if (newGene.equals(gene)) {
 				newGene = gene;
 			}
 		}
-		edgeList.add(newGene);
 		if (!newGenes.contains(newGene)) {
 			nextMarker++;
 			newGenes.add(newGene);
+			edgeList.add(newGene);
 		}
 	}
 
