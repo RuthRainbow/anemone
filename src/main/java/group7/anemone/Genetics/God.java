@@ -358,7 +358,6 @@ public class God implements Serializable{
 		
 		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
 		nodeSet.addAll(recessive.getNodes());
-		//TODO fix bug to do with species = -1
 		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
 	}
 
@@ -609,17 +608,18 @@ public class God implements Serializable{
 				AgentFitness thisAgent = new AgentFitness(agent);
 				for (Species specie : species) {
 					AgentFitness rep = specie.rep;
-					// TODO IF NEEDED THIS COULD BE THREADED!!!!
+					// TODO IF NEEDED THIS COULD(/really should...) BE THREADED!!!!
 					double dist = getDistance(thisAgent, rep);
 					
 					if (dist < compatibilityThreshold) {
 						foundSpecies = true;
 						specie.addMember(thisAgent);
 						agent.setSpecies(specie.id);
+						break;
 					}
 				}
 				if (!foundSpecies) {
-					int newSpeciesId = species.size() + 1;
+					int newSpeciesId = species.size();
 					species.add(new Species(thisAgent, newSpeciesId));
 					agent.setSpecies(newSpeciesId);
 				}
