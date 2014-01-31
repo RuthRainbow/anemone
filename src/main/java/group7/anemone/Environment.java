@@ -8,8 +8,11 @@ import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+
 
 
 import processing.core.PApplet;
@@ -24,8 +27,9 @@ public class Environment implements Serializable{
 	private int tick = 0;
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
-	private ArrayList<Food> food;
+	private static ArrayList<Food> food;
 	private ArrayList<Wall> wall;
+	private ArrayList<Seaweed> seaweed;
 
 	private ArrayList<Collision> collisions;
 	
@@ -34,8 +38,8 @@ public class Environment implements Serializable{
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
 	
-	int width = 1500;
-	int height = 1500;
+	static int width = 1500;
+	static int height = 1500;
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -43,8 +47,9 @@ public class Environment implements Serializable{
 		this.sharkGod = new God();
 		this.fishes = new ArrayList<Agent>();
 		this.sharks = new ArrayList<Agent>();
-		this.food = new ArrayList<Food>();
+		Environment.food = new ArrayList<Food>();
 		this.wall = new ArrayList<Wall>();
+		this.seaweed = new ArrayList<Seaweed>();
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -268,13 +273,19 @@ public class Environment implements Serializable{
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
 
-    		for(int i = 0; i < fishes.size()/2; i++){
+    		/*for(int i = 0; i < fishes.size()/2; i++){
     			int x = (int) Math.floor(Math.random() * width);
     			int y = (int) Math.floor(Math.random() * height);
     			addFood(new Point2D.Double(x, y));
-    		}
+    		}*/
+    		
+
 
     	}
+    	
+		for(Seaweed sw : seaweed){
+			if(Math.random() < 0.02) sw.update();
+		}
     	
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
@@ -383,10 +394,21 @@ public class Environment implements Serializable{
 		sharks.add(new Enemy(coords, heading, parent, genome));
 	}
 
-	void addFood(Point2D.Double coords){
-		food.add(new Food(coords));
+	static void addFood(Point2D.Double coords){
+		if(!food.contains(coords) && !coordsOutside(coords)) food.add(new Food(coords));
 	}
 
+	private static boolean coordsOutside(Point2D.Double coords) {
+		if(coords.x < 0 || coords.x > width || coords.y < 0 || coords.y > height){
+			return true;
+		}
+		return false;
+	}
+
+	void addSeaweed(Point2D.Double coords){
+		seaweed.add(new Seaweed(coords));
+
+	}
 	void addWall(Point2D.Double start, Point2D.Double end){
 		wall.add(new Wall(start, end));
 	}
@@ -449,6 +471,13 @@ public class Environment implements Serializable{
 			}
 		}
 
+	}
+
+	public static boolean checkFood(Point2D.Double pt) {
+		for(Food fd : food){
+			if(fd.coords == pt) return true;
+		}
+		return false;
 	}
 
 }

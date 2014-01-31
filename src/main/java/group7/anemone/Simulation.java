@@ -125,7 +125,7 @@ public class Simulation extends PApplet {
 		for(int i = 0; i < 100; i++){
 			int x = (int) Math.floor(Math.random() * env.width);
 			int y = (int) Math.floor(Math.random() * env.height);
-			env.addFood(new Point2D.Double(x, y));
+			env.addSeaweed(new Point2D.Double(x, y));
 		}
 
 		//Top wall
@@ -909,13 +909,9 @@ public class Simulation extends PApplet {
         double[] Ycoord = new double[2];
         Ycoord[0] = m*Xcoord[0] + c;
         Ycoord[1] = m*Xcoord[1] + c;
-        System.out.println("Original position: "+ag.coords.x+" "+ag.coords.y);
         Point2D.Double closestWallPoint = Utilities.getClosestPoint(line, ag.coords);
-        System.out.println("Closest wall point: "+closestWallPoint.x+" "+closestWallPoint.y);
         double wallToNewPositionAngle = Utilities.angleBetweenPoints(closestWallPoint.x, closestWallPoint.y, ag.coords.x, ag.coords.y);
         Point2D.Double newAgentPosition = (Point2D.Double) Utilities.generateLine(closestWallPoint, 10, wallToNewPositionAngle).getP2();
-        System.out.println("New position: "+ag.coords.x+" "+ag.coords.y);
-        System.out.println("Distance to wall after: "+wl.getLine().ptLineDist(ag.getCoordinates()));
         
 		return newAgentPosition;
 	}
