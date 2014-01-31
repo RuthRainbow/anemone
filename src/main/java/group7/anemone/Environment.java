@@ -31,6 +31,8 @@ public class Environment implements Serializable{
 	
 	// Whether to not use health:
 	protected final boolean fitnessOnly = true;
+	//whether a fully connected network should be created.
+	protected final boolean FLAG_CONNECT_ALL= true;
 	
 	int width = 1500;
 	int height = 1500;
@@ -325,22 +327,54 @@ public class Environment implements Serializable{
 		 *
 		 * */
 		int total = 0;
+		int numMotorNeurons = 3;
+		int visualFieldSize = Agent.configNumSegments;
+		int numVisualNeurons = visualFieldSize*3;
+		ArrayList<Gene> edges = new ArrayList<Gene>();
 		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
+		ArrayList<NeatNode> motorNodes = new ArrayList<NeatNode>();
+		ArrayList<NeatNode> visualNodes = new ArrayList<NeatNode>();
 		
-		for(int i = 0; i < Agent.configNumSegments; i++){//Food
+		/* Motor neurons. */
+		for (int i=0; i<3; i++) {
 			NeatNode node = NeatNode.createRSNeatNode(total++);
-			nodes.add(node);
+			motorNodes.add(node);
 		}
-		for(int i = 0; i < Agent.configNumSegments; i++){//Wall
+                /* Food sensory neurons. */
+		for (int i = 0; i < Agent.configNumSegments; i++){//Food
 			NeatNode node = NeatNode.createRSNeatNode(total++);
-			nodes.add(node);
+			visualNodes.add(node);
 		}
-		for(int i = 0; i < Agent.configNumSegments; i++){//Enemy
+                /* Wall sensory neurons. */
+		for (int i = 0; i < Agent.configNumSegments; i++){//Wall
 			NeatNode node = NeatNode.createRSNeatNode(total++);
-			nodes.add(node);
+			visualNodes.add(node);
+		}
+                /* Enemy sensory neurons. */
+		for (int i = 0; i < Agent.configNumSegments; i++){//Enemy
+			NeatNode node = NeatNode.createRSNeatNode(total++);
+			visualNodes.add(node);
 		}
 		
-		return new Genome(new Gene[0], nodes, 0, null, null);
+		nodes.addAll(motorNodes);
+		nodes.addAll(visualNodes);
+		
+		/*
+		Full connectivity - for every sensory neuron, connect it to each
+		motor neuron.
+		*/
+		if(FLAG_CONNECT_ALL){
+			for (NeatNode vn : visualNodes) {
+				for (NeatNode mn : motorNodes) {
+					int preID = vn.getId();
+					int postID = mn.getId();
+					Gene g = new Gene(total++, vn, mn, 30.0, 1);
+					edges.add(g);
+				}
+			}
+		}
+		
+		return new Genome(edges.toArray(new Gene[0]), nodes, 0, null, null);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){
