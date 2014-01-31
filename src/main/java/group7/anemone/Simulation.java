@@ -58,7 +58,7 @@ public class Simulation extends PApplet {
 	UIWindow winStats;
 	UIWindow winTheme;
 
-	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnToggleTheme;
+	UIButton btnAddFood, btnAddAgent, btnSelectAgent, btnThrust, btnAddWall, btnToggleTheme;
 	UIButton btnSelectKill, btnSelectHealth, btnSelectThrust, btnToggleFocused;
 	UIVision agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed, lblSimTPS;
@@ -78,12 +78,13 @@ public class Simulation extends PApplet {
 	int offsetY = 50;
 
 	float neuralRotation = 0;
-	float zoomLevel = 0.15f;
+	float zoomLevel = 0.75f;
 	boolean arrowsPressed[] = new boolean[4];
 	int moveSpeed = 50;
 	float minZoom = 0.15f;
 	int SIM_TICKS = 1;
 	int SIM_TPS_MAX = 51;
+	boolean PLACE_MODE = false;
 
 	//agent tracking / focused settings
 	boolean agentFocused = false;
@@ -137,10 +138,10 @@ public class Simulation extends PApplet {
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
 		
 		//internal walls
-		/*
+		
 		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
 		env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
-		env.addWall(new Point2D.Double(0,0),new Point2D.Double(env.width,env.height));*/
+		env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4));
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
@@ -155,31 +156,38 @@ public class Simulation extends PApplet {
 		 * 1 = Food tool - Place food where you click
 		 * 2 = Agent tool - Place agent where you click
 		 * 3 = Thrust tool - Thrusts the agent clicked on by 2
+		 * 4 = Wall tool - Place a new wall in the environment
 		 */
 
 		//coordinates of the mouse within the simulation environment
 		int simMouseX = (int) ((float) (mouseX - offsetX) / zoomLevel);
 		int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
 		if(!Utilities.isPointInBox(simMouseX, simMouseY, 0, 0, env.width, env.height)) return;
-
+		
+		if(PLACE_MODE){
+			PLACE_MODE = false;
+			return;
+		}
 		switch(mouseMode){
-		case 0: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
-				if(agent_clicked != null){ //agent was clicked so update selected
-					selectedAgent = agent_clicked;
-				}
-				break;
-
-		case 1: env.addFood(new Point2D.Double(simMouseX, simMouseY));
-				break;
-
-		case 2: int heading = (int) Math.floor(Math.random() * 360);
-				env.addFish(new Point2D.Double(simMouseX, simMouseY), heading);
-				break;
-		case 3: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
-				if(agent_clicked != null){ //agent was clicked so update selected
-					agent_clicked.thrust(2);
-				}
-				break;
+			case 0: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
+					if(agent_clicked != null){ //agent was clicked so update selected
+						selectedAgent = agent_clicked;
+					}
+					break;
+	
+			case 1: env.addFood(new Point2D.Double(simMouseX, simMouseY));
+					break;
+	
+			case 2: int heading = (int) Math.floor(Math.random() * 360);
+					env.addFish(new Point2D.Double(simMouseX, simMouseY), heading);
+					break;
+			case 3: agent_clicked = getClickedAgent(agents, simMouseX, simMouseY);
+					if(agent_clicked != null){ //agent was clicked so update selected
+						agent_clicked.thrust(2);
+					}
+					break;
+			case 4: env.addWall(new Point2D.Double(simMouseX, simMouseY),new Point2D.Double(simMouseX, simMouseY));
+					PLACE_MODE = true;
 		}
 
 	}
@@ -193,6 +201,17 @@ public class Simulation extends PApplet {
 		if(win.mouseDragged()) return;
 
 
+	}
+	public void mouseMoved(){
+		if(PLACE_MODE){
+			int simMouseX = (int) ((float) (mouseX - offsetX) / zoomLevel);
+			int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
+			ArrayList<Wall> walls = env.getAllWalls();
+			Wall w = walls.get(walls.size() - 1);
+			
+			w.getEnd().x = simMouseX;
+			w.getEnd().y = simMouseY;
+		}
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
@@ -434,15 +453,16 @@ public class Simulation extends PApplet {
 		btnGroupModes.setFixedBackground(true);
 		sidePanel.addObject(btnGroupModes);
 
-		btnSelectAgent = addModeButton(0, "Select", 10, 2 ,118 ,255);
-		btnAddFood = addModeButton(1, "Food", 70, 84, 255, 159);
-		btnAddAgent = addModeButton(2, "Agent", 130, 255, 127, 0);
-		btnThrust = addModeButton(3, "Thrust", 190, 0, 231, 125);
+		btnSelectAgent = addModeButton(0, "Select", 2 ,118 ,255);
+		btnAddFood = addModeButton(1, "Food", 84, 255, 159);
+		btnAddAgent = addModeButton(2, "Agent", 255, 127, 0);
+		btnThrust = addModeButton(3, "Thrust", 0, 231, 125);
+		btnAddWall = addModeButton(4, "Wall", 255, 255, 0);
 
 		btnGroupModes.selectButton(btnSelectAgent);
 
 		//Change number of ticks updated each frame
-		sliderTPS = new UISlider(this, 10, 85, 170, 30);
+		sliderTPS = new UISlider(this, 10, 90, 170, 30);
 		sliderTPS.setEventHandler(new UIAction(){
 			public void change(UISlider slider){
 				SIM_TICKS = (int) (slider.getValue() * SIM_TPS_MAX);
@@ -763,8 +783,8 @@ public class Simulation extends PApplet {
 			e.printStackTrace();
 		}
 	}
-	private UIButton addModeButton(final int mode, String txt, int pos, int r, int g, int b){
-		UIButton btn = new UIButton(this, pos, 20, 50, 50, txt);
+	private UIButton addModeButton(final int mode, String txt, int r, int g, int b){
+		UIButton btn = new UIButton(this, 10 + 60 * (mode % 4), 10  + (35 * (int) Math.floor(mode / 4)), 50, 30, txt);
 		btn.setEventHandler(new UIAction(){
 			public void click(UIButton btn){
 				btnGroupModes.selectButton(btn);
