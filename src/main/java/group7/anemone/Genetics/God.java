@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 public class God implements Serializable{
 	private static final long serialVersionUID = 619717007643693268L;
@@ -91,7 +92,30 @@ public class God implements Serializable{
 			nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
 		}
 		
-		sortIntoSpecies(agents);
+		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
+		// Set up threads for each distance calculation to speed this up.
+		for (Agent agent : agents) {
+			AgentFitness thisAgent = new AgentFitness(agent);
+			for (Species specie : species) {
+				AgentFitness speciesRep = specie.rep;
+				if (!distances.containsKey(new Pair<AgentFitness>(thisAgent, speciesRep))) {
+					Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
+					Thread thread = new Thread(r);
+					thread.run();
+				} else {
+					latch.countDown();
+				}
+			}
+		}
+
+		// Wait for all threads to complete:
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			// Continue; we'll just have to calculate the distances in sequence.
+		}
+		
+		PropagateFitnesses(agents);
 		
 		shareFitnesses();
 		ArrayList<Genome> children = new ArrayList<Genome>();
@@ -102,14 +126,14 @@ public class God implements Serializable{
 			children.addAll(speciesChildren);
 		}
 		// Pre calculate the distances of new children so this is faster next round.
-		Runnable r = new CalcDistance(children);
+		Runnable r = new CalcAllDistances(children);
 		Thread thread = new Thread(r);
 		thread.run();
 		return children;
 	}
 
 	// Copy across agent's fitness from simulation to specie members.
-	private void sortIntoSpecies(ArrayList<Agent> agents) {
+	private void PropagateFitnesses(ArrayList<Agent> agents) {
 		for (Agent agent : agents) {
 			for (Species specie : species) {
 				for (AgentFitness member : specie.members) {
@@ -589,10 +613,10 @@ public class God implements Serializable{
 	}
 	
 	/* Calculate distances whilst the simulation is running. */
-	private class CalcDistance implements Runnable { 
+	private class CalcAllDistances implements Runnable { 
 		private ArrayList<Genome> agents;
 
-		public CalcDistance(ArrayList<Genome> allChildren) {
+		public CalcAllDistances(ArrayList<Genome> allChildren) {
 			this.agents = allChildren;
 		}
 
@@ -604,11 +628,11 @@ public class God implements Serializable{
 
 			// Put each agent given for reproduction into a species.
 			for (Genome agent : this.agents) {
-				boolean foundSpecies = false;
 				AgentFitness thisAgent = new AgentFitness(agent);
+				boolean foundSpecies = false;
+				
 				for (Species specie : species) {
 					AgentFitness rep = specie.rep;
-					// TODO IF NEEDED THIS COULD(/really should...) BE THREADED!!!!
 					double dist = getDistance(thisAgent, rep);
 					
 					if (dist < compatibilityThreshold) {
@@ -625,6 +649,22 @@ public class God implements Serializable{
 				}
 			}
 		}
+	}
+	
+	private class CalcDistance implements Runnable {
+		private AgentFitness thisAgent;
+		private AgentFitness speciesRep;
+		private CountDownLatch latch;
 
+		public CalcDistance(AgentFitness thisAgent, AgentFitness speciesRep, CountDownLatch latch) {
+			this.thisAgent = thisAgent;
+			this.speciesRep = speciesRep;
+			this.latch = latch;
+		}
+
+		public synchronized void run() {
+			calcDistance(thisAgent, speciesRep);
+			latch.countDown();
+		}
 	}
 }
