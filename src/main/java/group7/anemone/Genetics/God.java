@@ -29,12 +29,12 @@ public class God implements Serializable{
 
 	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
 	// Parameters for use in difference calculation (can be tweaked).
-	public double c1 = 0.3f; //weighting of excess genes
+	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 0.4;
+	public double compatibilityThreshold = 0.8;
 	public double minReproduced = 5;
 	/** End of possible graphical vars **/
 
@@ -67,7 +67,6 @@ public class God implements Serializable{
 	protected HashMap<Genome, Integer> BreedPopulation(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<AgentFitness> selectedAgents = Selection(agents);
-		System.out.println("selecting " + selectedAgents.size());
 		ArrayList<Genome> children = GenerateChildren(selectedAgents);
 		HashMap<Genome, Integer> childrenSpecies = new HashMap<Genome, Integer>();
 		for (Genome child : children) {
@@ -123,6 +122,10 @@ public class God implements Serializable{
 		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
+		// Make sure all species enter the while loop, by duplicating if only species member.
+		if (specie.members.size() == 1) {
+			specie.addMember(specie.members.get(i));
+		}
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			AgentFitness mother = specie.members.get(i);
 			AgentFitness father = specie.members.get(i+1);
@@ -196,8 +199,9 @@ public class God implements Serializable{
 				weightDiff += Math.abs(a.getXthWeight(i) - b.getXthWeight(i));
 			}
 		}
-		if (maxLength == 0) maxLength = 1; // Avoid divide by zero.
-		double distance = (c1*numExcess)/maxLength + (c2*numDisjoint)/maxLength + (c3*weightDiff);
+		double averageLength = (maxLength + minLength) / 2;
+		if (averageLength == 0) averageLength = 1; // Avoid divide by zero.
+		double distance = (c1*numExcess)/averageLength + (c2*numDisjoint)/averageLength + (c3*weightDiff);
 		// Save this distance so we don't need to recalculate:
 		distances.put(agentPair, distance);
 		return distance;
@@ -283,7 +287,8 @@ public class God implements Serializable{
 	}
 
 	protected Genome crossover(AgentFitness mother, AgentFitness father) {
-		if (mother.fitness > father.fitness) {
+		// If an agent has no edges, it is definitely not dominant.
+		if (mother.stringRep.getGene().length > 0 && mother.fitness > father.fitness) {
 			return crossover(mother.stringRep, father.stringRep);
 		} else {
 			return crossover(father.stringRep, mother.stringRep);
@@ -322,7 +327,7 @@ public class God implements Serializable{
 				child.add(gene);
 			}
 		}
-
+		
 		Gene[] childGene = new Gene[child.size()];
 		for (int i = 0; i < child.size(); i++) {
 			childGene[i] = child.get(i);
@@ -543,6 +548,11 @@ public class God implements Serializable{
 			} else {
 				return 0;
 			}
+		}
+		
+		@Override
+		public String toString() {
+			return "Genome: " + this.stringRep + " fitness: " + this.fitness;
 		}
 	}
 	

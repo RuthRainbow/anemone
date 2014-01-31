@@ -92,8 +92,6 @@ public class Agent extends SimulationObject implements Serializable {
 			= new HashMap<Integer, MNeuron>();
 		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
 		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
-		
-		System.out.println("we have " + genome.getGene().length);
 
 		/* Create neurons. */
 		for (NeatNode nn : genome.getNodes()) {
@@ -146,8 +144,6 @@ public class Agent extends SimulationObject implements Serializable {
 			/* Add the synapse to the list. */
 			synapses.add(synapse);
 		}
-		
-		System.out.println("we have " + synapses.size()  + " synapses");
 
 		/* Create the network. */
 		this.mnetwork = new MNetwork(neurons, synapses);
