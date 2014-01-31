@@ -2,6 +2,7 @@ package group7.anemone.Genetics;
 
 import group7.anemone.Agent;
 import group7.anemone.MNetwork.MFactory;
+import group7.anemone.MNetwork.MNeuronParams;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ public class God implements Serializable{
 	public double weightMutationChance = 0.8f;
 	// (chance of decrease is 1 - the chance of increase)
 	public double weightIncreaseChance = 0.5f;
+	//TODO add to interface :)
+	public double parameterMutationChance = 0.8f;
+	public double parameterIncreaseChance = 0.5f;
 
 	// Crossover chances:
 	public double twinChance = 0.05f;
@@ -338,14 +342,38 @@ public class God implements Serializable{
 		
 		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
 		nodeSet.addAll(recessive.getNodes());
+		//TODO fix bug to do with species = -1
 		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
 	}
 
 	// Possibly mutate a child structurally or by changing edge weights.
-	// TODO add parameter mutation.
 	private Genome mutate(Genome child) {
 		child = structuralMutation(child);
+		parameterMutation(child);
 		return weightMutation(child);
+	}
+
+	// Mutate the parameters of a gene.
+	private void parameterMutation(Genome child) {
+		if (getRandom() < parameterMutationChance) {
+			NeatNode toMutate = child.getNodes().get(
+					(int) Math.floor(getRandom()*child.getNodes().size()));
+			MNeuronParams params = toMutate.getParams();
+			if (getRandom() < parameterIncreaseChance) {
+				mutateParam(params, getRandom());
+			} else {
+				mutateParam(params, -1 * getRandom());
+			}
+		}
+	}
+	
+	// Method to mutate one of a b c or d by the given amount
+	private void mutateParam(MNeuronParams params, double amount) {
+		double random = getRandom();
+		if (random < 0.25) params.a += 0.01;
+		else if (random < 0.5) params.b += 0.01;
+		else if (random < 0.75) params.c += 0.01;
+		else params.d += 0.01;
 	}
 
 	// Mutate a genome structurally
