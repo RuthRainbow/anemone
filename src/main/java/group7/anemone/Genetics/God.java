@@ -7,8 +7,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class God implements Serializable{
@@ -44,7 +46,8 @@ public class God implements Serializable{
 	//private int noImprovementCount = 0;
 
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
-	private int nextMarker = 0;
+	private int nextEdgeMarker;
+	private int nextNodeMarker;
 	private ArrayList<Gene> newGenes;
 
 	// The ordered list of all species, with each represented by a member from the
@@ -80,6 +83,8 @@ public class God implements Serializable{
 		
 		if (species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
+			nextNodeMarker = agents.get(0).getStringRep().getNodes().size();
+			nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
 		}
 		
 		shareFitnesses();
@@ -114,11 +119,9 @@ public class God implements Serializable{
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
 			summedFitness += agent.fitness;
-			//System.out.println("this agent's fitness is " + agent.fitness);
 		}
 		int numOffspring = Math.max(
 				(int) minReproduced, (int) Math.ceil(summedFitness * offspringProportion));
-		//int numOffspring = 2;
 		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
@@ -332,7 +335,10 @@ public class God implements Serializable{
 		for (int i = 0; i < child.size(); i++) {
 			childGene[i] = child.get(i);
 		}
-		return new Genome(childGene, dominant.getNodes(), -1, dominant, recessive);
+		
+		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
+		nodeSet.addAll(recessive.getNodes());
+		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
 	}
 
 	// Possibly mutate a child structurally or by changing edge weights.
@@ -387,7 +393,7 @@ public class God implements Serializable{
 		NeatNode right = nodeList.get(
 				(int) Math.floor(getRandom()*nodeList.size()));
 		Gene newGene = new Gene(
-				nextMarker, left, right, 30.0, 1);
+				nextEdgeMarker, left, right, 30.0, 1);
 		// If this mutated gene has already been created this gen, don't create another
 		for (Gene gene : newGenes) {
 			if (newGene.equals(gene)) {
@@ -395,7 +401,7 @@ public class God implements Serializable{
 			}
 		}
 		if (!newGenes.contains(newGene)) {
-			nextMarker++;
+			nextEdgeMarker++;
 			newGenes.add(newGene);
 			edgeList.add(newGene);
 		}
@@ -410,34 +416,17 @@ public class God implements Serializable{
 		// Make a new intermediate node TODO can do this more randomly than default params.
 		// Increment max to keep track of max node id.
 		max += 1;
-		NeatNode newNode = new NeatNode(nextMarker, MFactory.createRSNeuronParams());
+		NeatNode newNode = new NeatNode(nextNodeMarker, MFactory.createRSNeuronParams());
 		nodeList.add(newNode);
-		Gene newLeftGene = new Gene(nextMarker, toMutate.getIn(), newNode, 30.0, 1);
-		// If this mutated gene has already been created this gen, don't create another
-		for (Gene gene : newGenes) {
-			if (newLeftGene.equals(gene)) {
-				newLeftGene = gene;
-				max -= 1;
-			}
-		}
-		// Only increment the marker if this gene is new.
-		if (!newGenes.contains(newLeftGene)) {
-			nextMarker++;
-			newGenes.add(newLeftGene);
-		}
+		nextNodeMarker++;
+		
+		Gene newLeftGene = new Gene(nextEdgeMarker, toMutate.getIn(), newNode, 30.0, 1);
+		nextEdgeMarker++;
 		edgeList.add(newLeftGene);
 		// Weight should be the same as the current Gene between this two nodes:
 		Gene newRightGene = new Gene(
-				nextMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
-		for (Gene gene : newGenes) {
-			if (newRightGene.equals(gene)) {
-				newRightGene = gene;
-			}
-		}
-		if (!newGenes.contains(newRightGene)) {
-			nextMarker++;
-			newGenes.add(newRightGene);
-		}
+				nextEdgeMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
+		nextEdgeMarker++;
 		edgeList.add(newRightGene);
 		return max;
 	}

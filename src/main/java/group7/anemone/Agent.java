@@ -119,6 +119,8 @@ public class Agent extends SimulationObject implements Serializable {
 			int delay = g.getDelay();
 			Integer preNid = new Integer(preNode.getId());
 			Integer postNid = new Integer(postNode.getId());
+			System.out.println("pre: " + preNid + " post:  " + postNid);
+			System.out.println("nodes are " + genome.getNodes());
 
 			/* Find the pre and post neurons. */
 			MNeuron preNeuron = neuronMap.get(preNid);
