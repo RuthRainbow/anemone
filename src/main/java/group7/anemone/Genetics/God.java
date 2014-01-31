@@ -39,6 +39,7 @@ public class God implements Serializable{
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
+
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 0.8;
@@ -115,7 +116,7 @@ public class God implements Serializable{
 			// Continue; we'll just have to calculate the distances in sequence.
 		}
 		
-		PropagateFitnesses(agents);
+		propagateFitnesses(agents);
 		
 		shareFitnesses();
 		ArrayList<Genome> children = new ArrayList<Genome>();
@@ -133,16 +134,45 @@ public class God implements Serializable{
 	}
 
 	// Copy across agent's fitness from simulation to specie members.
-	private void PropagateFitnesses(ArrayList<Agent> agents) {
+	private void propagateFitnesses(ArrayList<Agent> agents) {
 		for (Agent agent : agents) {
+			boolean speciesFound = false;
 			for (Species specie : species) {
 				for (AgentFitness member : specie.members) {
 					if (member.stringRep.equals(agent.getStringRep())) {
 						member.fitness = agent.getFitness();
+						speciesFound = true;
 						break;
 					}
 				}
 			}
+			// This case could happen if the main species sorter thread was slower than the sim.
+			if (!speciesFound) {
+				AgentFitness thisAgent = new AgentFitness(agent);
+				sortIntoSpecies(thisAgent);
+			}
+		}
+	}
+
+	// Sort given AgentFitness into a species or create a new one.
+	private void sortIntoSpecies(AgentFitness thisAgent) {
+		Genome genome = thisAgent.stringRep;
+		boolean foundSpecies = false;
+		for (Species specie : species) {
+			AgentFitness rep = specie.rep;
+			double dist = getDistance(thisAgent, rep);
+			
+			if (dist < compatibilityThreshold) {
+				foundSpecies = true;
+				specie.addMember(thisAgent);
+				genome.setSpecies(specie.id);
+				break;
+			}
+		}
+		if (!foundSpecies) {
+			int newSpeciesId = species.size();
+			species.add(new Species(thisAgent, newSpeciesId));
+			genome.setSpecies(newSpeciesId);
 		}
 	}
 
@@ -629,24 +659,7 @@ public class God implements Serializable{
 			// Put each agent given for reproduction into a species.
 			for (Genome agent : this.agents) {
 				AgentFitness thisAgent = new AgentFitness(agent);
-				boolean foundSpecies = false;
-				
-				for (Species specie : species) {
-					AgentFitness rep = specie.rep;
-					double dist = getDistance(thisAgent, rep);
-					
-					if (dist < compatibilityThreshold) {
-						foundSpecies = true;
-						specie.addMember(thisAgent);
-						agent.setSpecies(specie.id);
-						break;
-					}
-				}
-				if (!foundSpecies) {
-					int newSpeciesId = species.size();
-					species.add(new Species(thisAgent, newSpeciesId));
-					agent.setSpecies(newSpeciesId);
-				}
+				sortIntoSpecies(thisAgent);
 			}
 		}
 	}
