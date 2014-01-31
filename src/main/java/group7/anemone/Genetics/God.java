@@ -91,6 +91,8 @@ public class God implements Serializable{
 			nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
 		}
 		
+		sortIntoSpecies(agents);
+		
 		shareFitnesses();
 		ArrayList<Genome> children = new ArrayList<Genome>();
 		// Breed each species
@@ -104,6 +106,20 @@ public class God implements Serializable{
 		Thread thread = new Thread(r);
 		thread.run();
 		return children;
+	}
+
+	// Copy across agent's fitness from simulation to specie members.
+	private void sortIntoSpecies(ArrayList<Agent> agents) {
+		for (Agent agent : agents) {
+			for (Species specie : species) {
+				for (AgentFitness member : specie.members) {
+					if (member.stringRep.equals(agent.getStringRep())) {
+						member.fitness = agent.getFitness();
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	private ArrayList<Genome> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
