@@ -327,15 +327,23 @@ public class Environment implements Serializable{
 		int total = 0;
 		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
 		
-		for(int i = 0; i < Agent.configNumSegments; i++){//Food
+		/* Motor neurons. */
+		for (int i=0; i<3; i++) {
 			NeatNode node = NeatNode.createRSNeatNode(total++);
 			nodes.add(node);
 		}
-		for(int i = 0; i < Agent.configNumSegments; i++){//Wall
+                /* Food sensory neurons. */
+		for (int i = 0; i < Agent.configNumSegments; i++){//Food
 			NeatNode node = NeatNode.createRSNeatNode(total++);
 			nodes.add(node);
 		}
-		for(int i = 0; i < Agent.configNumSegments; i++){//Enemy
+                /* Wall sensory neurons. */
+		for (int i = 0; i < Agent.configNumSegments; i++){//Wall
+			NeatNode node = NeatNode.createRSNeatNode(total++);
+			nodes.add(node);
+		}
+                /* Enemey sensory neurons. */
+		for (int i = 0; i < Agent.configNumSegments; i++){//Enemy
 			NeatNode node = NeatNode.createRSNeatNode(total++);
 			nodes.add(node);
 		}
