@@ -120,11 +120,13 @@ public class Environment implements Serializable{
 		}
     }
 
-
+	private Wall wallChecking;
     private ArrayList<SightInformation> checkFOVWalls( ArrayList<Wall> walls, Agent ag) {
 
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
 		for(Wall wl : walls){
+			wallChecking = wl;
+			
 			//check if the wall is within the agent's viewable distance
 			if (wl.getLine().ptLineDist(ag.getCoordinates()) < ag.getVisionRange()){
 
@@ -174,8 +176,10 @@ public class Environment implements Serializable{
 		return result;
 	}
 	
-	private boolean lineIntersectsWall(Line2D.Double line){
+	private boolean lineIntersectsWall(Line2D.Double line, SimulationObject ignore){
 		for(Wall wl : wall){
+			if(ignore instanceof Wall && wallChecking == wl) continue;
+			
 			if(wl.getLine().intersectsLine(line)) return true;
 		}
 		
@@ -189,7 +193,9 @@ public class Environment implements Serializable{
 		double headAbove = ag.getViewHeading() + ag.getFOV();
 		//check if the object is within viewable distance
 		double distance = ag.getCoordinates().distance(ob.getCoordinates());
-		boolean intersectsWall = lineIntersectsWall(new Line2D.Double(ag.getCoordinates(), ob.getCoordinates()));
+		
+		Line2D.Double lineToObject = new Line2D.Double(ag.getCoordinates(), ob.getCoordinates());
+		boolean intersectsWall = lineIntersectsWall(lineToObject, ob);
 		
 		if(!intersectsWall && distance <= ag.getVisionRange()){
 			//get angle of object in relation to agent
