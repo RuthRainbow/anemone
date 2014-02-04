@@ -175,7 +175,7 @@ public class Simulation extends PApplet {
 					}
 					break;
 	
-			case 1: env.addFood(new Point2D.Double(simMouseX, simMouseY));
+			case 1: env.addSeaweed(new Point2D.Double(simMouseX, simMouseY));
 					break;
 	
 			case 2: int heading = (int) Math.floor(Math.random() * 360);
@@ -241,6 +241,9 @@ public class Simulation extends PApplet {
 					break;
 		case('w'):	mouseMode=1;
 					btnGroupModes.selectButton(btnAddFood);
+					break;
+		case('t'):	mouseMode=4;
+					btnGroupModes.selectButton(btnAddWall);
 					break;
 		case('s'):	saveEnvironment();
 					break;
@@ -454,7 +457,7 @@ public class Simulation extends PApplet {
 		sidePanel.addObject(btnGroupModes);
 
 		btnSelectAgent = addModeButton(0, "Select", 2 ,118 ,255);
-		btnAddFood = addModeButton(1, "Food", 84, 255, 159);
+		btnAddFood = addModeButton(1, "Seaweed", 84, 255, 159);
 		btnAddAgent = addModeButton(2, "Agent", 255, 127, 0);
 		btnThrust = addModeButton(3, "Thrust", 0, 231, 125);
 		btnAddWall = addModeButton(4, "Wall", 255, 255, 0);
