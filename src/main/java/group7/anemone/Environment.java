@@ -285,7 +285,8 @@ public class Environment implements Serializable{
 
     	}
     	
-		for(Seaweed sw : seaweed){
+		for(int i = 0; i < seaweed.size(); i++){
+			Seaweed sw = seaweed.get(i);
 			if(Math.random() < 0.02) sw.update();
 		}
     	

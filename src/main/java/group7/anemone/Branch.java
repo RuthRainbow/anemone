@@ -48,6 +48,8 @@ public class Branch extends SimulationObject{
 			}
 		}
 
-		
+		if(currentPoint.distance(root) > 40 && Math.random() > 0.9){
+			env.addSeaweed(currentPoint);
+		}
 	}
 }
