@@ -30,6 +30,7 @@ public class Environment implements Serializable{
 	private static ArrayList<Food> food;
 	private ArrayList<Wall> wall;
 	private ArrayList<Seaweed> seaweed;
+	private static ArrayList<Point2D.Double> foodPos;
 
 	private ArrayList<Collision> collisions;
 	
@@ -50,6 +51,7 @@ public class Environment implements Serializable{
 		Environment.food = new ArrayList<Food>();
 		this.wall = new ArrayList<Wall>();
 		this.seaweed = new ArrayList<Seaweed>();
+		this.foodPos = new ArrayList<Point2D.Double>();
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -394,8 +396,11 @@ public class Environment implements Serializable{
 		sharks.add(new Enemy(coords, heading, parent, genome));
 	}
 
-	static void addFood(Point2D.Double coords){
-		if(!food.contains(coords) && !coordsOutside(coords)) food.add(new Food(coords));
+	void addFood(Point2D.Double coords) {
+		if (!food.contains(coords) && !coordsOutside(coords)) {
+			food.add(new Food(coords));
+			foodPos.add(coords);
+		}
 	}
 
 	private static boolean coordsOutside(Point2D.Double coords) {
@@ -406,19 +411,25 @@ public class Environment implements Serializable{
 	}
 
 	void addSeaweed(Point2D.Double coords){
-		seaweed.add(new Seaweed(coords));
+		seaweed.add(new Seaweed(coords, this));
 
 	}
 	void addWall(Point2D.Double start, Point2D.Double end){
 		wall.add(new Wall(start, end));
 	}
+	
+	public int foodsize() { return food.size(); }
+
+	
 
 	protected void removeAgent(Agent ag){
 		if(ag instanceof Enemy) sharks.remove(ag);
 		else fishes.remove(ag);
 	}
-	protected void removeFood(Food fd){
+
+	protected void removeFood(Food fd) {
 		food.remove(fd);
+		foodPos.remove(fd.coords);
 	}
 
 	protected ArrayList<Agent> getAllFishes(){
@@ -473,11 +484,30 @@ public class Environment implements Serializable{
 
 	}
 
-	public static boolean checkFood(Point2D.Double pt) {
-		for(Food fd : food){
-			if(fd.coords == pt) return true;
-		}
+	public boolean checkFood(Point2D.Double pt) {
+		if (foodPos.contains(pt))
+			return true;
+		if (foodPos.contains(adjustPt(pt, 0, 1)))
+			return true;
+		if (foodPos.contains(adjustPt(pt, 1, 0)))
+			return true;
+		if (foodPos.contains(adjustPt(pt, 1, 1)))
+			return true;
+		if (foodPos.contains(adjustPt(pt, 0, -1)))
+			return true;
+		if (foodPos.contains(adjustPt(pt, -1, 0)))
+			return true;
+		if (foodPos.contains(adjustPt(pt, -1, -1)))
+			return true;
+		if (foodPos.contains(adjustPt(pt, 1, -1)))
+			return true;
+		if (foodPos.contains(adjustPt(pt, -1, 1)))
+			return true;
 		return false;
+	}
+
+	private static Point2D.Double adjustPt(Double pt, int i, int j) {
+		return new Point2D.Double(pt.x + i, pt.y + j);
 	}
 
 }

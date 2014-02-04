@@ -122,7 +122,7 @@ public class Simulation extends PApplet {
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
 
-		for(int i = 0; i < 100; i++){
+		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * env.width);
 			int y = (int) Math.floor(Math.random() * env.height);
 			env.addSeaweed(new Point2D.Double(x, y));
