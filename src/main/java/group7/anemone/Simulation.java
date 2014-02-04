@@ -345,14 +345,18 @@ public class Simulation extends PApplet {
 			noStroke();
 			//if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)));
 			//else fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)), 100); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
-			if (ag instanceof Agent) {
-				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256);
-			} else {
+			if (ag instanceof Enemy) {
 				fill(theme.getColor(Types.SHARK));
+				pushMatrix();
+				translate(ag.getX(), ag.getY());
+				rotate((float) toRadians(ag.getViewHeading()));
+				rect(-10, -10, 20, 20);
+				popMatrix();
+			} else {
+				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256);
+				ellipse(ag.getX(), ag.getY(), 20, 20);
 			}
 			
-			ellipse(ag.getX(), ag.getY(), 20, 20);
-
 			if(agentFocused && ag == selectedAgent){ //keep agent on screen if in focused / tracking mode
 				int simAgX = (int) ((ag.getX() * zoomLevel) + offsetX);//screen coordinates of the selected agent
 				int simAgY = (int) ((ag.getY() * zoomLevel) + offsetY);
