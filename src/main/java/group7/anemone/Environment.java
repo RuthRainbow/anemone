@@ -173,6 +173,14 @@ public class Environment implements Serializable{
 		}
 		return result;
 	}
+	
+	private boolean lineIntersectsWall(Line2D.Double line){
+		for(Wall wl : wall){
+			if(wl.getLine().intersectsLine(line)) return true;
+		}
+		
+		return false;
+	}
 
 	private SightInformation checkObject(SimulationObject ob, Agent ag) {
 
@@ -181,7 +189,9 @@ public class Environment implements Serializable{
 		double headAbove = ag.getViewHeading() + ag.getFOV();
 		//check if the object is within viewable distance
 		double distance = ag.getCoordinates().distance(ob.getCoordinates());
-		if(distance <= ag.getVisionRange()){
+		boolean intersectsWall = lineIntersectsWall(new Line2D.Double(ag.getCoordinates(), ob.getCoordinates()));
+		
+		if(!intersectsWall && distance <= ag.getVisionRange()){
 			//get angle of object in relation to agent
 			double angleBetween = Math.atan((ob.getCoordinates().y - ag.getCoordinates().y) / (ob.getCoordinates().x - ag.getCoordinates().x));
 			angleBetween = angleBetween * 180 / Math.PI;
