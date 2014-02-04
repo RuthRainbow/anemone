@@ -26,9 +26,9 @@ public class Branch extends SimulationObject{
 		if(Math.random() < 0.001) maxSize = 0;
 		double dist = currentPoint.distance(root);
 		if(dist  > maxSize) currentPoint = root;
-		if(env.foodsize() == 0 || Math.random() < (0.5/env.foodsize())){
+		if(env.foodsize() == 0 || Math.random() < (0.5/(env.foodsize()/10))){
 			if(env.checkFood(currentPoint)){
-				Point2D.Double nextPoint = new Point2D.Double(currentPoint.x + directionVector[0]*5,currentPoint.y + directionVector[1]*5);
+				Point2D.Double nextPoint = new Point2D.Double(currentPoint.x + directionVector[0]*10,currentPoint.y + directionVector[1]*10);
 				env.addFood(nextPoint);
 				currentPoint = nextPoint;
 			} else {

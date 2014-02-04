@@ -14,13 +14,13 @@ public class Seaweed extends SimulationObject{
 		
 		this.branches = new ArrayList<Branch>();
 		branches.add(new Branch(coords,new double[]{-1*Math.random(),-1*Math.random()},coords, env));
-		branches.add(new Branch(coords,new double[]{-1*Math.random(),0},coords, env));
+		branches.add(new Branch(coords,new double[]{-1*Math.random(),Math.random()},coords, env));
 		branches.add(new Branch(coords,new double[]{-1*Math.random(),1*Math.random()},coords, env));
-		branches.add(new Branch(coords,new double[]{0,-1*Math.random()},coords, env));
-		branches.add(new Branch(coords,new double[]{0,0},coords, env));
-		branches.add(new Branch(coords,new double[]{0,1*Math.random()},coords, env));
+		branches.add(new Branch(coords,new double[]{Math.random(),-1*Math.random()},coords, env));
+		branches.add(new Branch(coords,new double[]{Math.random(),Math.random()},coords, env));
+		branches.add(new Branch(coords,new double[]{Math.random(),1*Math.random()},coords, env));
 		branches.add(new Branch(coords,new double[]{1*Math.random(),-1*Math.random()},coords, env));
-		branches.add(new Branch(coords,new double[]{1*Math.random(),0},coords, env));
+		branches.add(new Branch(coords,new double[]{1*Math.random(),Math.random()},coords, env));
 		branches.add(new Branch(coords,new double[]{1*Math.random(),1*Math.random()},coords, env));
 	}
 	public void update(){

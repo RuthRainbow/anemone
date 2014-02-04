@@ -240,7 +240,7 @@ public class Environment implements Serializable{
     		shark.update();
     	}
     	tick++;
-
+    	System.out.println("Number of food: "+food.size());
     	if (tick % 300 == 0) {
     		/*if (tick % 900 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks);
