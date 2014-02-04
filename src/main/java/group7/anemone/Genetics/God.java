@@ -26,7 +26,6 @@ public class God implements Serializable{
 	public double weightMutationChance = 0.8f;
 	// (chance of decrease is 1 - the chance of increase)
 	public double weightIncreaseChance = 0.5f;
-	//TODO add to interface :)
 	public double parameterMutationChance = 0.8f;
 	public double parameterIncreaseChance = 0.5f;
 

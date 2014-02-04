@@ -744,7 +744,8 @@ public class Simulation extends PApplet {
 	}
 	
 	private String neatParameters[] = {
-			"structuralMutationChance", "addConnectionChance", "addNodeChance", "weightMutationChance", "weightIncreaseChance", 
+			"structuralMutationChance", "addConnectionChance", "addNodeChance", "weightMutationChance", "weightIncreaseChance",
+			"parameterMutationChance", "parameterIncreaseChance",
 			"twinChance", "matchedGeneChance", "offspringProportion", 
 			"c1", "c2", "c3", 
 			"compatibilityThreshold", "minReproduced"
