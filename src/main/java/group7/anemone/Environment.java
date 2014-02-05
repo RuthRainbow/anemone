@@ -258,7 +258,21 @@ public class Environment implements Serializable{
     		shark.update();
     	}
     	tick++;
-    	System.out.println("Number of food: "+food.size());
+    	/*System.out.println("Number of food: "+food.size());
+    	double avg = 0;
+    	double min = 10000000;
+    	double max = 0;
+    	for(int i=0;i<seaweed.size();i++){
+    		Seaweed sw = seaweed.get(i);
+    		for(int j=0;j<9;j++){
+    			double temp = sw.getBranches().get(j).getMaxSize();
+    			avg+= temp;    			
+    			if(temp < min) min = temp;
+    			if(temp > max) max = temp;
+    		}
+    	}
+    	avg = avg / (9*seaweed.size());
+    	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
     	if (tick % 300 == 0) {
     		if (tick % 900 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
@@ -539,6 +553,11 @@ public class Environment implements Serializable{
 
 	private static Point2D.Double adjustPt(Double pt, int i, int j) {
 		return new Point2D.Double(pt.x + i, pt.y + j);
+	}
+
+	public int getSeaweedSize() {
+		
+		return seaweed.size();
 	}
 
 }
