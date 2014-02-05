@@ -26,7 +26,7 @@ public class FishGod extends God {
 
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 0.8;
+	public double compatibilityThreshold = 1.3;
 	public double minReproduced = 5;
 	/** End of possible graphical vars **/
 	
