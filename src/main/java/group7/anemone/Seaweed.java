@@ -28,4 +28,8 @@ public class Seaweed extends SimulationObject{
 			branch.grow();
 		}
 	}
+	
+	public ArrayList<Branch> getBranches(){
+		return branches;
+	}
 }
