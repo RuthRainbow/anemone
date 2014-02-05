@@ -272,8 +272,20 @@ public class Environment implements Serializable{
     	avg = avg / (9*seaweed.size());
     	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
     	if (tick % 300 == 0) {
-    		/*if (tick % 900 == 0) {
-    			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks);
+    		if (tick % 900 == 0) {
+    			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
+        		if (fitnessOnly) {
+        			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
+        			for (int i = 0; i < sharks.size(); i++) {
+        				Genome stringRep = sharks.get(i).getStringRep();
+    	    			if (nextSharks.contains(stringRep)) {
+    	    				nextSharks.remove(stringRep);
+    	    				nextAgents.add(sharks.get(i));
+    	    			}
+    	    		}
+        			sharks.clear();
+        			sharks.addAll(nextAgents);
+        		}
     			for (Genome genome : nextSharks) {
     				int x = (int) Math.floor(Math.random() * width);
     				int y = (int) Math.floor(Math.random() * height);
@@ -283,7 +295,7 @@ public class Environment implements Serializable{
     			}
     			// Reset tick until next generation
     			tick = 0;
-    		}*/
+    		}
     		ArrayList<Genome> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
     		
     		if (fitnessOnly) {

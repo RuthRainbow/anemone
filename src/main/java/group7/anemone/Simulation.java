@@ -91,7 +91,7 @@ public class Simulation extends PApplet {
 	int trackingBounds = 100;
 	
 	int numStartingAgents = 10;
-	int numStartingSharks = 0;
+	int numStartingSharks = 5;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -346,7 +346,7 @@ public class Simulation extends PApplet {
 			//if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)));
 			//else fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)), 100); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
 			if (ag instanceof Enemy) {
-				fill(theme.getColor(Types.SHARK));
+				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256);
 				pushMatrix();
 				translate(ag.getX(), ag.getY());
 				rotate((float) toRadians(ag.getViewHeading()));
@@ -899,7 +899,7 @@ public class Simulation extends PApplet {
 		ag.thrust(thrustIncrease * thrust);
 		ag.changeViewHeading(oldHeading - newAngle);
 		ag.updateHealth(thrust / -100);
-		ag.updateFitness(thrust / -200);
+		ag.updateFitness(thrust / -500);
 	}
 
 	private Point2D.Double internalWallBounce(Wall wl, Agent ag ) {
@@ -931,7 +931,7 @@ public class Simulation extends PApplet {
 			Food fd = (Food) obj;
 			env.removeFood(fd);
 			cc.getAgent().updateHealth(fd.getValue());
-			cc.getAgent().updateFitness(fd.getValue()*10);
+			cc.getAgent().updateFitness(fd.getValue()*20);
 		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
