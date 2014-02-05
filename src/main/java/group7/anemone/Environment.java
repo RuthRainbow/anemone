@@ -1,9 +1,11 @@
 package group7.anemone;
 
+import group7.anemone.Genetics.FishGod;
 import group7.anemone.Genetics.Gene;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.God;
 import group7.anemone.Genetics.NeatNode;
+import group7.anemone.Genetics.SharkGod;
 import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
@@ -44,8 +46,8 @@ public class Environment implements Serializable{
 
 	public Environment(PApplet p){
 		this.parent = p;
-		this.fishGod = new God();
-		this.sharkGod = new God();
+		this.fishGod = new FishGod();
+		this.sharkGod = new SharkGod();
 		this.fishes = new ArrayList<Agent>();
 		this.sharks = new ArrayList<Agent>();
 		Environment.food = new ArrayList<Food>();

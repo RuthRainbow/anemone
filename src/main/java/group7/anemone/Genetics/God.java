@@ -15,35 +15,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-public class God implements Serializable{
+public abstract class God implements Serializable{
 	private static final long serialVersionUID = 619717007643693268L;
-
-	/** Start of possible graphical vars **/
-	// Mutation chances:
-	public double structuralMutationChance = 0.9f;
-	public double addConnectionChance = 0.8f;
-	public double addNodeChance = 0.8f;
-	public double weightMutationChance = 0.8f;
-	// (chance of decrease is 1 - the chance of increase)
-	public double weightIncreaseChance = 0.5f;
-	public double parameterMutationChance = 0.8f;
-	public double parameterIncreaseChance = 0.5f;
-
-	// Crossover chances:
-	public double twinChance = 0.05f;
-	public double matchedGeneChance = 0.5f;
-
-	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
-	// Parameters for use in difference calculation (can be tweaked).
-	public double c1 = 0.45f; //weighting of excess genes
-	public double c2 = 0.5f; //weighting of disjoint genes
-	public double c3 = 0.5f; //weighting of weight differences
-
-	// Threshold for max distance between species member and representative.
-	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 0.8;
-	public double minReproduced = 5;
-	/** End of possible graphical vars **/
 
 	private double bestFitness;
 	private double worstFitness;
@@ -161,7 +134,7 @@ public class God implements Serializable{
 			AgentFitness rep = specie.rep;
 			double dist = getDistance(thisAgent, rep);
 			
-			if (dist < compatibilityThreshold) {
+			if (dist < getCompatibilityThreshold()) {
 				foundSpecies = true;
 				specie.addMember(thisAgent);
 				genome.setSpecies(specie.id);
@@ -194,7 +167,8 @@ public class God implements Serializable{
 			summedFitness += agent.fitness;
 		}
 		int numOffspring = Math.max(
-				(int) minReproduced, (int) Math.ceil(summedFitness * offspringProportion));
+				(int) getMinReproduced(),
+				(int) Math.ceil(summedFitness * getOffspringProportion()));
 		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
@@ -239,7 +213,7 @@ public class God implements Serializable{
 	}
 
 	protected int sharingFunction(double distance) {
-		if (distance > compatibilityThreshold) {
+		if (distance > getCompatibilityThreshold()) {
 			return 0; // Seems pointless. Why not only compare with dudes from the same species,
 			// if all others will be made 0?!
 		} else {
@@ -277,7 +251,9 @@ public class God implements Serializable{
 		}
 		double averageLength = (maxLength + minLength) / 2;
 		if (averageLength == 0) averageLength = 1; // Avoid divide by zero.
-		double distance = (c1*numExcess)/averageLength + (c2*numDisjoint)/averageLength + (c3*weightDiff);
+		double distance = (getc1()*numExcess)/averageLength +
+				(getc2()*numDisjoint)/averageLength +
+				(getc3()*weightDiff);
 		// Save this distance so we don't need to recalculate:
 		distances.put(agentPair, distance);
 		return distance;
@@ -353,7 +329,7 @@ public class God implements Serializable{
 		ArrayList<Genome> children = new ArrayList<Genome>();
 
 		children.add(crossover(mother, father));
-		if (getRandom() < twinChance) {
+		if (getRandom() < getTwinChance()) {
 			children.add(crossover(mother, father));
 		}
 		for (int i = 0; i < children.size(); i++) {
@@ -394,7 +370,7 @@ public class God implements Serializable{
 			Gene gene = dominant.getXthGene(i);
 			if (matches.containsKey(gene)) {
 				// Randomly select matched gene from either parent
-				if (getRandom() < matchedGeneChance) {
+				if (getRandom() < getMatchedGeneChance()) {
 					child.add(gene);
 				} else {
 					child.add(matches.get(gene));
@@ -423,11 +399,11 @@ public class God implements Serializable{
 
 	// Mutate the parameters of a gene.
 	private void parameterMutation(Genome child) {
-		if (getRandom() < parameterMutationChance) {
+		if (getRandom() < getParameterMutationChance()) {
 			NeatNode toMutate = child.getNodes().get(
 					(int) Math.floor(getRandom()*child.getNodes().size()));
 			MNeuronParams params = toMutate.getParams();
-			if (getRandom() < parameterIncreaseChance) {
+			if (getRandom() < getParameterIncreaseChance()) {
 				mutateParam(params, getRandom());
 			} else {
 				mutateParam(params, -1 * getRandom());
@@ -438,12 +414,12 @@ public class God implements Serializable{
 	// Method to mutate one of a b c d tau am or ap by the given amount
 	private void mutateParam(MNeuronParams params, double amount) {
 		double random = getRandom();
-		if (random < 0.25) params.a += 0.01;
-		else if (random < 0.5) params.b += 0.01;
-		else if (random < 0.75) params.c += 0.01;
-		else if (random < 0.5) params.ap += 1.0;
-		else if (random < 0.5) params.am += 1.0;
-		else if (random < 0.5) params.tau += 0.001;
+		if (random < 0.14) params.a += 0.01;
+		else if (random < 0.28) params.b += 0.01;
+		else if (random < 0.42) params.c += 0.01;
+		else if (random < 0.56) params.ap += 1.0;
+		else if (random < 0.7) params.am += 1.0;
+		else if (random < 0.84) params.tau += 0.001;
 		else params.d += 0.01;
 	}
 
@@ -460,14 +436,14 @@ public class God implements Serializable{
 
 		List<NeatNode> nodeList = child.getNodes();
 
-		if (getRandom() < structuralMutationChance) {
+		if (getRandom() < getStructuralMutationChance()) {
 			// Add a new connection between any two nodes
-			if (getRandom() < addConnectionChance) {
+			if (getRandom() < getAddConnectionChance()) {
 				addConnection(nodeList, edgeList);
 			}
 
 			// Add a new node in the middle of an old connection/edge.
-			if (getRandom() < addNodeChance && edgeList.size() > 0) {
+			if (getRandom() < getAddNodeChance() && edgeList.size() > 0) {
 				max = addNodeBetweenEdges(edgeList, max, nodeList);
 			}
 		}
@@ -533,8 +509,8 @@ public class God implements Serializable{
 	// Each weight is subject to random mutation.
 	private Genome weightMutation(Genome child) {
 		for (Gene gene : child.getGene()) {
-			if (getRandom() < weightMutationChance) {
-				if (getRandom() < weightIncreaseChance) {
+			if (getRandom() < getWeightMutationChance()) {
+				if (getRandom() < getWeightIncreaseChance()) {
 					gene.addWeight(getRandom());
 				} else {
 					gene.addWeight(-1 * getRandom());
@@ -682,4 +658,21 @@ public class God implements Serializable{
 			latch.countDown();
 		}
 	}
+	
+	/* Getter methods for variables that may differ between God types.*/
+	public abstract double getStructuralMutationChance();
+	public abstract double getAddConnectionChance();
+	public abstract double getAddNodeChance();
+	public abstract double getWeightMutationChance();
+	public abstract double getWeightIncreaseChance();
+	public abstract double getParameterMutationChance();
+	public abstract double getParameterIncreaseChance();
+	public abstract double getTwinChance();
+	public abstract double getMatchedGeneChance();
+	public abstract double getOffspringProportion();
+	public abstract double getc1();
+	public abstract double getc2();
+	public abstract double getc3();
+	public abstract double getCompatibilityThreshold();
+	public abstract double getMinReproduced();
 }
