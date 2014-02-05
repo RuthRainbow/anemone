@@ -10,6 +10,7 @@ public class MNeuronState implements Serializable{
 	private static final long serialVersionUID = -4964575820535511446L;
 	
 	public double v, u, I;
+        public double s;
 	
 	/**
 	 * Copy constructor.
@@ -19,6 +20,7 @@ public class MNeuronState implements Serializable{
             this.v = mNeuronState.v;
             this.u = mNeuronState.u;
             this.I = mNeuronState.I;
+            this.s = mNeuronState.s;
         }
 	
 	/**
@@ -28,9 +30,10 @@ public class MNeuronState implements Serializable{
 	 * @param u
 	 * @param I 
 	 */
-        public MNeuronState(double v, double u, double I) {
+        public MNeuronState(double v, double u, double I, double s) {
             this.v = v;
             this.u = u;
             this.I = I;
+            this.s = s;
         }
 }

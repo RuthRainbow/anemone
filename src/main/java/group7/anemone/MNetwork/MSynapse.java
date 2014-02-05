@@ -63,6 +63,10 @@ public class MSynapse implements Serializable {
 	public double getWeight() {
 		return weight;
 	}
+	
+	public void setWeight(double w) {
+		this.weight = w;
+	}
 
 	public int getDelay() {
 		return delay;

@@ -32,7 +32,15 @@ public class MFactory {
 		MVec3f spatialCoords = new MVec3f(0, 0, 0);
 
 		/* Set the neurons to RS (regular spiking) neurons. */
-		nparams = new MNeuronParams(0.1, 0.2, -65.0, 8.0, true,
+		nparams = new MNeuronParams(
+			0.1,
+			0.2,
+			-65.0,
+			8.0,
+			0.0,
+			0.0,
+			0.01,
+			true,
 			spatialCoords);
 
 		return nparams;
@@ -45,7 +53,7 @@ public class MFactory {
 	 * @return	an instanciated neuron state object
 	 */
 	static public MNeuronState createInitialRSNeuronState() {
-		MNeuronState nstate = new MNeuronState(-65.0, 0.0, 0.0);
+		MNeuronState nstate = new MNeuronState(-65.0, 0.0, 0.0, 0.0);
 
 		return nstate;
 	}
