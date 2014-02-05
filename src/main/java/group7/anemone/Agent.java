@@ -29,8 +29,8 @@ public class Agent extends SimulationObject implements Serializable {
 
 	/* Anatomical parameters. */
 	public static final int configNumSegments = 10;
-	private final double visionRange = 100;
-	private final double fov = 45;
+	final double visionRange = 100;
+	final double fov = 90;
 	private final double maxSpeed = 15;
 
 	/* Physics state. */
