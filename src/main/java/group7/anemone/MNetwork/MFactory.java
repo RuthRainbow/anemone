@@ -37,8 +37,8 @@ public class MFactory {
 			0.2,
 			-65.0,
 			8.0,
-			0.0,
-			0.0,
+			1.0,
+			1.0,
 			0.01,
 			true,
 			spatialCoords);

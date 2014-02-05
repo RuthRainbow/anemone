@@ -435,12 +435,15 @@ public class God implements Serializable{
 		}
 	}
 	
-	// Method to mutate one of a b c or d by the given amount
+	// Method to mutate one of a b c d tau am or ap by the given amount
 	private void mutateParam(MNeuronParams params, double amount) {
 		double random = getRandom();
 		if (random < 0.25) params.a += 0.01;
 		else if (random < 0.5) params.b += 0.01;
 		else if (random < 0.75) params.c += 0.01;
+		else if (random < 0.5) params.ap += 1.0;
+		else if (random < 0.5) params.am += 1.0;
+		else if (random < 0.5) params.tau += 0.001;
 		else params.d += 0.01;
 	}
 
