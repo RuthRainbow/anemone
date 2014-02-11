@@ -110,14 +110,14 @@ public class Simulation extends PApplet {
 		for(int i = 0; i < numStartingAgents; i++){
 			//int x = (int) Math.floor(env.width*0.2 + Math.random() * env.width*0.2);
 			//int y = (int) Math.floor( env.width*0.2+ Math.random() * env.height*0.2);
-			int x = (int) Math.floor(env.width*0.2 + Math.random() * env.width*0.2);
-			int y = (int) Math.floor( env.width*0.2+ Math.random() * env.height*0.2);
+			int x = (int) Math.floor( Math.random() * env.width*0.2);
+			int y = (int) Math.floor( Math.random() * env.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
 		for (int i = 0; i < numStartingSharks; i++) {
-			int x = (int) Math.floor(env.width*0.6 + Math.random() * env.width*0.2);
-			int y = (int) Math.floor(env.height*0.6 + Math.random() * env.height*0.2);
+			int x = (int) Math.floor(env.width*0.8 + Math.random() * env.width*0.2);
+			int y = (int) Math.floor(env.height*0.8 + Math.random() * env.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addShark(new Point2D.Double(x, y), heading);
 		}

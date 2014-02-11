@@ -340,8 +340,8 @@ public class Environment implements Serializable{
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
     			Genome genome = getGenome();
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
+    			int x = (int) Math.floor(Math.random() * width*0.2);
+    			int y = (int) Math.floor(Math.random() * height*0.2);
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
