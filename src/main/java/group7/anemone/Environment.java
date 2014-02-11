@@ -41,8 +41,8 @@ public class Environment implements Serializable{
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
 	
-	static int width = 2500;
-	static int height = 2500;
+	static int width = 1000;
+	static int height = 1000;
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -273,8 +273,8 @@ public class Environment implements Serializable{
     	}
     	avg = avg / (9*seaweed.size());
     	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
-    	if (tick % 300 == 0) {
-    		if (tick % 900 == 0) {
+    	if (tick % 1000 == 0) {
+    		if (tick % 2000 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
         		if (fitnessOnly) {
         			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
@@ -551,7 +551,6 @@ public class Environment implements Serializable{
 			return true;
 		if (foodPos.contains(adjustPt(pt, -1, 1)))
 			return true;
-
 		return false;
 	}
 
