@@ -44,6 +44,7 @@ public class Environment implements Serializable{
 	static int width = 1000;
 	static int height = 1000;
 
+	
 	public Environment(PApplet p){
 		this.parent = p;
 		this.fishGod = new FishGod();
@@ -333,7 +334,9 @@ public class Environment implements Serializable{
 			Seaweed sw = seaweed.get(i);
 			if(Math.random() < 0.02) sw.update();
 		}
-    	
+    	if(seaweed.size() > 15) {
+    		seaweed.remove(0);
+    	}
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
     			Genome genome = getGenome();

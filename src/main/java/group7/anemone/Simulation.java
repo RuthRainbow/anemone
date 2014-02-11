@@ -108,6 +108,8 @@ public class Simulation extends PApplet {
 		draw_height = screen.height;
 
 		for(int i = 0; i < numStartingAgents; i++){
+			//int x = (int) Math.floor(env.width*0.2 + Math.random() * env.width*0.2);
+			//int y = (int) Math.floor( env.width*0.2+ Math.random() * env.height*0.2);
 			int x = (int) Math.floor(env.width*0.2 + Math.random() * env.width*0.2);
 			int y = (int) Math.floor( env.width*0.2+ Math.random() * env.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
@@ -141,6 +143,8 @@ public class Simulation extends PApplet {
 		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
 		env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
 		env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4));
+
+		
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
