@@ -28,7 +28,7 @@ public class Agent extends SimulationObject implements Serializable {
 	transient PApplet parent;
 
 	/* Anatomical parameters. */
-	public static final int configNumSegments = 10;
+	public static final int configNumSegments = 20;
 	final double visionRange = 100;
 	final double fov = 90;
 	private final double maxSpeed = 15;

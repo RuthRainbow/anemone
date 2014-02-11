@@ -108,14 +108,14 @@ public class Simulation extends PApplet {
 		draw_height = screen.height;
 
 		for(int i = 0; i < numStartingAgents; i++){
-			int x = (int) Math.floor(Math.random() * env.width);
-			int y = (int) Math.floor(Math.random() * env.height);
+			int x = (int) Math.floor(env.width*0.2 + Math.random() * env.width*0.2);
+			int y = (int) Math.floor( env.width*0.2+ Math.random() * env.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
 		for (int i = 0; i < numStartingSharks; i++) {
-			int x = (int) Math.floor(Math.random() * env.width);
-			int y = (int) Math.floor(Math.random() * env.height);
+			int x = (int) Math.floor(env.width*0.6 + Math.random() * env.width*0.2);
+			int y = (int) Math.floor(env.height*0.6 + Math.random() * env.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addShark(new Point2D.Double(x, y), heading);
 		}
@@ -124,7 +124,7 @@ public class Simulation extends PApplet {
 
 		for(int i = 0; i < 10; i++){
 			int x = (int) Math.floor(Math.random() * env.width);
-			int y = (int) Math.floor(Math.random() * env.height);
+			int y = (int) Math.floor(env.height*0.2 + Math.random() * env.height*0.6);
 			env.addSeaweed(new Point2D.Double(x, y));
 		}
 
@@ -138,10 +138,9 @@ public class Simulation extends PApplet {
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
 		
 		//internal walls
-		
-		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
-		env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
-		env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4));
+		//env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
+		//env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
+		//env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4));
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();
@@ -317,6 +316,7 @@ public class Simulation extends PApplet {
 		ArrayList<Agent> agents = env.getAllAgents();	//Returns an arraylist of agents
 		ArrayList<Food> food = env.getAllFood();		//Returns an arraylist of all the food on the map
 		ArrayList<Wall> walls = env.getAllWalls();		//Returns an arraylist of all walls
+		ArrayList<Seaweed> seaweed = env.getAllSeaweed();
 
 		for(int i = 0; i < agents.size(); i++){ //Runs through arraylist of agents, will draw them on the canvas
 			Agent ag = agents.get(i);
@@ -375,6 +375,13 @@ public class Simulation extends PApplet {
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
+		
+		noStroke();
+		fill(201, 23, 134);
+		for(int i = 0; i < seaweed.size(); i++){ //Runs through arraylist of food, will draw them on the canvas
+			Seaweed fd = seaweed.get(i);
+			ellipse(fd.getX(), fd.getY(), 5, 5);
+		}
 
 		stroke(theme.getColor(Types.WALL));
 		noFill();
@@ -396,7 +403,7 @@ public class Simulation extends PApplet {
 			//agentHeading.setAngle(selectedAgent.getViewHeading());
 			agentHeading.setAgent(selectedAgent);
 			if (env.fitnessOnly) {
-				progHealth.setValue(selectedAgent.getFitness());
+				progHealth.setValue(selectedAgent.getFitness() / 10);
 				progHealth.setColor((int) (255 - 255 * selectedAgent.getFitness()), (int) (255 * selectedAgent.getFitness()), 0);
 			} else {
 				progHealth.setValue(selectedAgent.getHealth());
@@ -408,7 +415,7 @@ public class Simulation extends PApplet {
 			lblX.setText("x = " + selectedAgent.getX());
 			lblY.setText("y = " + selectedAgent.getY());
 			lblHeading.setText("heading = " + Math.round(selectedAgent.getViewHeading()) + "°");
-			lblHealth.setText("health = " + Math.round(selectedAgent.getHealth() * 1000) / 10.0 + "%");
+			lblHealth.setText("fitness = " + selectedAgent.getFitness());
 			lblAngle.setText("angle = " + selectedAgent.getMovingAngle() + "°");
 			lblSpeed.setText("speed = " + Math.round(selectedAgent.getMovingSpeed() * 10) / 10.0 + "MPH x 10^6");
 			//lblX.setText("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
