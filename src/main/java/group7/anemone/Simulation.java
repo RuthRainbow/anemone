@@ -439,9 +439,7 @@ public class Simulation extends PApplet {
 		neatParams.setBackground(30);
 		setupNEATParams();
 		
-		neuralVisual = new UIDrawable3D(this, 0, 250, 250, 250);
-		sidePanel.addObject(neuralVisual);
-
+		
 		//Simulation draw region
 		UIDrawable sim = new UIDrawable(this, 0, 0, draw_width, draw_height);
 		sim.setBackground(color(255));
@@ -483,13 +481,13 @@ public class Simulation extends PApplet {
 		btnGroupModes.addObject(lblSimTPS);
 
 		//Statistics window for the currently selected agent
-		winStats = new UIWindow(this, 0, 165, 300, 250);
+		winStats = new UIWindow(this, 0, 165, 300, 500);
 		winStats.setBackground(30);
 		winStats.setFixedBackground(true);
 		sidePanel.addObject(winStats);
 
 		//control to change the selected agents heading
-		agentHeading = new UIVision(this, 10, 30, 50);
+		agentHeading = new UIVision(this, 25, 270, 200);
 		agentHeading.setTheme(theme);
 		agentHeading.setEventHandler(new UIAction(){
 			public void change(UIAngle ang){
@@ -505,7 +503,7 @@ public class Simulation extends PApplet {
 		winStats.addObject(progHealth);
 
 		//sliders to move agents position
-		sliderX = new UISlider(this, 75, 35, 165, 15);
+		sliderX = new UISlider(this, 10, 35, 230, 15);
 		sliderX.setEventHandler(new UIAction(){
 			public void change(UISlider slider){
 				if(selectedAgent != null){
@@ -515,7 +513,7 @@ public class Simulation extends PApplet {
 		});
 		winStats.addObject(sliderX);
 
-		sliderY = new UISlider(this, 75, 60, 165, 15);
+		sliderY = new UISlider(this, 10, 60, 230, 15);
 		sliderY.setEventHandler(new UIAction(){
 			public void change(UISlider slider){
 				if(selectedAgent != null){
@@ -575,10 +573,20 @@ public class Simulation extends PApplet {
 		winStats.addObject(btnToggleFocused);
 
 		//3D neural network visual
+		
+		UITab bottomWindow = new UITab(this, 0, 300, 250, 300);
+		bottomWindow.setIsTop(false);
+		sideTabs.addObject(bottomWindow);
+		
+		UIWindow tabNeural = bottomWindow.addTab("Network");
+		UIWindow tabTheme = bottomWindow.addTab("Theme");
+		tabTheme.setBackground(30);
 
-		neuralVisual.setIsTop(false);
+		neuralVisual = new UIDrawable3D(this, 0, 0, 250, 250);
 		neuralVisual.setBackground(30);
 		neuralVisual.setFixedBackground(true);
+		tabNeural.addObject(neuralVisual);
+		
 		neuralVisual.setEventHandler(new UIAction(){
 		    private float zoom = 0.5f;
 		    private int offX = 0;
@@ -709,38 +717,21 @@ public class Simulation extends PApplet {
 		lblSpeed = addStatLabel("X", 230);
 
 		//Themes window
-		winTheme = new UIWindow(this, 0, 485, 250, 200);
-		winTheme.setIsTop(false);
-		sidePanel.addObject(winTheme);
-
 		themeColorWheel = new UIColorWheel(this, 45, 40);
-		themeColorWheel.setVisible(false);
 		themeColorWheel.setEventHandler(new UIAction(){
 			public void change(UIColorWheel wheel){
 				theme.setColor((Types) themeDrop.getSelected(), wheel.getColor());
 			}
 		});
-		winTheme.addObject(themeColorWheel);
+		tabTheme.addObject(themeColorWheel);
 
 		themeDrop = new UIDropdown<Types>(this, 25, 10, 200, theme.getKeys());
-		themeDrop.setVisible(false);
 		themeDrop.setEventHandler(new UIAction() {
 			public void change(@SuppressWarnings("rawtypes") UIDropdown drop) {
 				themeColorWheel.setColor(theme.getColor((Types) drop.getSelected()));
 			}
 		});
-		winTheme.addObject(themeDrop);
-
-		btnToggleTheme = new UIButton(this, 25, 195, 200, 30, "Toggle Theme Editor");
-		btnToggleTheme.setColor(20, 20, 20);
-		btnToggleTheme.setFontColor(240, 240, 240);
-		btnToggleTheme.setEventHandler(new UIAction(){
-			public void click(UIButton btn){
-				themeColorWheel.toggleVisible();
-				themeDrop.toggleVisible();
-			}
-		});
-		winTheme.addObject(btnToggleTheme);
+		tabTheme.addObject(themeDrop);
 
 		//adds mouse scrolling listener to the applet
 		addMouseWheelListener(new MouseWheelListener(){
