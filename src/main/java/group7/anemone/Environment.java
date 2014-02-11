@@ -41,9 +41,10 @@ public class Environment implements Serializable{
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
 	
-	static int width = 1500;
-	static int height = 1500;
+	static int width = 1000;
+	static int height = 1000;
 
+	
 	public Environment(PApplet p){
 		this.parent = p;
 		this.fishGod = new FishGod();
@@ -276,8 +277,8 @@ public class Environment implements Serializable{
     	}
     	avg = avg / (9*seaweed.size());
     	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
-    	if (tick % 300 == 0) {
-    		if (tick % 900 == 0) {
+    	if (tick % 1000 == 0) {
+    		if (tick % 2000 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
         		if (fitnessOnly) {
         			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
@@ -292,8 +293,8 @@ public class Environment implements Serializable{
         			sharks.addAll(nextAgents);
         		}
     			for (Genome genome : nextSharks) {
-    				int x = (int) Math.floor(Math.random() * width);
-    				int y = (int) Math.floor(Math.random() * height);
+    				int x = (int) Math.floor(width*0.8 + Math.random() * width*0.2);
+    				int y = (int) Math.floor(height*0.8 + Math.random() * height*0.2);
     				int heading = (int) Math.floor(Math.random() * 360);
     				spawnShark(new Point2D.Double(x,y), heading, genome);
     				
@@ -316,8 +317,8 @@ public class Environment implements Serializable{
 	    		fishes.addAll(nextAgents);
     		}
     		for (Genome genome : nextFish) {
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
+    			int x = (int) Math.floor(Math.random() * width*0.2);
+    			int y = (int) Math.floor(Math.random() * height*0.2);
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
@@ -336,12 +337,14 @@ public class Environment implements Serializable{
 			Seaweed sw = seaweed.get(i);
 			if(Math.random() < 0.02) sw.update();
 		}
-    	
+    	if(seaweed.size() > 15) {
+    		seaweed.remove(0);
+    	}
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
     			Genome genome = getGenome();
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
+    			int x = (int) Math.floor(Math.random() * width*0.2);
+    			int y = (int) Math.floor(Math.random() * height*0.2);
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
@@ -501,6 +504,9 @@ public class Environment implements Serializable{
 
 	protected ArrayList<Food> getAllFood(){
 		return food;
+	}
+	protected ArrayList<Seaweed> getAllSeaweed(){
+		return seaweed;
 	}
 	protected ArrayList<Wall> getAllWalls(){
 		return wall;
