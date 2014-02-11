@@ -661,4 +661,8 @@ public class Agent extends SimulationObject implements Serializable {
 	public int getAge() {
 		return this.age;
 	}
+	
+	public int getType(){
+		return Collision.TYPE_AGENT;
+	}
 }

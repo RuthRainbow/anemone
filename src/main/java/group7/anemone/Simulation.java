@@ -141,7 +141,7 @@ public class Simulation extends PApplet {
 		
 		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
 		env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
-		env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4));
+		env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4), Collision.TYPE_AGENT);
 	}
 	public void mousePressed(){
 		ArrayList<Agent> agents = env.getAllAgents();

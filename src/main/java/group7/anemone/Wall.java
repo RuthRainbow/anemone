@@ -12,11 +12,19 @@ public class Wall extends SimulationObject implements Serializable{
 	private static final long serialVersionUID = -8042242408141705366L;
 	private Double start;
 	private Double end;
+	private int letsThrough = -1;
 	
 	Wall(Double start, Double end) {
 		super(start);
 		this.start = start;
 		this.end = end;
+	}
+	
+	Wall(Double start, Double end, int ag) {
+		super(start);
+		this.start = start;
+		this.end = end;
+		this.letsThrough = ag;
 	}
 	
 	Wall(Line2D.Double wall){
@@ -37,6 +45,10 @@ public class Wall extends SimulationObject implements Serializable{
 	
 	public double getLength(){
 		return start.distance(end);
+	}
+	
+	public int getLetsThrough(){
+		return letsThrough;
 	}
 	
 }

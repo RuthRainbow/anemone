@@ -93,7 +93,8 @@ public class Environment implements Serializable{
     			boolean wallDist = wl.getLine().ptLineDist(ag.getCoordinates()) < 10.0;
         		boolean startDist = wallDist && ag.getCoordinates().distance(wl.getStart()) < wl.getLength();
         		boolean endDist = wallDist && startDist && ag.getCoordinates().distance(wl.getEnd()) < wl.getLength();
-    			if (endDist){
+        		boolean letsThrough = endDist && !(ag.getType() == wl.getLetsThrough());
+    			if (letsThrough){
     				collisions.add(new Collision(ag, wl));
     			}
     		}
@@ -124,9 +125,10 @@ public class Environment implements Serializable{
 
 	private Wall wallChecking;
     private ArrayList<SightInformation> checkFOVWalls( ArrayList<Wall> walls, Agent ag) {
-
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
 		for(Wall wl : walls){
+			if(ag.getType() == wl.getLetsThrough()) continue;
+			
 			wallChecking = wl;
 			
 			//check if the wall is within the agent's viewable distance
@@ -178,9 +180,10 @@ public class Environment implements Serializable{
 		return result;
 	}
 	
-	private boolean lineIntersectsWall(Line2D.Double line, SimulationObject ignore){
+	private boolean lineIntersectsWall(Line2D.Double line, SimulationObject ignore, Agent ag){
 		for(Wall wl : wall){
 			if(ignore instanceof Wall && wallChecking == wl) continue;
+			if(ag.getType() == wl.getLetsThrough()) continue;
 			
 			if(wl.getLine().intersectsLine(line)) return true;
 		}
@@ -197,7 +200,7 @@ public class Environment implements Serializable{
 		double distance = ag.getCoordinates().distance(ob.getCoordinates());
 		
 		Line2D.Double lineToObject = new Line2D.Double(ag.getCoordinates(), ob.getCoordinates());
-		boolean intersectsWall = lineIntersectsWall(lineToObject, ob);
+		boolean intersectsWall = lineIntersectsWall(lineToObject, ob, ag);
 		
 		if(!intersectsWall && distance <= ag.getVisionRange()){
 			//get angle of object in relation to agent
@@ -461,6 +464,9 @@ public class Environment implements Serializable{
 	}
 	void addWall(Point2D.Double start, Point2D.Double end){
 		wall.add(new Wall(start, end));
+	}
+	void addWall(Point2D.Double start, Point2D.Double end, int type){
+		wall.add(new Wall(start, end, type));
 	}
 	
 	public int foodsize() { return food.size(); }

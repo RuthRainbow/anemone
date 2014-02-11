@@ -25,4 +25,7 @@ public class Enemy extends Agent implements Serializable {
 	public double getVisionRange() {
 		return visionRange;
 	}
+	public int getType(){
+		return Collision.TYPE_ENEMY;
+	}
 }
