@@ -139,10 +139,18 @@ public class Simulation extends PApplet {
 		//Left wall
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
 		
+		//Spawn area walls
+		env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
+		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
+		
+		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
+		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
+		
+		
 		//internal walls
-		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
-		env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
-		env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4), Collision.TYPE_AGENT);
+		//env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
+		//env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
+		//env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4), Collision.TYPE_AGENT);
 
 	}
 	public void mousePressed(){
