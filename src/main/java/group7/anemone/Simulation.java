@@ -379,6 +379,11 @@ public class Simulation extends PApplet {
 		stroke(theme.getColor(Types.WALL));
 		noFill();
 		for(Wall wl : walls){ //Runs through arraylist of walls, will draw them on the canvas
+			int letsThrough = wl.getLetsThrough();
+			if(letsThrough == Collision.TYPE_AGENT) stroke(theme.getColor(Types.FISH));
+			else if(letsThrough == Collision.TYPE_ENEMY) stroke(theme.getColor(Types.SHARK));
+			else stroke(theme.getColor(Types.WALL));
+			
 			line((float) wl.getStart().x, (float) wl.getStart().y, (float) wl.getEnd().x, (float) wl.getEnd().y);
 		}
 
