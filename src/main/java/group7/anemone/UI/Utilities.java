@@ -32,11 +32,11 @@ public class Utilities {
 		canvas.line(0, 0, 0, len);
 		canvas.popMatrix();
 	}
-	public static void pointAtAngle(PApplet canvas, double x, double y, double dist, double angle){
+	public static void pointAtAngle(PApplet canvas, double x, double y, double dist, double angle, int size){
 		canvas.pushMatrix();
 		canvas.translate((int) x, (int) y);
 		canvas.rotate((float) ((angle - 90) * Math.PI / 180));
-		canvas.point(0, (int) dist);
+		canvas.arc(0, (int) dist, size, size, 0, (float) (2*Math.PI));
 		canvas.popMatrix();
 	}
 	public static boolean isPointInBox(int x, int y, int rx, int ry, int w, int h){

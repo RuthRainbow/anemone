@@ -17,7 +17,6 @@ public class UITab extends UIWindow{
 		UIWindow tab = new UIWindow(canvas, 0, 50, width, height - 50);
 		addObject(tab);
 		tabs.add(tab);
-		System.out.println("tab aded");
 
 		UIButton btn = new UIButton(canvas, numTabs * 100, 0, 100, 50, name);
 		btn.setEventHandler(new UIAction(){

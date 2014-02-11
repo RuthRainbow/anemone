@@ -36,20 +36,20 @@ public class UIVision extends UIAngle{
 		Utilities.line(canvas, centerX, centerY, width / 2, agent.getViewHeading() + agent.getFOV());
 		
 		ArrayList<SightInformation> vision = agent.getAllViewingObjects();
-		
+		canvas.noStroke();
 		for(SightInformation see : vision){
 			if(theme != null){
 				switch(see.getType()){
-					case SightInformation.TYPE_FOOD: canvas.stroke(theme.getColor(Types.FOOD)); break;
-					case SightInformation.TYPE_AGENT: canvas.stroke(theme.getColor(Types.FISH)); break;
-					case SightInformation.TYPE_ENEMY: canvas.stroke(theme.getColor(Types.SHARK)); break;
-					case SightInformation.TYPE_WALL: canvas.stroke(r, g, b); break;
-					default: canvas.stroke(r, g, b);
+					case SightInformation.TYPE_FOOD: canvas.fill(theme.getColor(Types.FOOD)); break;
+					case SightInformation.TYPE_AGENT: canvas.fill(theme.getColor(Types.FISH)); break;
+					case SightInformation.TYPE_ENEMY: canvas.fill(theme.getColor(Types.SHARK)); break;
+					case SightInformation.TYPE_WALL: canvas.fill(theme.getColor(Types.WALL)); break;
+					default: canvas.fill(r, g, b);
 				}
-			}else canvas.stroke(r, g, b);
+			}else canvas.fill(r, g, b);
 			
 			double ang = agent.getViewHeading() - agent.getFOV() + (agent.getFOV() * 2 * see.getDistanceFromLower());
-			Utilities.pointAtAngle(canvas, centerX, centerY, see.getNormalisedDistance() * width / 2, ang);
+			Utilities.pointAtAngle(canvas, centerX, centerY, see.getNormalisedDistance() * width / 2, ang, (int) Math.ceil(width / 100.0));
 		}
 	}
 
