@@ -303,25 +303,25 @@ public class Agent extends SimulationObject implements Serializable {
 			distance = viewingObjectOfTypeInSegment(i,
 				Collision.TYPE_FOOD);
 			ninterface.affectors.vFood[i]
-				= distance < 0.0 ? 0.0 : distance;
+				= distance < 0.0 ? 1.0 : 1.0 - distance;
 
 			/* Ally sensory neurons. */
 			distance = viewingObjectOfTypeInSegment(i,
 				Collision.TYPE_AGENT);
 			ninterface.affectors.vAlly[i]
-				= distance < 0.0 ? 0.0 : distance;
+				= distance < 0.0 ? 1.0 : 1.0 - distance;
 
 			/* Enemy sensory neurons. */
 			distance = viewingObjectOfTypeInSegment(i,
 				Collision.TYPE_ENEMY);
 			ninterface.affectors.vEnemy[i]
-				= distance < 0.0 ? 0.0 : distance;
+				= distance < 0.0 ? 1.0 : 1.0 - distance;
 
 			/* Wall sensory neurons. */
 			distance = viewingObjectOfTypeInSegment(i,
 				Collision.TYPE_WALL);
 			ninterface.affectors.vWall[i]
-				= distance < 0.0 ? 0.0 : distance;
+				= distance < 0.0 ? 1.0 : 1.0 - distance;
 		}
 	}
 
