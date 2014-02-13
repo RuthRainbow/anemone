@@ -68,14 +68,20 @@ public abstract class God implements Serializable{
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
 		// Set up threads for each distance calculation to speed this up.
 		for (Agent agent : agents) {
-			AgentFitness thisAgent = new AgentFitness(agent);
-			for (Species specie : species) {
-				AgentFitness speciesRep = specie.rep;
-				if (!distances.containsKey(new Pair<AgentFitness>(thisAgent, speciesRep))) {
-					Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
-					Thread thread = new Thread(r);
-					thread.run();
-				} else {
+			if (agent.getSpeciesId() == -1) {
+				AgentFitness thisAgent = new AgentFitness(agent);
+				for (Species specie : species) {
+					AgentFitness speciesRep = specie.rep;
+					if (!distances.containsKey(new Pair<AgentFitness>(thisAgent, speciesRep))) {
+						Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
+						Thread thread = new Thread(r);
+						thread.start();
+					} else {
+						latch.countDown();
+					}
+				}
+			} else {
+				for (@SuppressWarnings("unused") Species specie : species) {
 					latch.countDown();
 				}
 			}
@@ -98,10 +104,11 @@ public abstract class God implements Serializable{
 					breedSpecies(specie, agents.size(), fitnessOnly);
 			children.addAll(speciesChildren);
 		}
+
 		// Pre calculate the distances of new children so this is faster next round.
 		Runnable r = new CalcAllDistances(children);
 		Thread thread = new Thread(r);
-		thread.run();
+		thread.start();
 		return children;
 	}
 
@@ -633,12 +640,13 @@ public abstract class God implements Serializable{
 			for (Species specie : species) {
 				specie.clear();
 			}
-
+			System.out.println("started thread species sort at " + System.currentTimeMillis());
 			// Put each agent given for reproduction into a species.
 			for (Genome agent : this.agents) {
 				AgentFitness thisAgent = new AgentFitness(agent);
 				sortIntoSpecies(thisAgent);
 			}
+			System.out.println("finished thread species sort at " + System.currentTimeMillis());
 		}
 	}
 	
