@@ -33,6 +33,8 @@ public abstract class God implements Serializable{
 	private ArrayList<Species> species;
 	// The distances between all genes:
 	private ConcurrentHashMap<Pair<AgentFitness>, Double> distances;
+	
+	private List<Genome> children;
 
 	public God() {
 		this.species = new ArrayList<Species>();
@@ -156,7 +158,7 @@ public abstract class God implements Serializable{
 	}
 
 	private ArrayList<Genome> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
-		ArrayList<Genome> children = new ArrayList<Genome>();
+		children = Collections.synchronizedList(new ArrayList<Genome>());
 		if (specie.members.size() < 2) {
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
@@ -167,7 +169,7 @@ public abstract class God implements Serializable{
 								agent.stringRep,
 								agent.stringRep));
 			}
-			return children;
+			return new ArrayList<Genome>(children);
 		}
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
@@ -184,12 +186,16 @@ public abstract class God implements Serializable{
 			specie.addMember(specie.members.get(i));
 		}
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
-			AgentFitness mother = specie.members.get(i);
-			AgentFitness father = specie.members.get(i+1);
-			children.addAll(CreateOffspring(mother, father));
+			final AgentFitness mother = specie.members.get(i);
+			final AgentFitness father = specie.members.get(i+1);
+			
+			Runnable r = new CreateOffspring(mother, father);
+			Thread thread = new Thread(r);
+			thread.start();
+			
 			if (fitnessOnly) {
 				children.add(mother.stringRep);
-				children.add(mother.stringRep);
+				children.add(father.stringRep);
 			}
 			i += 2;
 		}
@@ -199,7 +205,7 @@ public abstract class God implements Serializable{
 			children.add(children.get(i % children.size()));
 			i += 1;
 		}
-		return children;
+		return new ArrayList<Genome>(children);
 	}
 
 	// Share fitnesses over species by updating AgentFitness objects (see NEAT paper)
@@ -640,13 +646,11 @@ public abstract class God implements Serializable{
 			for (Species specie : species) {
 				specie.clear();
 			}
-			System.out.println("started thread species sort at " + System.currentTimeMillis());
 			// Put each agent given for reproduction into a species.
 			for (Genome agent : this.agents) {
 				AgentFitness thisAgent = new AgentFitness(agent);
 				sortIntoSpecies(thisAgent);
 			}
-			System.out.println("finished thread species sort at " + System.currentTimeMillis());
 		}
 	}
 	
@@ -664,6 +668,20 @@ public abstract class God implements Serializable{
 		public synchronized void run() {
 			calcDistance(thisAgent, speciesRep);
 			latch.countDown();
+		}
+	}
+	
+	private class CreateOffspring implements Runnable {
+		private AgentFitness mother;
+		private AgentFitness father;
+		
+		public CreateOffspring(AgentFitness mother, AgentFitness father) {
+			this.mother = mother;
+			this.father = father;
+		}
+
+		public void run() {
+			children.addAll(CreateOffspring(mother, father));
 		}
 	}
 	
