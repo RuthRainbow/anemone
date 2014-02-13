@@ -33,6 +33,8 @@ public abstract class God implements Serializable{
 	private ArrayList<Species> species;
 	// The distances between all genes:
 	private ConcurrentHashMap<Pair<AgentFitness>, Double> distances;
+	
+	private List<Genome> children;
 
 	public God() {
 		this.species = new ArrayList<Species>();
@@ -68,14 +70,20 @@ public abstract class God implements Serializable{
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
 		// Set up threads for each distance calculation to speed this up.
 		for (Agent agent : agents) {
-			AgentFitness thisAgent = new AgentFitness(agent);
-			for (Species specie : species) {
-				AgentFitness speciesRep = specie.rep;
-				if (!distances.containsKey(new Pair<AgentFitness>(thisAgent, speciesRep))) {
-					Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
-					Thread thread = new Thread(r);
-					thread.run();
-				} else {
+			if (agent.getSpeciesId() == -1) {
+				AgentFitness thisAgent = new AgentFitness(agent);
+				for (Species specie : species) {
+					AgentFitness speciesRep = specie.rep;
+					if (!distances.containsKey(new Pair<AgentFitness>(thisAgent, speciesRep))) {
+						Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
+						Thread thread = new Thread(r);
+						thread.start();
+					} else {
+						latch.countDown();
+					}
+				}
+			} else {
+				for (@SuppressWarnings("unused") Species specie : species) {
 					latch.countDown();
 				}
 			}
@@ -98,10 +106,11 @@ public abstract class God implements Serializable{
 					breedSpecies(specie, agents.size(), fitnessOnly);
 			children.addAll(speciesChildren);
 		}
+
 		// Pre calculate the distances of new children so this is faster next round.
 		Runnable r = new CalcAllDistances(children);
 		Thread thread = new Thread(r);
-		thread.run();
+		thread.start();
 		return children;
 	}
 
@@ -149,7 +158,7 @@ public abstract class God implements Serializable{
 	}
 
 	private ArrayList<Genome> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
-		ArrayList<Genome> children = new ArrayList<Genome>();
+		children = Collections.synchronizedList(new ArrayList<Genome>());
 		if (specie.members.size() < 2) {
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
@@ -160,7 +169,7 @@ public abstract class God implements Serializable{
 								agent.stringRep,
 								agent.stringRep));
 			}
-			return children;
+			return new ArrayList<Genome>(children);
 		}
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
@@ -177,12 +186,16 @@ public abstract class God implements Serializable{
 			specie.addMember(specie.members.get(i));
 		}
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
-			AgentFitness mother = specie.members.get(i);
-			AgentFitness father = specie.members.get(i+1);
-			children.addAll(CreateOffspring(mother, father));
+			final AgentFitness mother = specie.members.get(i);
+			final AgentFitness father = specie.members.get(i+1);
+			
+			Runnable r = new CreateOffspring(mother, father);
+			Thread thread = new Thread(r);
+			thread.start();
+			
 			if (fitnessOnly) {
 				children.add(mother.stringRep);
-				children.add(mother.stringRep);
+				children.add(father.stringRep);
 			}
 			i += 2;
 		}
@@ -192,7 +205,7 @@ public abstract class God implements Serializable{
 			children.add(children.get(i % children.size()));
 			i += 1;
 		}
-		return children;
+		return new ArrayList<Genome>(children);
 	}
 
 	// Share fitnesses over species by updating AgentFitness objects (see NEAT paper)
@@ -633,7 +646,6 @@ public abstract class God implements Serializable{
 			for (Species specie : species) {
 				specie.clear();
 			}
-
 			// Put each agent given for reproduction into a species.
 			for (Genome agent : this.agents) {
 				AgentFitness thisAgent = new AgentFitness(agent);
@@ -656,6 +668,20 @@ public abstract class God implements Serializable{
 		public synchronized void run() {
 			calcDistance(thisAgent, speciesRep);
 			latch.countDown();
+		}
+	}
+	
+	private class CreateOffspring implements Runnable {
+		private AgentFitness mother;
+		private AgentFitness father;
+		
+		public CreateOffspring(AgentFitness mother, AgentFitness father) {
+			this.mother = mother;
+			this.father = father;
+		}
+
+		public void run() {
+			children.addAll(CreateOffspring(mother, father));
 		}
 	}
 	

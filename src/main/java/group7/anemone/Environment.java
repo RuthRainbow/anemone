@@ -306,6 +306,7 @@ public class Environment implements Serializable{
     		
     		if (fitnessOnly) {
     			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
+
     			for (int i = 0; i < fishes.size(); i++) {
     				Genome stringRep = fishes.get(i).getStringRep();
 	    			if (nextFish.contains(stringRep)) {
