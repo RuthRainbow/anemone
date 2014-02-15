@@ -8,7 +8,7 @@ public class Branch extends SimulationObject{
 	 */
 	private static final long serialVersionUID = 1L;
 	private double[] directionVector;
-	private Point2D.Double currentPoint;
+	public Point2D.Double currentPoint;
 	private Point2D.Double root;
 	private double maxSize;
 	private Environment env;
@@ -21,12 +21,13 @@ public class Branch extends SimulationObject{
 		this.maxSize = 50;
 		this.env = env;
 	}
-	public void grow() {
+	public boolean grow() {
+		boolean newSw = false;
 		if(Math.random() < 0.5) maxSize = maxSize + Math.random();
 		if(Math.random() < 0.01) maxSize = 50;
 		double dist = currentPoint.distance(root);
 		if(dist  > maxSize) currentPoint = root;
-		if(env.foodsize() == 0 || Math.random() < (0.5/(env.foodsize()/100))){
+		if(env.foodsize() == 0 || Math.random() < (0.5/(env.foodsize()/100))){ //if(true){ for fireworks 
 			if(env.checkFood(currentPoint)){
 				Point2D.Double nextPoint = new Point2D.Double(currentPoint.x + directionVector[0]*5,currentPoint.y + directionVector[1]*5);
 				env.addFood(nextPoint);
@@ -50,8 +51,9 @@ public class Branch extends SimulationObject{
 
 		if(currentPoint.distance(root) > 60 && Math.random() < (0.5/env.getSeaweedSize())){
 			env.addSeaweed(currentPoint);
+			newSw = true;
 		}
-		
+		return newSw;
 	}
 	
 	/*public double getMaxSize(){

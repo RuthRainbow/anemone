@@ -24,8 +24,14 @@ public class Seaweed extends SimulationObject{
 		branches.add(new Branch(coords,new double[]{1*Math.random(),1*Math.random()},coords, env));
 	}
 	public void update(){
+		boolean newSw = false;
 		for(Branch branch : branches){
-			branch.grow();
+			newSw = newSw || branch.grow();
+		}
+		if(newSw){
+			for(Branch branch : branches){
+				branch.currentPoint = coords;
+			}
 		}
 	}
 	

@@ -13,6 +13,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 
@@ -60,7 +63,8 @@ public class Environment implements Serializable{
     // Method to get all collisions that occurred in the environment
     public ArrayList<Collision> updateCollisions() {
     	collisions = new ArrayList<Collision>();
-
+    	
+    	
     	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
 
     		for (Agent aa: getAllAgents()) { // check if collides to any other agent
@@ -333,14 +337,45 @@ public class Environment implements Serializable{
 
 
     	}
+    	if(tick % 50 == 0 && food.size() > 10){
+    		food.remove(0);
+    	}
+
+    	while(seaweed.size() > 10){
+    		seaweed.remove(0);
+    	}
+    	if(tick % 1000 == 0){
+			int x = (int) Math.floor(Math.random() * width);
+			int y = (int) Math.floor(height*0.2 + Math.random() * height*0.6);
+			addSeaweed(new Point2D.Double(x, y));
+    	}
     	
 		for(int i = 0; i < seaweed.size(); i++){
 			Seaweed sw = seaweed.get(i);
-			if(Math.random() < 0.02) sw.update();
+			if(Math.random() < 0.02) sw.update();			
 		}
-    	if(seaweed.size() > 15) {
+		/* FIREWORKS
+	   	if(food.size() > 10){
+    		while(food.size() > 1000){
+    			food.remove(0);
+    		}
+    		
+    	}	
+    	while(seaweed.size() > 10){
     		seaweed.remove(0);
     	}
+    	if(tick % 10 == 0){
+			int x = (int) Math.floor(Math.random() * width);
+			int y = (int) Math.floor(height*0.2 + Math.random() * height*0.6);
+			addSeaweed(new Point2D.Double(x, y));
+    	}
+    	
+		for(int i = 0; i < seaweed.size(); i++){
+			Seaweed sw = seaweed.get(i);
+			sw.update();
+			
+		}*/
+
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
     			Genome genome = getGenome();

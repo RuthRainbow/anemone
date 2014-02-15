@@ -146,6 +146,11 @@ public class Simulation extends PApplet {
 		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
 		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
 		
+		/*env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2));
+		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2));
+		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8));
+		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8));*/
+		
 		
 		//internal walls
 		//env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
@@ -289,6 +294,7 @@ public class Simulation extends PApplet {
 	}
 
 	public void draw(){
+		long start = System.nanoTime();
 		background(theme.getColor(Types.BACKGROUND));	//Draws background, basically refreshes the screen
 		win.setBackground(theme.getColor(Types.BACKGROUND));
 		sidePanel.setBackground(theme.getColor(Types.SIDEPANEL1));
@@ -304,6 +310,7 @@ public class Simulation extends PApplet {
 				checkDeaths();
 			}
 			updateUI();
+
 		}
 
 		//move drawn region
@@ -317,6 +324,11 @@ public class Simulation extends PApplet {
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 		text("Mouse X: " + mouseX + "Mouse Y: " + mouseY, 10, 30);
+    	
+	   	long end = System.nanoTime();
+    	long elapsedTime = end - start;
+    	double seconds = (double)elapsedTime / 1000000000.0; 
+    	System.out.println("Draw time: "+seconds + "s");
 	}
 
 	private void drawSimulation(PApplet canvas){
@@ -414,7 +426,7 @@ public class Simulation extends PApplet {
 	private void updateUI(){
 		agentHeading.setVisible(selectedAgent != null);
 		winStats.setVisible(selectedAgent != null);
-
+		
 		if(selectedAgent != null){
 			//agentHeading.setAngle(selectedAgent.getViewHeading());
 			agentHeading.setAgent(selectedAgent);
@@ -838,6 +850,7 @@ public class Simulation extends PApplet {
 	}
 
 	private void handleCollisions(){
+		
 		ArrayList<Collision> collisions = env.getCollisions();
 
 		for (Collision cc: collisions) { //check collisions to food
@@ -849,6 +862,7 @@ public class Simulation extends PApplet {
     			case Collision.TYPE_AGENT: breeding(cc); break;
     		}
 		}
+
 	}
 
 	// If two agents collided, breed with some random chance.
