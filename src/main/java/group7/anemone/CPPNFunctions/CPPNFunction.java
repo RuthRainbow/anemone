@@ -1,7 +1,12 @@
 package group7.anemone.CPPNFunctions;
 
 public class CPPNFunction {
-	//This function can act as any possible sigmoid function.
+	//This function will replace the parameter that NeatNodes have
+	
+	//Types of functions that can be implemented:
+	// 0: Parabola
+	// 1: Sine wave
+	// 2: Gaussian Distibution
 	
 	public int type;
 	
@@ -12,12 +17,12 @@ public class CPPNFunction {
 	public CPPNFunction(int newType, double ina, double inb, double inc) {
 		type = newType;
 		
-		switch(type) {
-		case(0):
-			ParaA = ina;
-			ParaB = inb;
-			ParaC = inc;
-		}
+		//Parabola, Sine wave, and Gaussian Distribution curves can all be modeled by using just 3 variables.
+		
+		ParaA = ina;	
+		ParaB = inb;
+		ParaC = inc;	//Acts as a translation variable
+		
 		
 	}
 
@@ -25,7 +30,15 @@ public class CPPNFunction {
 		double result=0;
 		switch(type) {
 			case(0):
-				result = (ParaA*Math.pow(x, 2))+(ParaB*x)+ParaC; 
+				result = (ParaA*Math.pow(x, 2))+(ParaB*x)+ParaC;
+				break;
+			case(1):
+				result = ParaA*(Math.sin(x*ParaB)) + ParaC;
+				break;
+			case(2):
+				result = (1/(ParaA*Math.sqrt(2*Math.PI))) * Math.pow(Math.E, Math.pow(-(x-ParaB), 2)/(Math.pow(2*ParaA, 2))) + ParaC;
+			default:
+				result=0;
 		}
 		
 		return result;
