@@ -1,6 +1,6 @@
 package group7.anemone.Genetics;
 
-import group7.anemone.CPPNFunctions.CPPNFunction;
+import group7.anemone.CPPN.CPPNFunction;
 
 public class CPPNNode {
 	CPPNFunction funcs;
