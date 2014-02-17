@@ -11,8 +11,8 @@ public class CPPNNode {
 		this.id = id;
 	}
 	
-	public double runCalc(double x, double y) {
-		return funcs.calculate(x, y);
+	public double runCalc(double x) {
+		return funcs.calculate(x);
 	}
 	
 	public int getId() {
