@@ -39,7 +39,7 @@ public class Environment implements Serializable{
 	// Whether to not use health:
 	protected final boolean fitnessOnly = true;
 	//whether a fully connected network should be created.
-	protected final boolean FLAG_CONNECT_ALL= true;
+	protected final boolean FLAG_CONNECT_ALL= false;
 	
 	static int width = 1000;
 	static int height = 1000;
