@@ -611,7 +611,7 @@ public class Simulation extends PApplet {
 		
 		UITab bottomWindow = new UITab(this, 0, 300, 250, 300);
 		bottomWindow.setIsTop(false);
-		sideTabs.addObject(bottomWindow);
+		sidePanel.addObject(bottomWindow);
 		
 		UIWindow tabNeural = bottomWindow.addTab("Network");
 		UIWindow tabTheme = bottomWindow.addTab("Theme");
@@ -783,11 +783,26 @@ public class Simulation extends PApplet {
 			"c1", "c2", "c3", 
 			"compatibilityThreshold", "minReproduced"
 	};
+	private ArrayList<UITextField> neatParamInputs;
 	private void setupNEATParams(){
-		//godDrop = new UIDropdown<God>(this, 5, 0, 250, env.getAllGods());
-		//neatParams.addObject(godDrop);
+		neatParamInputs = new ArrayList<UITextField>();
+		godDrop = new UIDropdown<God>(this, 10, 10, 230, env.getAllGods());
+		godDrop.setEventHandler(new UIAction(){
+			public void change(UIDropdown drop){
+				setAllNEATParams();
+			}
+		});
+		
 		for(int i = 0; i < neatParameters.length; i++){
 			addNEATParamInput(neatParameters[i], i + 1);
+		}
+		
+		neatParams.addObject(godDrop);
+	}
+	private void setAllNEATParams(){
+		for(int i = 0; i < neatParameters.length; i++){
+			UITextField input = neatParamInputs.get(i);
+			input.setText(getNEATParam(neatParameters[i]));
 		}
 	}
 	private void addNEATParamInput(String name, int offset){
@@ -801,22 +816,28 @@ public class Simulation extends PApplet {
 		input.setName(name);
 		neatParams.addObject(label);
 		neatParams.addObject(input);
+		neatParamInputs.add(input);
 	}
 	private String getNEATParam(String name){
+		God selectedGod = godDrop.getSelected();
+		
 		try{
-			return env.fishGod.getClass().getField(name).get(env.fishGod).toString();
+			return selectedGod.getClass().getField(name).get(selectedGod).toString();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return null;
 	}
 	private void setNEATParam(String name, String val){
+		God selectedGod = godDrop.getSelected();
+		
 		try{
-			env.fishGod.getClass().getField(name).set(env.fishGod, Double.valueOf(val));
+			selectedGod.getClass().getField(name).set(selectedGod, Double.valueOf(val));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
+	
 	private UIButton addModeButton(final int mode, String txt, int r, int g, int b){
 		UIButton btn = new UIButton(this, 10 + 60 * (mode % 4), 10  + (35 * (int) Math.floor(mode / 4)), 50, 30, txt);
 		btn.setEventHandler(new UIAction(){

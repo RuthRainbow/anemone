@@ -76,4 +76,7 @@ public class SharkGod extends God{
 	public double getMinReproduced() {
 		return this.minReproduced;
 	}
+	public String toString(){
+		return "Shark God";
+	}
 }

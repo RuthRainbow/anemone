@@ -76,4 +76,7 @@ public class FishGod extends God {
 	public double getMinReproduced() {
 		return this.minReproduced;
 	}
+	public String toString(){
+		return "Fish God";
+	}
 }
