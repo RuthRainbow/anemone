@@ -898,6 +898,9 @@ public class Simulation extends PApplet {
 
 	private void bounceAgent(Collision cc) {
 		Agent ag = cc.getAgent();
+		
+		ag.hitWall();
+		
 		Line2D.Double line = ((Wall) cc.getCollidedObject()).getLine();
 		double lineAngle = Utilities.angleBetweenPoints(line.x1, line.y1, line.x2, line.y2);
 		double normalAngle = lineAngle + 90;
@@ -927,7 +930,6 @@ public class Simulation extends PApplet {
 		ag.thrust(thrustIncrease * thrust);
 		ag.changeViewHeading(oldHeading - newAngle);
 		ag.updateHealth(thrust / -100);
-		ag.updateFitness(thrust / -500);
 	}
 
 	private Point2D.Double internalWallBounce(Wall wl, Agent ag ) {
@@ -958,14 +960,10 @@ public class Simulation extends PApplet {
 		if(obj instanceof Food){
 			Food fd = (Food) obj;
 			env.removeFood(fd);
-			cc.getAgent().updateHealth(fd.getValue());
-			cc.getAgent().updateFitness(fd.getValue()*20);
+			cc.getAgent().ateFood();
 		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
-			double val = ag.getHealth() / 2;
-			cc.getAgent().updateHealth(val);
-			cc.getAgent().updateFitness(val);
 		}
 	}
 

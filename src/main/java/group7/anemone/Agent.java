@@ -28,7 +28,7 @@ public class Agent extends SimulationObject implements Serializable {
 	transient PApplet parent;
 
 	/* Anatomical parameters. */
-	public static final int configNumSegments = 20;
+	public static final int configNumSegments = 2;
 	final double visionRange = 100;
 	final double fov = 90;
 	private final double maxSpeed = 15;
@@ -54,6 +54,8 @@ public class Agent extends SimulationObject implements Serializable {
 	/* Health state and stats. */
 	private double fitness = 2;
 	private double health = 1;
+	private int numFoodsEaten = 0;
+	private int numWallsHit = 0;
 	private int age = 0; // Age of agent in number of updates.
 
 	/* Objects  of interest within the agent's visual field. */
@@ -337,12 +339,15 @@ public class Agent extends SimulationObject implements Serializable {
 
 		age++;
 		health -= 0.001;
-		fitness -= 0.001;
-		if (age < 100) {
-			updateFitness(0.001);
-		} else if (age > 200) {
-			updateFitness(-0.001);
-		}
+		fitness = (1.0 + numFoodsEaten) / (1.0 + numWallsHit);
+	}
+	
+	protected void ateFood() {
+		numFoodsEaten++;
+	}
+	
+	protected void hitWall() {
+		numWallsHit++;
 	}
 
 	//Pre-calculates the coordinates of each neuron in the network
