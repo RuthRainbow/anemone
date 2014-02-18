@@ -1,0 +1,74 @@
+package group7.anemone.CPPN;
+
+import java.util.Collection;
+import java.util.ArrayList;
+
+/**
+ * An abstract class enforcing the basic functionality of a CPPN node.
+ */
+public abstract class CPPNNode {
+	ArrayList<CPPNNode> preNodes, postNodes;
+	boolean isInputNode;
+	boolean isMutatable;
+	
+	/**
+	 * Constructs a CPPN node.
+	 * 
+	 * @param isInputNode does this node receive primary input?
+	 * @param isMutatable do we allow this node to be mutated under NEAT?
+	 * @param preNodes collection of presynaptic nodes for adjacency list
+	 * @param postNodes collection of postsynaptic nodes for adjacency list
+	 */
+	CPPNNode(boolean isInputNode, boolean isMutatable,
+		Collection<CPPNNode> preNodes, Collection<CPPNNode> postNodes)
+	{
+		this.isInputNode = isInputNode;
+		this.isMutatable = isMutatable;
+		this.preNodes = new ArrayList<CPPNNode>(preNodes);
+		this.postNodes = new ArrayList<CPPNNode>(postNodes);
+	}
+	
+	/**
+	 * The concrete implementation must perform its calculation here.
+	 * 
+	 * @param input the input double
+	 * @return an output double
+	 */
+	public abstract double apply(double input);
+	
+	/**
+	 * Retrieves the presynaptic nodes in this node's adjacency list.
+	 * 
+	 * @return ArrayList of presynaptic nodes
+	 */
+	public ArrayList<CPPNNode> getPreNodes() {
+		return new ArrayList<CPPNNode>(preNodes);
+	}
+	
+	/**
+	 * Retrieves the postsynaptic nodes in this node's adjacency list.
+	 * 
+	 * @return ArrayList of postsynaptic nodes
+	 */
+	public ArrayList<CPPNNode> getPostNodes() {
+		return new ArrayList<CPPNNode>(postNodes);
+	}
+	
+	/**
+	 * Returns true iff this node receives primary input.
+	 * 
+	 * @return true if node is an input node, false otherwise
+	 */
+	public boolean isInputNode() {
+		return isInputNode;
+	}
+	
+	/**
+	 * Returns true iff this node is allowed to be mutated under NEAT.
+	 * 
+	 * @return true if node is mutatable, false otherwise
+	 */
+	public boolean isMutatable() {
+		return isMutatable;
+	}
+}
