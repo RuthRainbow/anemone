@@ -2,8 +2,13 @@ package group7.anemone.Genetics;
 
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuronParams;
+import java.io.Serializable;
 
-public class NeatNode {
+public class NeatNode implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2203972193315345834L;
 	MNeuronParams params;
 	int id;
 

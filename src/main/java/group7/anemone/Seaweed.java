@@ -4,6 +4,10 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public class Seaweed extends SimulationObject{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3660831447912025931L;
 	private ArrayList<Branch> branches;
 	private Environment env;
 	

@@ -82,7 +82,8 @@ public class Genome implements Serializable {
 		return this.parents.father;
 	}
 	
-	private class Parents {
+	private class Parents implements Serializable{
+		private static final long serialVersionUID = -4797717951064837306L;
 		private Genome mother;
 		private Genome father;
 		
