@@ -8,7 +8,6 @@ import group7.anemone.Food;
 import group7.anemone.SightInformation;
 import group7.anemone.SimulationObject;
 import group7.anemone.Wall;
-import group7.anemone.Genetics.Genome;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MSynapse;
@@ -54,7 +53,7 @@ public class AnalysisTool extends PApplet {
 	private UIListView<Agent> listOfAgents;
 
 	//Neural Network Visualisation
-	private boolean useLayeredView = true;
+	private boolean useLayeredView = false;
 	private float neuralRotation = 0;
 	private float zoomLevel = 2.0f;
 	private int moveSpeed = 50;
@@ -173,6 +172,7 @@ public class AnalysisTool extends PApplet {
 			case('r'): 	mouseMode = 3; 
 						btnGroupModes.selectButton(btnAddWall);
 						break;
+			case('a'): 	changeNeuralLayout(); break;
 			case('o'): 	restoreEnvironment(); break;
 		}
 	}
@@ -208,6 +208,13 @@ public class AnalysisTool extends PApplet {
 	private void updateAgentBrains(){
 		selectedAgent.updateBrainOnly();
 		selectedAgent.getCanSee().clear();
+	}
+	
+	private void changeNeuralLayout(){
+		useLayeredView = !useLayeredView;
+		for(Agent ag : env.getAllAgents()){
+			ag.calculateNetworkPositions(useLayeredView);
+		}
 	}
 	
 	
