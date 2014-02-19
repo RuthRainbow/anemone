@@ -63,11 +63,12 @@ public class AnalysisTool extends PApplet {
 	private Environment env;
 	private Agent selectedAgent;
 	private int selectedSegment = -1;
+	private int selectedNode = -1;
 	private double distanceFromMouse = 0;
 	private double distanceFromFOV = 0;
 	private int mouseMode = 0;
 	
-	private boolean DEV_MODE = true;
+	private boolean DEV_MODE = false;
 	
 	//Default simulation objects for manipulating visual array
 	private Food defaultFood = new Food(new Point2D.Double(0, 0));
@@ -136,6 +137,20 @@ public class AnalysisTool extends PApplet {
 		
 		distanceFromMouse = dist;
 		distanceFromFOV = selectedSegment / (double) numSegments;
+		
+		selectedNode = -1;
+	    if(selectedSegment > -1){
+    		selectedNode = selectedSegment;
+    		
+    		switch(mouseMode){
+    			case 1: selectedNode = -1; break;
+    			case 2: selectedNode += numSegments * 2; break;
+    			case 3: selectedNode += numSegments; break;
+    		}
+    		
+    		if(selectedNode > -1)
+    			selectedNode += 3;
+    	}
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
@@ -338,6 +353,7 @@ public class AnalysisTool extends PApplet {
 			    rotateY(neuralRotation);
 			    scale(zoomLevel, zoomLevel, zoomLevel);
 			    translate(offX, offY);
+			    
 			    for(MNeuron n : net.getNeurons()){ //draw the neurons
 			    	int isFired = (n.isFiring() ? 255 : 60);
 			    	if(n.getID() >= 3 && n.getID() < 3 + Agent.configNumSegments) fill(theme.getColor(Types.FOOD), isFired);
@@ -352,6 +368,12 @@ public class AnalysisTool extends PApplet {
 
 		    		translate(vec.x, vec.y, vec.z);
 			    	sphere(3);
+			    	
+		    		if(selectedNode == n.getID()){
+		    			fill(255, 50);
+		    			sphere(6);
+		    		}
+			    	
 			    	translate(-vec.x, -vec.y, -vec.z);
 			    }
 			    
