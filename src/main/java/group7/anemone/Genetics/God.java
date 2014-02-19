@@ -546,7 +546,8 @@ public abstract class God implements Serializable{
 	}
 
 	// Class to hold two objects together so we can map to a distance.
-	private class Pair<E> {
+	private class Pair<E> implements Serializable{
+		private static final long serialVersionUID = -546900858588781203L;
 		private E first;
 		private E second;
 
@@ -578,7 +579,8 @@ public abstract class God implements Serializable{
 	}
 
 	// Class used to hold an entire species.
-	private class Species {
+	private class Species  implements Serializable{
+		private static final long serialVersionUID = -4988086681147167058L;
 		private ArrayList<AgentFitness> members;
 		private AgentFitness rep;
 		private int id;
@@ -603,7 +605,8 @@ public abstract class God implements Serializable{
 
 	// This class is used so we can easily compare agents by fitness.
 	// Also used to be more lightweight than Agent class.
-	private class AgentFitness implements Comparable<AgentFitness> {
+	private class AgentFitness implements Comparable<AgentFitness>, Serializable {
+		private static final long serialVersionUID = 2130549794698082883L;
 		private Genome stringRep;
 		private double fitness;
 

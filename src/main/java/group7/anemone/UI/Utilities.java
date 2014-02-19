@@ -116,5 +116,8 @@ public class Utilities {
 		result[1] = (-b - Math.sqrt(b*b - 4*a*c))/2*a;
 		return result;
 	}
+	public static double toRadians(double deg){
+		return deg * Math.PI / 180;
+	}
 
 }

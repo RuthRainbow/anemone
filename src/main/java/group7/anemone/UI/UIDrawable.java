@@ -10,9 +10,14 @@ public class UIDrawable extends UIObject{
 	public void draw(){
 		canvas.fill(bgColor);
 		canvas.rect(x, y, width, height);
+		
+		canvas.pushMatrix();
+		canvas.translate(x, y);
 
 		if(events != null){
 			events.draw(canvas);
 		}
+		
+		canvas.popMatrix();
 	}
 }

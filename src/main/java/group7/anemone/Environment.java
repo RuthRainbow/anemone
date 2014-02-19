@@ -46,6 +46,9 @@ public class Environment implements Serializable{
 	
 	static int width = 1000;
 	static int height = 1000;
+	
+	//Save number of segments used by agent for analysis tool
+	public int agentNumSegments;
 
 	
 	public Environment(PApplet p){
@@ -58,6 +61,7 @@ public class Environment implements Serializable{
 		this.wall = new ArrayList<Wall>();
 		this.seaweed = new ArrayList<Seaweed>();
 		this.foodPos = new ArrayList<Point2D.Double>();
+		this.agentNumSegments = Agent.configNumSegments;
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -530,7 +534,7 @@ public class Environment implements Serializable{
 		return sharks;
 	}
 
-	protected ArrayList<Agent> getAllAgents() {
+	public ArrayList<Agent> getAllAgents() {
 		// We know the clone of fishes will be of type ArrayList<Agent>, so this cast is safe.
 	    @SuppressWarnings("unchecked")
 		ArrayList<Agent> all_agents = (ArrayList<Agent>) fishes.clone();

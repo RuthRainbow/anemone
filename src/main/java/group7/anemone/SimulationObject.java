@@ -12,11 +12,11 @@ public class SimulationObject implements Serializable {
 		this.coords = coords;
 	}
 	
-	int getX() {
+	public int getX() {
             return (int)coords.x;
         }
 	
-        int getY() {
+    public int getY() {
             return (int)coords.y;
         }
         

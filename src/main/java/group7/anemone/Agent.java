@@ -28,7 +28,7 @@ public class Agent extends SimulationObject implements Serializable {
 	transient PApplet parent;
 
 	/* Anatomical parameters. */
-	public static final int configNumSegments = 2;
+	public static int configNumSegments = 2;
 	final double visionRange = 100;
 	final double fov = 90;
 	private final double maxSpeed = 15;
@@ -82,7 +82,7 @@ public class Agent extends SimulationObject implements Serializable {
 		thrust(1);
 		this.genome = genome;
 		createNeuralNet();
-		calculateNetworkPositions();
+		calculateNetworkPositions(false);
 	}
 
 	/**
@@ -342,6 +342,15 @@ public class Agent extends SimulationObject implements Serializable {
 		fitness = (1.0 + numFoodsEaten) / (1.0 + numWallsHit);
 	}
 	
+	public void updateBrainOnly() {
+		updateSensors();
+		applySensoryInputToBrain();
+		for (int i = 0; i < 4; i++) {
+			updateMNetwork();
+		}
+		applyMotorOutputs();
+	}
+	
 	protected void ateFood() {
 		numFoodsEaten++;
 	}
@@ -351,56 +360,64 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	//Pre-calculates the coordinates of each neuron in the network
-	//private ArrayList<MNeuron> placed;
+	private ArrayList<MNeuron> placed;
 	private HashMap<Integer, Integer> maxInLevel;
-	//private int maxLevel = 0;
-	//private int maxHeight = 0;
+	private int maxLevel = 0;
+	private int maxHeight = 0;
 
-	private void calculateNetworkPositions() {
-		//placed = new ArrayList<MNeuron>(); //store coordinates of placed neurons
+	public void calculateNetworkPositions(boolean useLayered) {
+		placed = new ArrayList<MNeuron>(); //store coordinates of placed neurons
 		maxInLevel = new HashMap<Integer, Integer>(); //store max y coordinate at each level of tree
 		maxInLevel.put(0, 0);
-		//maxLevel = 0;
-		//maxHeight = 0;
+		maxLevel = 0;
+		maxHeight = 0;
 
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
 		ArrayList<MSynapse> synapses = mnetwork.getSynapses();
 
         //TODO: place nodes in set position then spread out using algorithm below
 		//TODO: normalise to -125 to 125
-        /*for(MSynapse s : mnetwork.getSynapses()){ //determine the x, y coordinates for each node based on links
-		 MNeuron pre = s.getPreNeuron();
-		 MNeuron post = s.getPostNeuron();
-		 int level = 0;
-
-		 if(!placed.contains(pre)){
-		 if(placed.contains(post)){ //pre node not placed but post is, place at level - 1
-		 level = (int) (post.getCoordinates().x / 20) - 1;
-		 }
-
-		 int max = maxValue(level);
-		 addNode(level, max, pre);
-		 }
-
-		 if(!placed.contains(post)){
-		 if(placed.contains(pre)){ //post node not placed but pre is, place at level + 1
-		 level = (int) (pre.getCoordinates().x / 20);
-		 }
-		 level++;
-
-		 int max = maxValue(level);
-		 addNode(level, max, post);
-		 }
-                
-		 if(pre.getCoordinates().x == post.getCoordinates().x) pre.getCoordinates().z += 20;
-		 }
-		 //offset nodes centrally
-		 int offsetX = -maxLevel * 10;
-		 int offsetY = -maxHeight * 10;
-		 for(MNeuron n : mnetwork.getNeurons()){
-		 n.getCoordinates().x += offsetX;
-		 n.getCoordinates().y += offsetY;
-		 }*/
+		if(useLayered){
+			for(MSynapse s : mnetwork.getSynapses()){ //determine the x, y coordinates for each node based on links
+				MNeuron pre = s.getPreNeuron();
+				MNeuron post = s.getPostNeuron();
+				int level = 0;
+	
+				if(!placed.contains(pre)){
+					if(placed.contains(post)){ //pre node not placed but post is, place at level - 1
+						level = (int) (post.params.spatialCoords.x / 20.0) - 1;
+					}
+					
+					int max = maxValue(level);
+					addNode(level, max, pre);
+				}
+	
+				if(!placed.contains(post)){
+					if(placed.contains(pre)){ //post node not placed but pre is, place at level + 1
+						level = (int) (pre.params.spatialCoords.x / 20.0);
+					}
+					level++;
+	
+					int max = maxValue(level);
+					addNode(level, max, post);
+				}
+	
+				if(pre.params.spatialCoords.x == post.params.spatialCoords.x) pre.params.spatialCoords.z += 20;
+			}
+			
+			//offset nodes centrally
+			int offsetX = -maxLevel * 10;
+			int offsetY = -maxHeight * 10;
+			
+			for(MNeuron n : mnetwork.getNeurons()){
+				n.params.spatialCoords.x += offsetX;
+				n.params.spatialCoords.y += offsetY;
+			}
+			
+			mnetwork.setNeurons(neurons);
+			return;
+		}
+		 
 		//Force directed graph drawing
 		float area = 250 * 250 * 250; //The size of the area 
 		//float C = 2;
@@ -502,16 +519,16 @@ public class Agent extends SimulationObject implements Serializable {
 
 	}
 
-	/*private void addNode(int level, int max, MNeuron node) {
-		//if(node.getCoordinates() == null)
-		node.getCoords().x = level * 20;
-		node.getCoords().y = max;
-		node.getCoords().z = 0;
+	private void addNode(int level, int max, MNeuron node) {
+		node.params.spatialCoords.x = level * 20;
+		node.params.spatialCoords.y = max;
+		node.params.spatialCoords.z = 0;
+		
 		maxInLevel.put(level, max + 20);
 		placed.add(node);
-	}*/
+	}
 
-	/*private int maxValue(int level) {
+	private int maxValue(int level) {
 		int max = 0;
 		if (!maxInLevel.containsKey(level)) {
 			maxInLevel.put(level, 0);
@@ -521,9 +538,9 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 		maxHeight = Math.max(maxHeight, (max / 20));
 		return max;
-	}*/
+	}
 
-	protected void updateCanSee(ArrayList<SightInformation> see) {
+	public void updateCanSee(ArrayList<SightInformation> see) {
 		canSee = see;
 	}
 
@@ -651,7 +668,7 @@ public class Agent extends SimulationObject implements Serializable {
 		return Math.sqrt(Math.pow((float) (getChangeX()), 2) + Math.pow((float) (getChangeY()), 2));
 	}
 
-	MNetwork getNetwork() {
+	public MNetwork getNetwork() {
 		return mnetwork;
 	}
 
