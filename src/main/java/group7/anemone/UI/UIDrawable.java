@@ -8,6 +8,7 @@ public class UIDrawable extends UIObject{
 	}
 
 	public void draw(){
+		canvas.noStroke();
 		canvas.fill(bgColor);
 		canvas.rect(x, y, width, height);
 		

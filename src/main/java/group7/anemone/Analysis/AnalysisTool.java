@@ -4,12 +4,17 @@ import group7.anemone.Agent;
 import group7.anemone.Collision;
 import group7.anemone.Enemy;
 import group7.anemone.Environment;
+import group7.anemone.Food;
 import group7.anemone.SightInformation;
+import group7.anemone.SimulationObject;
+import group7.anemone.Wall;
+import group7.anemone.Genetics.Genome;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MSynapse;
 import group7.anemone.MNetwork.MVec3f;
 import group7.anemone.UI.UIAction;
+import group7.anemone.UI.UIButton;
 import group7.anemone.UI.UIDrawable;
 import group7.anemone.UI.UIDrawable3D;
 import group7.anemone.UI.UIListView;
@@ -39,8 +44,10 @@ public class AnalysisTool extends PApplet {
 	
 	//UI Window Panel
 	private UIWindow win;
+	private UIWindow btnGroupModes;
 	
 	//UI Elements
+	UIButton btnAddFood, btnAddAgent, btnAddEnemy, btnAddWall;
 	private UITheme theme;
 	private UIDrawable3D neuralVisual;
 	private UIDrawable agentDrawing;
@@ -56,9 +63,17 @@ public class AnalysisTool extends PApplet {
 	private Environment env;
 	private Agent selectedAgent;
 	private int selectedSegment = -1;
-	private double normalisedDistance = 0;
+	private double distanceFromMouse = 0;
+	private double distanceFromFOV = 0;
+	private int mouseMode = 0;
 	
-	private boolean DEV_MODE = false;
+	private boolean DEV_MODE = true;
+	
+	//Default simulation objects for manipulating visual array
+	private Food defaultFood = new Food(new Point2D.Double(0, 0));
+	private Agent defaultAgent = new Agent(new Point2D.Double(0, 0));
+	private Enemy defaultEnemy = new Enemy(new Point2D.Double(0, 0));
+	private Wall defaultWall = new Wall(new Point2D.Double(0, 0), new Point2D.Double(0, 0));
 
 	public static void main(String args[]){
 		PApplet.main(new String[] { "--present", "group7.anemone.Analysis.AnalysisTool" });
@@ -72,7 +87,7 @@ public class AnalysisTool extends PApplet {
 		setupUI();
 		
 		if(DEV_MODE){
-			File file = new File(System.getProperty("user.home") + "/anemone/save/MoreSegs.env");
+			File file = new File(System.getProperty("user.home") + "/anemone/save/Analysis.env");
 			loadEnvironmentFile(file);
 		}else{
 			restoreEnvironment();
@@ -96,7 +111,7 @@ public class AnalysisTool extends PApplet {
 	}
 	public void mouseMoved(){
 		double posX = screen.width - 230;
-		double posY = 200;
+		double posY = 200 + 80;
 		double dist = new Point2D.Double(posX, posY).distance(mouseX, mouseY);
 		double angleBetween = Math.atan((mouseY - posY) / (mouseX - posX));
 		angleBetween = angleBetween * 180 / Math.PI;
@@ -119,7 +134,8 @@ public class AnalysisTool extends PApplet {
 			selectedSegment = -1;
 		}
 		
-		normalisedDistance = dist / selectedAgent.getVisionRange();
+		distanceFromMouse = dist;
+		distanceFromFOV = selectedSegment / (double) numSegments;
 	}
 	public void mouseWheel(MouseWheelEvent event){
 		if(win.mouseWheel(event)) return;
@@ -130,7 +146,19 @@ public class AnalysisTool extends PApplet {
 		if(win.keyReleased()) return;
 		
 		switch(key) {
-			case('o'): restoreEnvironment(); break;
+			case('q'): 	mouseMode = 0; 
+						btnGroupModes.selectButton(btnAddFood);
+						break;
+			case('w'): 	mouseMode = 1; 
+						btnGroupModes.selectButton(btnAddAgent);
+						break;
+			case('e'): 	mouseMode = 2; 
+						btnGroupModes.selectButton(btnAddEnemy);
+						break;
+			case('r'): 	mouseMode = 3; 
+						btnGroupModes.selectButton(btnAddWall);
+						break;
+			case('o'): 	restoreEnvironment(); break;
 		}
 	}
 	public void keyPressed(){	//Hotkeys for buttons
@@ -138,9 +166,24 @@ public class AnalysisTool extends PApplet {
 		
 		
 	}
-
+	
 	public void draw(){
 		background(theme.getColor(Types.BACKGROUND));
+		
+		if(selectedSegment > -1){ //Send to the neuron
+			ArrayList<SightInformation> visual = selectedAgent.getCanSee();
+			SimulationObject simObject = null;
+			
+			switch(mouseMode){
+				case 0: simObject = defaultFood; break;
+				case 1: simObject = defaultAgent; break;
+				case 2: simObject = defaultEnemy; break;
+				case 3: simObject = defaultWall; break;
+			}
+			
+			SightInformation sight = new SightInformation(selectedAgent, simObject, distanceFromMouse, distanceFromFOV);
+			visual.add(sight);
+		}
 		
 		updateAgentBrains();
 		
@@ -148,9 +191,8 @@ public class AnalysisTool extends PApplet {
 	}
 	
 	private void updateAgentBrains(){
-		for(Agent ag : env.getAllAgents()){
-			ag.updateBrainOnly();
-		}
+		selectedAgent.updateBrainOnly();
+		selectedAgent.getCanSee().clear();
 	}
 	
 	
@@ -186,6 +228,21 @@ public class AnalysisTool extends PApplet {
 		neuralVisual.setFixedBackground(true);
 		win.addObject(neuralVisual);
 		
+		//Buttons to change the current mode
+		btnGroupModes = new UIWindow(this, 250, 0, 250, 70);
+		btnGroupModes.setBackground(20);
+		btnGroupModes.setFixedBackground(true);
+		btnGroupModes.setIsLeft(false);
+		win.addObject(btnGroupModes);
+
+		//UIButton btnAddFood, btnAddAgent, btnAddEnemy, btnAddWall;
+		btnAddFood = addModeButton(0, "Food", 0, 255, 0);
+		btnAddAgent = addModeButton(1, "Agent", 255, 127, 0);
+		btnAddEnemy = addModeButton(2, "Enemy", 255, 0, 0);
+		btnAddWall = addModeButton(3, "Wall", 255, 255, 0);
+
+		btnGroupModes.selectButton(btnAddFood);
+		
 		listOfAgents = new UIListView<Agent>(this, 0, 0, 250, screen.height);
 		listOfAgents.setEventHandler(new UIAction(){
 			public void change(UIListView list){
@@ -209,7 +266,7 @@ public class AnalysisTool extends PApplet {
 		win.addObject(listOfAgents);
 		
 		//AGENT DRAWING
-		agentDrawing = new UIDrawable(this, 250, 0, 250, 400);
+		agentDrawing = new UIDrawable(this, 250, 80, 250, 400);
 		agentDrawing.setBackground(20);
 		agentDrawing.setFixedBackground(true);
 		agentDrawing.setIsLeft(false);
@@ -237,7 +294,9 @@ public class AnalysisTool extends PApplet {
 					popMatrix();
 					
 					if(i == selectedSegment){
-						fill(theme.getColor(Types.FOOD), 100);
+						int col = getMouseModeColor();
+						fill(col, 100);
+						
 						arc(posX, posY, (float) range, (float) range, 
 								(float) Utilities.toRadians(-fov + (i * fov * 2 / numSegments)), 
 								(float) Utilities.toRadians(-fov + ((i + 1) * fov * 2 / numSegments)));
@@ -327,6 +386,7 @@ public class AnalysisTool extends PApplet {
 			    		line((int) n1.x, (int) n1.y, (int) n1.z, (int) n2.x, (int) n2.y, (int) n2.z);
 			    	//}
 			    }
+			    strokeWeight(1);
 			    noStroke();
 			    popMatrix();
 			    if(rotating) neuralRotation -= 0.02;
@@ -386,6 +446,30 @@ public class AnalysisTool extends PApplet {
 				mouseWheel(event);
 			}
 		});
+	}
+	
+	private UIButton addModeButton(final int mode, String txt, int r, int g, int b){
+		UIButton btn = new UIButton(this, 10 + 60 * (mode % 4), 10  + (35 * (int) Math.floor(mode / 4)), 50, 50, txt);
+		btn.setEventHandler(new UIAction(){
+			public void click(UIButton btn){
+				btnGroupModes.selectButton(btn);
+				mouseMode = mode;
+			}
+		});
+		btn.setColor(r, g, b);
+		btnGroupModes.addObject(btn);
+		return btn;
+	}
+	
+	private int getMouseModeColor(){
+		switch (mouseMode){
+			case 0: return theme.getColor(Types.FOOD);
+			case 1: return theme.getColor(Types.FISH);
+			case 2: return theme.getColor(Types.SHARK);
+			case 3: return theme.getColor(Types.WALL);
+		}
+		
+		return 0;
 	}
 	
 	private void restoreEnvironment(){

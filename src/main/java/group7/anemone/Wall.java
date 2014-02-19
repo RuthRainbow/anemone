@@ -14,7 +14,7 @@ public class Wall extends SimulationObject implements Serializable{
 	private Double end;
 	private int letsThrough = -1;
 	
-	Wall(Double start, Double end) {
+	public Wall(Double start, Double end) {
 		super(start);
 		this.start = start;
 		this.end = end;

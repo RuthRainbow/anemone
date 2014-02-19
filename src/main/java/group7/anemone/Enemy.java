@@ -18,6 +18,9 @@ public class Enemy extends Agent implements Serializable {
         {
 		super(coords, viewHeading, p, genome);	
 	}
+	public Enemy(Double coords){
+		super(coords);	
+	}
 	
 	public double getFOV() {
 		return fov;

@@ -84,6 +84,12 @@ public class Agent extends SimulationObject implements Serializable {
 		createNeuralNet();
 		calculateNetworkPositions(false);
 	}
+	
+	public Agent(Point2D.Double coords){
+		super(coords);
+		
+		this.genome = null;
+	}
 
 	/**
 	 * Uses the agent's genome to construct a neural network.
@@ -544,7 +550,7 @@ public class Agent extends SimulationObject implements Serializable {
 		canSee = see;
 	}
 
-	ArrayList<SightInformation> getCanSee() {
+	public ArrayList<SightInformation> getCanSee() {
 		return canSee;
 	}
 
