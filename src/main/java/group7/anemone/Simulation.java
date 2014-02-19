@@ -238,7 +238,8 @@ public class Simulation extends PApplet {
 			offsetX -= (int) (((mouseX - offsetX) * (0.1f * event.getWheelRotation()))) / zoomLevel;
 			offsetY -= (int) (((mouseY - offsetY) * (0.1f * event.getWheelRotation()))) / zoomLevel;
 		}
-	}
+	}//SIM_TICKS = (int) (slider.getValue() * SIM_TPS_MAX);
+	//lblSimTPS.setText("Ticks: " + SIM_TICKS);
 	public void keyReleased(){	//Hotkeys for buttons
 		if(win.keyReleased()) return;
 
@@ -263,6 +264,10 @@ public class Simulation extends PApplet {
 		case('s'):	saveEnvironment();
 					break;
 		case('o'):	restoreEnvironment();
+					break;
+		case(' '):	SIM_TICKS = (SIM_TICKS > 0 ? 0 : 1);	
+					sliderTPS.setValue(SIM_TICKS / SIM_TPS_MAX);
+					lblSimTPS.setText("Ticks: " + SIM_TICKS);
 					break;
 		}
 
