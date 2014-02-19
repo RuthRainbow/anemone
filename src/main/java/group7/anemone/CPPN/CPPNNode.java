@@ -8,8 +8,11 @@ import java.util.ArrayList;
  */
 public abstract class CPPNNode {
 	ArrayList<CPPNNode> preNodes, postNodes;
+	CPPNFunction function;
 	boolean isInputNode;
 	boolean isMutatable;
+	
+	double paraA, paraB, paraC;
 	
 	/**
 	 * Constructs a CPPN node.
@@ -18,14 +21,17 @@ public abstract class CPPNNode {
 	 * @param isMutatable do we allow this node to be mutated under NEAT?
 	 * @param preNodes collection of presynaptic nodes for adjacency list
 	 * @param postNodes collection of postsynaptic nodes for adjacency list
+	 * @param function function object (note: the object is NOT copied)
 	 */
 	CPPNNode(boolean isInputNode, boolean isMutatable,
-		Collection<CPPNNode> preNodes, Collection<CPPNNode> postNodes)
+		Collection<CPPNNode> preNodes, Collection<CPPNNode> postNodes,
+		CPPNFunction function)
 	{
 		this.isInputNode = isInputNode;
 		this.isMutatable = isMutatable;
 		this.preNodes = new ArrayList<CPPNNode>(preNodes);
 		this.postNodes = new ArrayList<CPPNNode>(postNodes);
+		this.function = function;
 	}
 	
 	/**
@@ -70,5 +76,14 @@ public abstract class CPPNNode {
 	 */
 	public boolean isMutatable() {
 		return isMutatable;
+	}
+	
+	/**
+	 * Returns a reference to this node's function object.
+	 * 
+	 * @return function object
+	 */
+	public CPPNFunction getFunction() {
+		return function;
 	}
 }
