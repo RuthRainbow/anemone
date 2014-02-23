@@ -878,16 +878,28 @@ public class Simulation extends PApplet {
 	private void handleCollisions(){
 		
 		ArrayList<Collision> collisions = env.getCollisions();
-
-		for (Collision cc: collisions) { //check collisions to food
-    		int type = cc.getType();
-
-    		switch(type){
-    			case Collision.TYPE_FOOD: eatFood(cc);break;
-    			case Collision.TYPE_WALL: bounceAgent(cc); break;
-    			case Collision.TYPE_AGENT: breeding(cc); break;
-    		}
+		while(collisions.size() > 0){
+			for (Collision cc: collisions) { //handle collisions between food, agents, enemies and walls
+	    		int type = cc.getType();
+	
+	    		switch(type){
+	    			case Collision.TYPE_FOOD: eatFood(cc);break;
+	    			case Collision.TYPE_WALL: bounceAgent(cc); break;
+	    			case Collision.TYPE_AGENT: breeding(cc); break;
+	    			case Collision.TYPE_ENEMY: bounceAgents(cc.getAgent(),(Agent) cc.getCollidedObject()); break;
+	    		}
+			}
+			env.updateCollisions();
+			collisions = env.getCollisions();
+			if(collisions.size() > 0){
+				System.out.println(collisions.size()+" collisions remaining");
+				for(Collision cc : collisions){
+					System.out.println("Between "+cc.getAgent().getClass()+ " at "+env.round(cc.getAgent().coords.x)+","+env.round(cc.getAgent().coords.y)+" and "+cc.getCollidedObject().getClass()+ " at "+env.round(cc.getCollidedObject().coords.x)+","+env.round(cc.getCollidedObject().coords.y));
+				}
+			}
+			
 		}
+
 
 	}
 
@@ -895,16 +907,10 @@ public class Simulation extends PApplet {
 	private void breeding(Collision cc) {
 		if (Math.random() > 0.8) {
 			env.Breed(cc.getAgent(), (Agent) cc.getCollidedObject());
-			// Encourage agents to breed...
-			// cc.getAgent().updateFitness(0.01);
 		}
 		Agent agent1 = cc.getAgent();
 		Agent agent2 = (Agent) cc.getCollidedObject();
 		bounceAgents(agent1, agent2);
-		/*Point2D.Double midpoint = new Point2D.Double((agent1.coords.x+agent2.coords.x)/2,(agent1.coords.y+agent2.coords.y)/2);
-		Wall bisector = new Wall(Utilities.generateLine(midpoint, 10, Utilities.angleBetweenPoints(agent1.coords.x, agent1.coords.y, agent2.coords.x, agent2.coords.y)+90));
-		bounceAgent(new Collision(agent1,bisector));
-		bounceAgent(new Collision(agent2, bisector));*/
 	}
 
 	private void bounceAgents(Agent agent1, Agent agent2) {
@@ -916,10 +922,10 @@ public class Simulation extends PApplet {
 		double changeX2 = agent2.coords.x - agent1.coords.x;
 		double changeY2 = agent2.coords.y - agent1.coords.y;
 
-		agent1.coords.x = midpoint.x + 10 * (changeX1 / dist);
-		agent1.coords.y = midpoint.y + 10 * (changeY1 / dist);
-		agent2.coords.x = midpoint.x + 10 * (changeX2 / dist);
-		agent2.coords.y = midpoint.y + 10 * (changeY2 / dist);
+		agent1.coords.x = midpoint.x + 10.0 * (changeX1 / dist);
+		agent1.coords.y = midpoint.y + 10.0 * (changeY1 / dist);
+		agent2.coords.x = midpoint.x + 10.0 * (changeX2 / dist);
+		agent2.coords.y = midpoint.y + 10.0 * (changeY2 / dist);
 	}
 
 	private void bounceAgent(Collision cc) {
@@ -944,7 +950,6 @@ public class Simulation extends PApplet {
 		boolean topWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,0)) == 0;
 		boolean bottomWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,env.height)) == 0;
 		
-		//TODO make this work for artbitary walls
 		if(leftWall) ag.coords.x += (10 - distanceToWall);
 		else if (rightWall) ag.coords.x -= (10 - distanceToWall);
 		else if (topWall) ag.coords.y += (10 - distanceToWall);

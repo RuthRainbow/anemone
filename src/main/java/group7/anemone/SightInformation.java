@@ -10,7 +10,7 @@ public class SightInformation extends Collision implements Serializable{
 	private double distance;
 	private double distanceFromLower;
 	
-	public SightInformation(Agent ag, Object ob, double dist, double distlow) {
+	public SightInformation(Agent ag, SimulationObject ob, double dist, double distlow) {
 		super(ag, ob);
 		
 		distance = dist;

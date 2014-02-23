@@ -15,9 +15,9 @@ public class Collision implements Serializable{
 	public static final int TYPE_WALL = 4;
 	
 	private Agent agent;
-	private Object collided;
+	private SimulationObject collided;
 	
-	public Collision(Agent ag, Object ob){
+	public Collision(Agent ag, SimulationObject ob){
 		agent = ag;
 		collided = ob;
 	}
@@ -25,7 +25,7 @@ public class Collision implements Serializable{
 	public Agent getAgent(){
 		return agent;
 	}
-	public Object getCollidedObject(){
+	public SimulationObject getCollidedObject(){
 		return collided;
 	}
 	public int getType(){

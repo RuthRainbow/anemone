@@ -12,6 +12,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -74,34 +76,34 @@ public class Environment implements Serializable{
     		for (Agent aa: getAllAgents()) { // check if collides to any other agent
         		if(ag == aa) continue;
 
-        		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
+        		if(round(ag.getCoordinates().distance(aa.getCoordinates())) < 20){
         			collisions.add(new Collision(ag, aa));
         		}
     		}
 
     		for (Food fd: food) { //check collisions to food
-        		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
+        		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12 && !(ag instanceof Enemy)){
         			collisions.add(new Collision(ag, fd));
         		}
     		}
     		
-    		if(ag.coords.x < 10){
+    		if(round(ag.coords.x) < 10.0){
     			collisions.add(new Collision(ag, wall.get(3)));
     		}
-    		if(ag.coords.y < 10){
+    		if(round(ag.coords.y) < 10.0){
     			collisions.add(new Collision(ag, wall.get(0)));    			
     		} 
-    		if(ag.coords.x > (width - 10)){
+    		if(round(ag.coords.x) > (width - 10.0)){
     			collisions.add(new Collision(ag, wall.get(1)));
     		} 
-    		if(ag.coords.y > (height - 10)){
+    		if(round(ag.coords.y) > (height - 10.0)){
     			collisions.add(new Collision(ag, wall.get(2)));
     		}
     		
     		for (Wall wl: wall) {
-    			boolean wallDist = wl.getLine().ptLineDist(ag.getCoordinates()) < 10.0;
-        		boolean startDist = wallDist && ag.getCoordinates().distance(wl.getStart()) < wl.getLength();
-        		boolean endDist = wallDist && startDist && ag.getCoordinates().distance(wl.getEnd()) < wl.getLength();
+    			boolean wallDist = round(wl.getLine().ptLineDist(ag.getCoordinates())) < 10.0;
+        		boolean startDist = wallDist && round(ag.getCoordinates().distance(wl.getStart())) < wl.getLength();
+        		boolean endDist = wallDist && startDist && round(ag.getCoordinates().distance(wl.getEnd())) < wl.getLength();
         		boolean letsThrough = endDist && !(ag.getType() == wl.getLetsThrough());
     			if (letsThrough){
     				collisions.add(new Collision(ag, wl));
@@ -113,6 +115,12 @@ public class Environment implements Serializable{
     }
 
     
+ 
+	double round(double x) {
+	    BigDecimal bd = new BigDecimal(x);
+	    bd = bd.setScale(2, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
+	}
 
 	public void updateAgentsSight() {
     	//update what each agent can see
