@@ -72,7 +72,17 @@ public class Environment implements Serializable{
     	
     	
     	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
-
+    		
+    		for (Wall wl: wall) {
+    			boolean wallDist = round(wl.getLine().ptLineDist(ag.getCoordinates())) < 10.0;
+        		boolean startDist = wallDist && round(ag.getCoordinates().distance(wl.getStart())) < wl.getLength();
+        		boolean endDist = wallDist && startDist && round(ag.getCoordinates().distance(wl.getEnd())) < wl.getLength();
+        		boolean letsThrough = endDist && !(ag.getType() == wl.getLetsThrough());
+    			if (letsThrough){
+    				collisions.add(new Collision(ag, wl));
+    			}
+    		}
+    		
     		for (Agent aa: getAllAgents()) { // check if collides to any other agent
         		if(ag == aa) continue;
 
@@ -100,15 +110,7 @@ public class Environment implements Serializable{
     			collisions.add(new Collision(ag, wall.get(2)));
     		}
     		
-    		for (Wall wl: wall) {
-    			boolean wallDist = round(wl.getLine().ptLineDist(ag.getCoordinates())) < 10.0;
-        		boolean startDist = wallDist && round(ag.getCoordinates().distance(wl.getStart())) < wl.getLength();
-        		boolean endDist = wallDist && startDist && round(ag.getCoordinates().distance(wl.getEnd())) < wl.getLength();
-        		boolean letsThrough = endDist && !(ag.getType() == wl.getLetsThrough());
-    			if (letsThrough){
-    				collisions.add(new Collision(ag, wl));
-    			}
-    		}
+    		
 		}
 
     	return collisions;
@@ -278,23 +280,9 @@ public class Environment implements Serializable{
     		shark.update();
     	}
     	tick++;
-    	/*System.out.println("Number of food: "+food.size());
-    	double avg = 0;
-    	double min = 10000000;
-    	double max = 0;
-    	for(int i=0;i<seaweed.size();i++){
-    		Seaweed sw = seaweed.get(i);
-    		for(int j=0;j<9;j++){
-    			double temp = sw.getBranches().get(j).getMaxSize();
-    			avg+= temp;    			
-    			if(temp < min) min = temp;
-    			if(temp > max) max = temp;
-    		}
-    	}
-    	avg = avg / (9*seaweed.size());
-    	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
-    	if (tick % 1000 == 0) {
-    		if (tick % 2000 == 0) {
+    	//TODO
+    	if (tick % 100 == 0) {
+    		if (tick % 200 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
         		if (fitnessOnly) {
         			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
@@ -340,11 +328,6 @@ public class Environment implements Serializable{
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
 
-    		/*for(int i = 0; i < fishes.size()/2; i++){
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
-    			addFood(new Point2D.Double(x, y));
-    		}*/
     		
 
 
