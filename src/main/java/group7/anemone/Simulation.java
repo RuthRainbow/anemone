@@ -917,15 +917,15 @@ public class Simulation extends PApplet {
 		Point2D.Double midpoint = new Point2D.Double((agent1.coords.x+agent2.coords.x)/2,(agent1.coords.y+agent2.coords.y)/2);
 		double dist = agent1.coords.distance(agent2.coords);
 
-		boolean wallAbove1 = checkWall(agent1.coords.x,agent1.coords.y-1,agent1.getType());
-		boolean wallBelow1 = checkWall(agent1.coords.x,agent1.coords.y+1,agent1.getType());
-		boolean wallLeft1 = checkWall(agent1.coords.x-1,agent1.coords.y,agent1.getType());
-		boolean wallRight1 = checkWall(agent1.coords.x+1,agent1.coords.y,agent1.getType());
+		boolean wallAbove1 = checkWall(agent1.coords.x,agent1.coords.y-0.01,agent1.getType());
+		boolean wallBelow1 = checkWall(agent1.coords.x,agent1.coords.y+0.01,agent1.getType());
+		boolean wallLeft1 = checkWall(agent1.coords.x-0.01,agent1.coords.y,agent1.getType());
+		boolean wallRight1 = checkWall(agent1.coords.x+0.01,agent1.coords.y,agent1.getType());
 		
-		boolean wallAbove2 = checkWall(agent2.coords.x-1,agent2.coords.y,agent2.getType());
-		boolean wallBelow2 = checkWall(agent2.coords.x+1,agent2.coords.y,agent2.getType());
-		boolean wallLeft2 = checkWall(agent2.coords.x,agent2.coords.y-1,agent2.getType());
-		boolean wallRight2 = checkWall(agent2.coords.x,agent2.coords.y+1,agent2.getType());
+		boolean wallAbove2 = checkWall(agent2.coords.x-0.1,agent2.coords.y,agent2.getType());
+		boolean wallBelow2 = checkWall(agent2.coords.x+0.1,agent2.coords.y,agent2.getType());
+		boolean wallLeft2 = checkWall(agent2.coords.x,agent2.coords.y-0.1,agent2.getType());
+		boolean wallRight2 = checkWall(agent2.coords.x,agent2.coords.y+0.1,agent2.getType());
 		
 		boolean agent1Free = !(wallAbove1) && !(wallBelow1) && !(wallLeft1) && !(wallRight1);
 		boolean agent2Free = !(wallAbove2) && !(wallBelow2) && !(wallLeft2) && !(wallRight2);
@@ -954,59 +954,64 @@ public class Simulation extends PApplet {
 			System.out.print("Agent 1 obstructed: ");
 			if(wallAbove1){
 				updatedY1 = agent1.coords.y;
-				updatedY2 = updatedY2 - changeY1;
-				System.out.print(" Above -"+changeY1);
+				updatedY2 = updatedY2 + Math.abs(changeY1);
+				System.out.print(" Above +"+Math.abs(changeY1));
 			}
 			
 			if(wallBelow1){
 				updatedY1 = agent1.coords.y;
-				updatedY2 = updatedY2 - changeY1;
-				System.out.print(" Below -"+changeY1);
+				updatedY2 = updatedY2 - Math.abs(changeY1);
+				System.out.print(" Below -"+Math.abs(changeY1));
 			}
 			
 			if(wallLeft1){
 				updatedX1 = agent1.coords.x;
-				updatedX2 = updatedX2 - changeX1;
-				System.out.print(" Left -"+changeX1);
+				updatedX2 = updatedX2 + Math.abs(changeX1);
+				System.out.print(" Left +"+Math.abs(changeX1));
 			}
 			
 			if(wallRight1){
 				updatedX1 = agent1.coords.x;
-				updatedX2 = updatedX2 - changeX1;
-				System.out.print(" Right -"+changeX1);
+				updatedX2 = updatedX2 - Math.abs(changeX1);
+				System.out.print(" Right -"+Math.abs(changeX1));
 			}
 			System.out.println(" | So Agent 1:"+env.round(agent1.coords.x)+","+env.round(agent1.coords.y)+"/"+env.round(updatedX1)+","+env.round(updatedY1)+" and Agent 2:"+env.round(agent2.coords.x)+","+env.round(agent2.coords.y)+"/"+env.round(updatedX2)+","+env.round(updatedY2));
+			if(agent1.coords.x == updatedX1 && agent1.coords.y == updatedY1 && agent2.coords.x == updatedX2 && agent2.coords.y == updatedY2)
+				System.out.println("ERROR: No agent was moved in the collision resolution!");
 			agent1.coords.x = updatedX1;
 			agent1.coords.y = updatedY1;
 			agent2.coords.x = updatedX2;
 			agent2.coords.y = updatedY2;
+			
 		}else if(agent1Free){
 			//Agent 2 is obstructed by walls
 			System.out.print("Agent 2 obstructed: ");
 			if(wallAbove2){
 				updatedY2 = agent2.coords.y;
-				updatedY1 = updatedY1 - changeY2;
-				System.out.print(" Above -"+changeY2);
+				updatedY1 = updatedY1 + Math.abs(changeY2);
+				System.out.print(" Above +"+Math.abs(changeY2));
 			}
 			
 			if(wallBelow2){
 				updatedY2 = agent2.coords.y;
-				updatedY1 = updatedY1 - changeY2;
-				System.out.print(" Below -"+changeY2);
+				updatedY1 = updatedY1 - Math.abs(changeY2);
+				System.out.print(" Below -"+Math.abs(changeY2));
 			}
 			
 			if(wallLeft2){
 				updatedX2 = agent2.coords.x;
-				updatedX1 = updatedX1 - changeX2;
-				System.out.print(" Left -"+changeX2);
+				updatedX1 = updatedX1 + Math.abs(changeX2);
+				System.out.print(" Left +"+Math.abs(changeX2));
 			}
 			
 			if(wallRight2){
 				updatedX2 = agent2.coords.x;
-				updatedX1 = updatedX1 - changeX2;
-				System.out.print(" Right -"+changeX2);
+				updatedX1 = updatedX1 - Math.abs(changeX2);
+				System.out.print(" Right -"+Math.abs(changeX2));
 			}
 			System.out.println(" | So Agent 1:"+env.round(agent1.coords.x)+","+env.round(agent1.coords.y)+"/"+env.round(updatedX1)+","+env.round(updatedY1)+" and Agent 2:"+env.round(agent2.coords.x)+","+env.round(agent2.coords.y)+"/"+env.round(updatedX2)+","+env.round(updatedY2));
+			if(agent1.coords.x == updatedX1 && agent1.coords.y == updatedY1 && agent2.coords.x == updatedX2 && agent2.coords.y == updatedY2)
+				System.out.println("ERROR: No agent was moved in the collision resolution!");
 			agent1.coords.x = updatedX1;
 			agent1.coords.y = updatedY1;
 			agent2.coords.x = updatedX2;
@@ -1074,19 +1079,6 @@ public class Simulation extends PApplet {
 
 	private Point2D.Double internalWallBounce(Wall wl, Agent ag ) {
 		Line2D.Double line = wl.getLine();
-		Point2D.Double coords = ag.coords;
-		double m = (line.y2-line.y1)/(line.x2-line.x1);
-        double c = line.y1 - m*line.x1;
-        double r = 10;
-        double a = coords.x;
-        double b = coords.y;
-        double x = 1 + m;
-        double y = 2*m*(c-b);
-        double z = (c-b)*(c-b) + a*a +2*a - r*r;
-        double[] Xcoord = Utilities.quadratic(x, y, z);
-        double[] Ycoord = new double[2];
-        Ycoord[0] = m*Xcoord[0] + c;
-        Ycoord[1] = m*Xcoord[1] + c;
         Point2D.Double closestWallPoint = Utilities.getClosestPoint(line, ag.coords);
         double wallToNewPositionAngle = Utilities.angleBetweenPoints(closestWallPoint.x, closestWallPoint.y, ag.coords.x, ag.coords.y);
         Point2D.Double newAgentPosition = (Point2D.Double) Utilities.generateLine(closestWallPoint, 10.0, wallToNewPositionAngle).getP2();

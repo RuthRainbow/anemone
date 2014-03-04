@@ -83,13 +83,13 @@ public class Environment implements Serializable{
     			}
     		}
     		
-    		for (Agent aa: getAllAgents()) { // check if collides to any other agent
+    		/*for (Agent aa: getAllAgents()) { // check if collides to any other agent
         		if(ag == aa) continue;
 
         		if(round(ag.getCoordinates().distance(aa.getCoordinates())) < 20){
         			collisions.add(new Collision(ag, aa));
         		}
-    		}
+    		}*/
 
     		for (Food fd: food) { //check collisions to food
         		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12 && !(ag instanceof Enemy)){
