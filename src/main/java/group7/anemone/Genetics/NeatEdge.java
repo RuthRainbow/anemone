@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Class to hold genes, which make up the representation of the neural network. Each is roughly an
  * edge/connector within the network, with a single input and output.
  */
-public class Gene implements Serializable{
+public class NeatEdge implements Serializable{
 
 	private static final long serialVersionUID = -27536139896199028L;
 	private int historicalMarker;
@@ -15,7 +15,7 @@ public class Gene implements Serializable{
 	private double weight;
 	private int delay;
 
-	public Gene(int hist, NeatNode in, NeatNode out, double weight, int delay) {
+	public NeatEdge(int hist, NeatNode in, NeatNode out, double weight, int delay) {
 		this.historicalMarker = hist;
 		this.in = in;
 		this.out = out;

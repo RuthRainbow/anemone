@@ -12,12 +12,12 @@ import java.util.Arrays;
 public class Genome implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;
 	// Genes represent edges
-	private final Gene[] genome;
+	private final NeatEdge[] genome;
 	private final ArrayList<NeatNode> nodes;
 	private int speciesId;
 	private Parents parents;
 	
-	public Genome(Gene[] genome, Collection<NeatNode> nodes, int speciesId,
+	public Genome(NeatEdge[] genome, Collection<NeatNode> nodes, int speciesId,
 		Genome mother, Genome father) {
 		this.genome = genome;
 		this.nodes = new ArrayList<NeatNode>(nodes);
@@ -54,7 +54,7 @@ public class Genome implements Serializable {
 		return this.genome[x].getDelay();
 	}
 
-	public Gene[] getGene() {
+	public NeatEdge[] getGene() {
 		return this.genome;
 	}
 
@@ -70,7 +70,7 @@ public class Genome implements Serializable {
 		return this.genome[x].getHistoricalMarker();
 	}
 
-	public Gene getXthGene(int x) {
+	public NeatEdge getXthGene(int x) {
 		return this.genome[x];
 	}
 	

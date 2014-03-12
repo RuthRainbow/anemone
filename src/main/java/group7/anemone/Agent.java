@@ -1,6 +1,6 @@
 package group7.anemone;
 
-import group7.anemone.Genetics.Gene;
+import group7.anemone.Genetics.NeatEdge;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.NeatNode;
 
@@ -119,7 +119,7 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 
 		/* Create synapses. */
-		for (Gene g : genome.getGene()) {
+		for (NeatEdge g : genome.getGene()) {
 			/* Get the synapse information. */
 			NeatNode preNode = g.getIn();
 			NeatNode postNode = g.getOut();

@@ -1,7 +1,7 @@
 package group7.anemone;
 
 import group7.anemone.Genetics.FishGod;
-import group7.anemone.Genetics.Gene;
+import group7.anemone.Genetics.NeatEdge;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.God;
 import group7.anemone.Genetics.NeatNode;
@@ -434,7 +434,7 @@ public class Environment implements Serializable{
 		int numMotorNeurons = 3;
 		int visualFieldSize = Agent.configNumSegments;
 		int numVisualNeurons = visualFieldSize*3;
-		ArrayList<Gene> edges = new ArrayList<Gene>();
+		ArrayList<NeatEdge> edges = new ArrayList<NeatEdge>();
 		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
 		ArrayList<NeatNode> motorNodes = new ArrayList<NeatNode>();
 		ArrayList<NeatNode> visualNodes = new ArrayList<NeatNode>();
@@ -472,13 +472,13 @@ public class Environment implements Serializable{
 				for (NeatNode mn : motorNodes) {
 					int preID = vn.getId();
 					int postID = mn.getId();
-					Gene g = new Gene(total++, vn, mn, 30.0, 1);
+					NeatEdge g = new NeatEdge(total++, vn, mn, 30.0, 1);
 					edges.add(g);
 				}
 			}
 		}
 		
-		return new Genome(edges.toArray(new Gene[0]), nodes, 0, null, null);
+		return new Genome(edges.toArray(new NeatEdge[0]), nodes, 0, null, null);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){

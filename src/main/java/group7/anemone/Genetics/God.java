@@ -26,7 +26,7 @@ public abstract class God implements Serializable{
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
 	private int nextEdgeMarker;
 	private int nextNodeMarker;
-	private ArrayList<Gene> newGenes;
+	private ArrayList<NeatEdge> newGenes;
 
 	// The ordered list of all species, with each represented by a member from the
 	// previous generation.
@@ -48,7 +48,7 @@ public abstract class God implements Serializable{
 
 	// Method to breed the entire population without species.
 	protected HashMap<Genome, Integer> BreedPopulation(ArrayList<Agent> agents) {
-		newGenes = new ArrayList<Gene>();
+		newGenes = new ArrayList<NeatEdge>();
 		ArrayList<AgentFitness> selectedAgents = Selection(agents);
 		ArrayList<Genome> children = GenerateChildren(selectedAgents);
 		HashMap<Genome, Integer> childrenSpecies = new HashMap<Genome, Integer>();
@@ -59,7 +59,7 @@ public abstract class God implements Serializable{
 	}
 
 	public ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
-		newGenes = new ArrayList<Gene>();
+		newGenes = new ArrayList<NeatEdge>();
 		
 		if (species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
@@ -338,7 +338,7 @@ public abstract class God implements Serializable{
 	// Method to create offspring from 2 given parents.
 	protected ArrayList<Genome> CreateOffspring(
 			AgentFitness mother, AgentFitness father) {
-		newGenes = new ArrayList<Gene>();
+		newGenes = new ArrayList<NeatEdge>();
 		ArrayList<Genome> children = new ArrayList<Genome>();
 
 		children.add(crossover(mother, father));
@@ -364,10 +364,10 @@ public abstract class God implements Serializable{
 	// The mother should always be the parent with the highest fitness.
 	// TODO may be a problem if they have equal fitness that one is always dominant
 	private Genome crossover(Genome dominant, Genome recessive) {
-		List<Gene> child = new ArrayList<Gene>();
+		List<NeatEdge> child = new ArrayList<NeatEdge>();
 
 		// "Match" genes...
-		Map<Gene, Gene> matches = new HashMap<Gene, Gene>();
+		Map<NeatEdge, NeatEdge> matches = new HashMap<NeatEdge, NeatEdge>();
 		int marker = 0;
 		for (int i = 0; i < dominant.getLength(); i++) {
 			for (int j = marker; j < recessive.getLength(); j++) {
@@ -380,7 +380,7 @@ public abstract class God implements Serializable{
 
 		// Generate the child
 		for (int i = 0; i < dominant.getLength(); i++) {
-			Gene gene = dominant.getXthGene(i);
+			NeatEdge gene = dominant.getXthGene(i);
 			if (matches.containsKey(gene)) {
 				// Randomly select matched gene from either parent
 				if (getRandom() < getMatchedGeneChance()) {
@@ -393,7 +393,7 @@ public abstract class God implements Serializable{
 			}
 		}
 		
-		Gene[] childGene = new Gene[child.size()];
+		NeatEdge[] childGene = new NeatEdge[child.size()];
 		for (int i = 0; i < child.size(); i++) {
 			childGene[i] = child.get(i);
 		}
@@ -438,9 +438,9 @@ public abstract class God implements Serializable{
 
 	// Mutate a genome structurally
 	private Genome structuralMutation(Genome child) {
-		List<Gene> edgeList = new ArrayList<Gene>();
+		List<NeatEdge> edgeList = new ArrayList<NeatEdge>();
 		int max = 0;
-		for (Gene gene : child.getGene()) {
+		for (NeatEdge gene : child.getGene()) {
 			// Copy across all genes to new child 
 			edgeList.add(gene);
 			max = Math.max(gene.getIn().id, max);
@@ -460,7 +460,7 @@ public abstract class God implements Serializable{
 				max = addNodeBetweenEdges(edgeList, max, nodeList);
 			}
 		}
-		Gene[] mutatedGeneArray = new Gene[edgeList.size()];
+		NeatEdge[] mutatedGeneArray = new NeatEdge[edgeList.size()];
 		for (int i = 0; i < edgeList.size(); i++) {
 			mutatedGeneArray[i] = edgeList.get(i);
 		}
@@ -473,17 +473,17 @@ public abstract class God implements Serializable{
 	}
 	
 	// Add a connection between two existing nodes
-	private void addConnection(List<NeatNode> nodeList, List<Gene> edgeList) {
+	private void addConnection(List<NeatNode> nodeList, List<NeatEdge> edgeList) {
 		// Connect two arbitrary nodes - we don't care if they are already connected.
 		// (Similar to growing multiple synapses).
 		NeatNode left = nodeList.get(
 				(int) Math.floor(getRandom()*nodeList.size()));
 		NeatNode right = nodeList.get(
 				(int) Math.floor(getRandom()*nodeList.size()));
-		Gene newGene = new Gene(
+		NeatEdge newGene = new NeatEdge(
 				nextEdgeMarker, left, right, 30.0, 1);
 		// If this mutated gene has already been created this gen, don't create another
-		for (Gene gene : newGenes) {
+		for (NeatEdge gene : newGenes) {
 			if (newGene.equals(gene)) {
 				newGene = gene;
 			}
@@ -496,9 +496,9 @@ public abstract class God implements Serializable{
 	}
 
 	// Add a node between two pre-existing edges
-	private int addNodeBetweenEdges(List<Gene> edgeList, int max, List<NeatNode> nodeList) {
+	private int addNodeBetweenEdges(List<NeatEdge> edgeList, int max, List<NeatNode> nodeList) {
 		// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
-		Gene toMutate = edgeList.get(
+		NeatEdge toMutate = edgeList.get(
 				(int) Math.floor(getRandom() * edgeList.size()));
 		edgeList.remove(toMutate);
 		// Make a new intermediate node TODO can do this more randomly than default params.
@@ -508,11 +508,11 @@ public abstract class God implements Serializable{
 		nodeList.add(newNode);
 		nextNodeMarker++;
 		
-		Gene newLeftGene = new Gene(nextEdgeMarker, toMutate.getIn(), newNode, 30.0, 1);
+		NeatEdge newLeftGene = new NeatEdge(nextEdgeMarker, toMutate.getIn(), newNode, 30.0, 1);
 		nextEdgeMarker++;
 		edgeList.add(newLeftGene);
 		// Weight should be the same as the current Gene between this two nodes:
-		Gene newRightGene = new Gene(
+		NeatEdge newRightGene = new NeatEdge(
 				nextEdgeMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
 		nextEdgeMarker++;
 		edgeList.add(newRightGene);
@@ -521,7 +521,7 @@ public abstract class God implements Serializable{
 
 	// Each weight is subject to random mutation.
 	private Genome weightMutation(Genome child) {
-		for (Gene gene : child.getGene()) {
+		for (NeatEdge gene : child.getGene()) {
 			if (getRandom() < getWeightMutationChance()) {
 				if (getRandom() < getWeightIncreaseChance()) {
 					gene.addWeight(getRandom());
@@ -534,7 +534,7 @@ public abstract class God implements Serializable{
 	}
 
 	// Return the string representation of a new agent.
-	protected Gene[] RandomlyGenerate() {
+	protected NeatEdge[] RandomlyGenerate() {
 		throw new NotImplementedException();
 	}
 
