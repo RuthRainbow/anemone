@@ -2,8 +2,8 @@ package group7.anemone.Genetics;
 
 public class SharkGod extends God{
 	private static final long serialVersionUID = 1226846014955083162L;
-	
-	/** Start of possible graphical vars **/
+
+	/** Start of graphical vars **/
 	// Mutation chances:
 	public double structuralMutationChance = 0.9f;
 	public double addConnectionChance = 0.8f;
@@ -28,8 +28,8 @@ public class SharkGod extends God{
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 2;
 	public double minReproduced = 3;
-	/** End of possible graphical vars **/
-	
+	/** End of graphical vars **/
+
 	/* Getter methods for variables that may differ between God types.*/
 	public double getStructuralMutationChance() {
 		return this.structuralMutationChance;
@@ -78,5 +78,9 @@ public class SharkGod extends God{
 	}
 	public String toString(){
 		return "Shark God";
+	}
+	@Override
+	public void setCompatabilityThreshold(double threshold) {
+		this.compatibilityThreshold = threshold;
 	}
 }

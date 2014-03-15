@@ -2,8 +2,8 @@ package group7.anemone.Genetics;
 
 public class FishGod extends God {
 	private static final long serialVersionUID = -6489249838484577534L;
-	
-	/** Start of possible graphical vars **/
+
+	/** Start of graphical vars **/
 	// Mutation chances:
 	public double structuralMutationChance = 0.9f;
 	public double addConnectionChance = 0.8f;
@@ -19,7 +19,7 @@ public class FishGod extends God {
 	public double matchedGeneChance = 0.5f;
 
 	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
-	// Parameters for use in difference calculation (can be tweaked).
+	// Parameters for use in difference calculation.
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
@@ -28,8 +28,8 @@ public class FishGod extends God {
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 1.3;
 	public double minReproduced = 5;
-	/** End of possible graphical vars **/
-	
+	/** End of graphical vars **/
+
 	/* Getter methods for variables that may differ between God types.*/
 	public double getStructuralMutationChance() {
 		return this.structuralMutationChance;
@@ -78,5 +78,9 @@ public class FishGod extends God {
 	}
 	public String toString(){
 		return "Fish God";
+	}
+	@Override
+	public void setCompatabilityThreshold(double threshold) {
+		this.compatibilityThreshold = threshold;
 	}
 }

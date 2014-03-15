@@ -1,11 +1,10 @@
 package group7.anemone;
 
-import group7.anemone.Genetics.NeatEdge;
 import group7.anemone.Genetics.Genome;
+import group7.anemone.Genetics.NeatEdge;
 import group7.anemone.Genetics.NeatNode;
-
-import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MFactory;
+import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MNeuronParams;
 import group7.anemone.MNetwork.MNeuronState;
@@ -84,10 +83,10 @@ public class Agent extends SimulationObject implements Serializable {
 		createNeuralNet();
 		calculateNetworkPositions(false);
 	}
-	
+
 	public Agent(Point2D.Double coords){
 		super(coords);
-		
+
 		this.genome = null;
 	}
 
@@ -107,7 +106,7 @@ public class Agent extends SimulationObject implements Serializable {
 			MNeuronParams params = nn.getParams();
 			MNeuronState state =
 				MFactory.createInitialRSNeuronState();
-			
+
 			/* Create a neuron. */
 			MNeuron neuron = new MNeuron(params, state, id);
 
@@ -215,7 +214,7 @@ public class Agent extends SimulationObject implements Serializable {
 		 */
 		msimulation.step();
 	}
-	
+
 	/**
 	 * Inspects the brain's motor neurons for activity and performs motor
 	 * actions accordingly (thrust and turning).
@@ -225,7 +224,7 @@ public class Agent extends SimulationObject implements Serializable {
 		int thrustNeuronID = 0;
 		int turnNegativeNeuronID = 1;
 		int turnPositiveNeuronID = 2;
-		
+
 		for (MNeuron n : neurons) {
 			/*
 			 Perform physical actions if effector neurons are firing.
@@ -347,7 +346,7 @@ public class Agent extends SimulationObject implements Serializable {
 		health -= 0.001;
 		fitness = (1.0 + numFoodsEaten) / (1.0 + numWallsHit);
 	}
-	
+
 	public void updateBrainOnly() {
 		updateSensors();
 		applySensoryInputToBrain();
@@ -356,11 +355,11 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 		applyMotorOutputs();
 	}
-	
+
 	protected void ateFood() {
 		numFoodsEaten++;
 	}
-	
+
 	protected void hitWall() {
 		numWallsHit++;
 	}
@@ -388,44 +387,44 @@ public class Agent extends SimulationObject implements Serializable {
 				MNeuron pre = s.getPreNeuron();
 				MNeuron post = s.getPostNeuron();
 				int level = 0;
-	
+
 				if(!placed.contains(pre)){
 					if(placed.contains(post)){ //pre node not placed but post is, place at level - 1
 						level = (int) (post.params.spatialCoords.x / 20.0) - 1;
 					}
-					
+
 					int max = maxValue(level);
 					addNode(level, max, pre);
 				}
-	
+
 				if(!placed.contains(post)){
 					if(placed.contains(pre)){ //post node not placed but pre is, place at level + 1
 						level = (int) (pre.params.spatialCoords.x / 20.0);
 					}
 					level++;
-	
+
 					int max = maxValue(level);
 					addNode(level, max, post);
 				}
-	
+
 				if(pre.params.spatialCoords.x == post.params.spatialCoords.x) pre.params.spatialCoords.z += 20;
 			}
-			
+
 			//offset nodes centrally
 			int offsetX = -maxLevel * 10;
 			int offsetY = -maxHeight * 10;
-			
+
 			for(MNeuron n : mnetwork.getNeurons()){
 				n.params.spatialCoords.x += offsetX;
 				n.params.spatialCoords.y += offsetY;
 			}
-			
+
 			mnetwork.setNeurons(neurons);
 			return;
 		}
-		 
+
 		//Force directed graph drawing
-		float area = 250 * 250 * 250; //The size of the area 
+		float area = 250 * 250 * 250; //The size of the area
 		//float C = 2;
 		float k = (float) Math.sqrt(area / mnetwork.getVertexNumber());
 		int setIterations = 250;
@@ -529,7 +528,7 @@ public class Agent extends SimulationObject implements Serializable {
 		node.params.spatialCoords.x = level * 20;
 		node.params.spatialCoords.y = max;
 		node.params.spatialCoords.z = 0;
-		
+
 		maxInLevel.put(level, max + 20);
 		placed.add(node);
 	}
@@ -689,7 +688,7 @@ public class Agent extends SimulationObject implements Serializable {
 	public int getAge() {
 		return this.age;
 	}
-	
+
 	public int getType(){
 		return Collision.TYPE_AGENT;
 	}

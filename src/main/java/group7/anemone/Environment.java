@@ -1,9 +1,9 @@
 package group7.anemone;
 
 import group7.anemone.Genetics.FishGod;
-import group7.anemone.Genetics.NeatEdge;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.God;
+import group7.anemone.Genetics.NeatEdge;
 import group7.anemone.Genetics.NeatNode;
 import group7.anemone.Genetics.SharkGod;
 import group7.anemone.UI.Utilities;
@@ -13,12 +13,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-
-
 
 import processing.core.PApplet;
 
@@ -38,19 +32,19 @@ public class Environment implements Serializable{
 	private static ArrayList<Point2D.Double> foodPos;
 
 	private ArrayList<Collision> collisions;
-	
+
 	// Whether to not use health:
 	protected final boolean fitnessOnly = true;
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
-	
+
 	static int width = 1000;
 	static int height = 1000;
-	
+
 	//Save number of segments used by agent for analysis tool
 	public int agentNumSegments;
 
-	
+
 	public Environment(PApplet p){
 		this.parent = p;
 		this.fishGod = new FishGod();
@@ -67,8 +61,8 @@ public class Environment implements Serializable{
     // Method to get all collisions that occurred in the environment
     public ArrayList<Collision> updateCollisions() {
     	collisions = new ArrayList<Collision>();
-    	
-    	
+
+
     	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
 
     		for (Agent aa: getAllAgents()) { // check if collides to any other agent
@@ -84,20 +78,20 @@ public class Environment implements Serializable{
         			collisions.add(new Collision(ag, fd));
         		}
     		}
-    		
+
     		if(ag.coords.x < 10){
     			collisions.add(new Collision(ag, wall.get(3)));
     		}
     		if(ag.coords.y < 10){
-    			collisions.add(new Collision(ag, wall.get(0)));    			
-    		} 
+    			collisions.add(new Collision(ag, wall.get(0)));
+    		}
     		if(ag.coords.x > (width - 10)){
     			collisions.add(new Collision(ag, wall.get(1)));
-    		} 
+    		}
     		if(ag.coords.y > (height - 10)){
     			collisions.add(new Collision(ag, wall.get(2)));
     		}
-    		
+
     		for (Wall wl: wall) {
     			boolean wallDist = wl.getLine().ptLineDist(ag.getCoordinates()) < 10.0;
         		boolean startDist = wallDist && ag.getCoordinates().distance(wl.getStart()) < wl.getLength();
@@ -112,7 +106,7 @@ public class Environment implements Serializable{
     	return collisions;
     }
 
-    
+
 
 	public void updateAgentsSight() {
     	//update what each agent can see
@@ -137,9 +131,9 @@ public class Environment implements Serializable{
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
 		for(Wall wl : walls){
 			if(ag.getType() == wl.getLetsThrough()) continue;
-			
+
 			wallChecking = wl;
-			
+
 			//check if the wall is within the agent's viewable distance
 			if (wl.getLine().ptLineDist(ag.getCoordinates()) < ag.getVisionRange()){
 
@@ -188,15 +182,15 @@ public class Environment implements Serializable{
 		}
 		return result;
 	}
-	
+
 	private boolean lineIntersectsWall(Line2D.Double line, SimulationObject ignore, Agent ag){
 		for(Wall wl : wall){
 			if(ignore instanceof Wall && wallChecking == wl) continue;
 			if(ag.getType() == wl.getLetsThrough()) continue;
-			
+
 			if(wl.getLine().intersectsLine(line)) return true;
 		}
-		
+
 		return false;
 	}
 
@@ -207,10 +201,10 @@ public class Environment implements Serializable{
 		double headAbove = ag.getViewHeading() + ag.getFOV();
 		//check if the object is within viewable distance
 		double distance = ag.getCoordinates().distance(ob.getCoordinates());
-		
+
 		Line2D.Double lineToObject = new Line2D.Double(ag.getCoordinates(), ob.getCoordinates());
 		boolean intersectsWall = lineIntersectsWall(lineToObject, ob, ag);
-		
+
 		if(!intersectsWall && distance <= ag.getVisionRange()){
 			//get angle of object in relation to agent
 			double angleBetween = Math.atan((ob.getCoordinates().y - ag.getCoordinates().y) / (ob.getCoordinates().x - ag.getCoordinates().x));
@@ -278,7 +272,7 @@ public class Environment implements Serializable{
     		Seaweed sw = seaweed.get(i);
     		for(int j=0;j<9;j++){
     			double temp = sw.getBranches().get(j).getMaxSize();
-    			avg+= temp;    			
+    			avg+= temp;
     			if(temp < min) min = temp;
     			if(temp > max) max = temp;
     		}
@@ -287,7 +281,7 @@ public class Environment implements Serializable{
     	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
     	if (tick % 1000 == 0) {
     		if (tick % 2000 == 0) {
-    			ArrayList<Genome> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
+    			ArrayList<Genome> nextSharks = sharkGod.BreedPopulation(sharks, fitnessOnly);
         		if (fitnessOnly) {
         			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
         			for (int i = 0; i < sharks.size(); i++) {
@@ -305,13 +299,13 @@ public class Environment implements Serializable{
     				int y = (int) Math.floor(height*0.8 + Math.random() * height*0.2);
     				int heading = (int) Math.floor(Math.random() * 360);
     				spawnShark(new Point2D.Double(x,y), heading, genome);
-    				
+
     			}
     			// Reset tick until next generation
     			tick = 0;
     		}
-    		ArrayList<Genome> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
-    		
+    		ArrayList<Genome> nextFish = fishGod.BreedPopulation(fishes, fitnessOnly);
+
     		if (fitnessOnly) {
     			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
 
@@ -337,7 +331,7 @@ public class Environment implements Serializable{
     			int y = (int) Math.floor(Math.random() * height);
     			addFood(new Point2D.Double(x, y));
     		}*/
-    		
+
 
 
     	}
@@ -353,18 +347,18 @@ public class Environment implements Serializable{
 			int y = (int) Math.floor(height*0.2 + Math.random() * height*0.6);
 			addSeaweed(new Point2D.Double(x, y));
     	}
-    	
+
 		for(int i = 0; i < seaweed.size(); i++){
 			Seaweed sw = seaweed.get(i);
-			if(Math.random() < 0.02) sw.update();			
+			if(Math.random() < 0.02) sw.update();
 		}
 		/* FIREWORKS
 	   	if(food.size() > 10){
     		while(food.size() > 1000){
     			food.remove(0);
     		}
-    		
-    	}	
+
+    	}
     	while(seaweed.size() > 10){
     		seaweed.remove(0);
     	}
@@ -373,11 +367,11 @@ public class Environment implements Serializable{
 			int y = (int) Math.floor(height*0.2 + Math.random() * height*0.6);
 			addSeaweed(new Point2D.Double(x, y));
     	}
-    	
+
 		for(int i = 0; i < seaweed.size(); i++){
 			Seaweed sw = seaweed.get(i);
 			sw.update();
-			
+
 		}*/
 
     	if(fishes.size() <= 7) {
@@ -438,7 +432,7 @@ public class Environment implements Serializable{
 		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
 		ArrayList<NeatNode> motorNodes = new ArrayList<NeatNode>();
 		ArrayList<NeatNode> visualNodes = new ArrayList<NeatNode>();
-		
+
 		/* Motor neurons. */
 		for (int i=0; i<3; i++) {
 			NeatNode node = NeatNode.createRSNeatNode(total++);
@@ -459,10 +453,10 @@ public class Environment implements Serializable{
 			NeatNode node = NeatNode.createRSNeatNode(total++);
 			visualNodes.add(node);
 		}
-		
+
 		nodes.addAll(motorNodes);
 		nodes.addAll(visualNodes);
-		
+
 		/*
 		Full connectivity - for every sensory neuron, connect it to each
 		motor neuron.
@@ -477,7 +471,7 @@ public class Environment implements Serializable{
 				}
 			}
 		}
-		
+
 		return new Genome(edges.toArray(new NeatEdge[0]), nodes, 0, null, null);
 	}
 
@@ -511,10 +505,10 @@ public class Environment implements Serializable{
 	void addWall(Point2D.Double start, Point2D.Double end, int type){
 		wall.add(new Wall(start, end, type));
 	}
-	
+
 	public int foodsize() { return food.size(); }
 
-	
+
 
 	protected void removeAgent(Agent ag){
 		if(ag instanceof Enemy) sharks.remove(ag);
@@ -608,7 +602,7 @@ public class Environment implements Serializable{
 	}
 
 	public int getSeaweedSize() {
-		
+
 		return seaweed.size();
 	}
 

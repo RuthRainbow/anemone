@@ -18,11 +18,6 @@ import java.util.concurrent.CountDownLatch;
 public abstract class God implements Serializable{
 	private static final long serialVersionUID = 619717007643693268L;
 
-	private double bestFitness;
-	private double worstFitness;
-	private double averageFitness;
-	//private int noImprovementCount = 0;
-
 	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
 	private int nextEdgeMarker;
 	private int nextNodeMarker;
@@ -33,10 +28,16 @@ public abstract class God implements Serializable{
 	private ArrayList<Species> species;
 	// The distances between all genes:
 	private ConcurrentHashMap<Pair<AgentFitness>, Double> distances;
-	
+
 	private List<Genome> children;
 
 	public God() {
+		this.species = new ArrayList<Species>();
+		this.distances = new ConcurrentHashMap<God.Pair<AgentFitness>, Double>();
+	}
+
+	public God(double compatabilityThreshold) {
+		this.setCompatabilityThreshold(compatabilityThreshold);
 		this.species = new ArrayList<Species>();
 		this.distances = new ConcurrentHashMap<God.Pair<AgentFitness>, Double>();
 	}
@@ -46,27 +47,17 @@ public abstract class God implements Serializable{
 		return Math.random();
 	}
 
-	// Method to breed the entire population without species.
-	protected HashMap<Genome, Integer> BreedPopulation(ArrayList<Agent> agents) {
+	// Method to breed the entire population.
+	public ArrayList<Genome> BreedPopulation(
+			ArrayList<Agent> agents, boolean fitnessOnly) {
 		newGenes = new ArrayList<NeatEdge>();
-		ArrayList<AgentFitness> selectedAgents = Selection(agents);
-		ArrayList<Genome> children = GenerateChildren(selectedAgents);
-		HashMap<Genome, Integer> childrenSpecies = new HashMap<Genome, Integer>();
-		for (Genome child : children) {
-			childrenSpecies.put(child, 0);
-		}
-		return childrenSpecies;
-	}
 
-	public ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
-		newGenes = new ArrayList<NeatEdge>();
-		
 		if (species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
 			nextNodeMarker = agents.get(0).getStringRep().getNodes().size();
 			nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
 		}
-		
+
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
 		// Set up threads for each distance calculation to speed this up.
 		for (Agent agent : agents) {
@@ -95,9 +86,9 @@ public abstract class God implements Serializable{
 		} catch (InterruptedException e) {
 			// Continue; we'll just have to calculate the distances in sequence.
 		}
-		
+
 		propagateFitnesses(agents);
-		
+
 		shareFitnesses();
 		ArrayList<Genome> children = new ArrayList<Genome>();
 		// Breed each species
@@ -142,7 +133,7 @@ public abstract class God implements Serializable{
 		for (Species specie : species) {
 			AgentFitness rep = specie.rep;
 			double dist = getDistance(thisAgent, rep);
-			
+
 			if (dist < getCompatibilityThreshold()) {
 				foundSpecies = true;
 				specie.addMember(thisAgent);
@@ -188,11 +179,11 @@ public abstract class God implements Serializable{
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			final AgentFitness mother = specie.members.get(i);
 			final AgentFitness father = specie.members.get(i+1);
-			
+
 			Runnable r = new CreateOffspring(mother, father);
 			Thread thread = new Thread(r);
 			thread.start();
-			
+
 			if (fitnessOnly) {
 				children.add(mother.stringRep);
 				children.add(father.stringRep);
@@ -270,34 +261,6 @@ public abstract class God implements Serializable{
 		// Save this distance so we don't need to recalculate:
 		distances.put(agentPair, distance);
 		return distance;
-	}
-
-	protected ArrayList<AgentFitness> Selection(ArrayList<Agent> agents) {
-		ArrayList<AgentFitness> selectedAgents = new ArrayList<AgentFitness>();
-		//double last_best = bestFitness;
-		double last_average = averageFitness;
-		averageFitness = 0;
-		for (Agent agent : agents) {
-			double fitness = agent.getFitness();
-			averageFitness += fitness;
-			// This number is completely arbitrary, depends on fitness function
-			if (fitness * getRandom() > last_average) {
-				selectedAgents.add(new AgentFitness(agent));
-			}
-			 if (agent.getFitness() > bestFitness) {
-                 bestFitness = agent.getFitness();
-			 } else if (agent.getFitness() < worstFitness) {
-                 worstFitness = agent.getFitness();
-			 }
-		}
-		averageFitness = averageFitness / agents.size();
-		// Keep track of the number of generations without improvement.
-		/*if (last_best >= bestFitness) {
-			noImprovementCount++;
-		} else {
-			noImprovementCount--;
-		}*/
-		return selectedAgents;
 	}
 
 	protected ArrayList<Genome> GenerateChildren(
@@ -392,12 +355,12 @@ public abstract class God implements Serializable{
 				child.add(gene);
 			}
 		}
-		
+
 		NeatEdge[] childGene = new NeatEdge[child.size()];
 		for (int i = 0; i < child.size(); i++) {
 			childGene[i] = child.get(i);
 		}
-		
+
 		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
 		nodeSet.addAll(recessive.getNodes());
 		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
@@ -423,7 +386,7 @@ public abstract class God implements Serializable{
 			}
 		}
 	}
-	
+
 	// Method to mutate one of a b c d tau am or ap by the given amount
 	private void mutateParam(MNeuronParams params, double amount) {
 		double random = getRandom();
@@ -441,7 +404,7 @@ public abstract class God implements Serializable{
 		List<NeatEdge> edgeList = new ArrayList<NeatEdge>();
 		int max = 0;
 		for (NeatEdge gene : child.getGene()) {
-			// Copy across all genes to new child 
+			// Copy across all genes to new child
 			edgeList.add(gene);
 			max = Math.max(gene.getIn().id, max);
 			max = Math.max(gene.getOut().id, max);
@@ -471,7 +434,7 @@ public abstract class God implements Serializable{
 				child.getMother(),
 				child.getFather());
 	}
-	
+
 	// Add a connection between two existing nodes
 	private void addConnection(List<NeatNode> nodeList, List<NeatEdge> edgeList) {
 		// Connect two arbitrary nodes - we don't care if they are already connected.
@@ -507,7 +470,7 @@ public abstract class God implements Serializable{
 		NeatNode newNode = new NeatNode(nextNodeMarker, MFactory.createRSNeuronParams());
 		nodeList.add(newNode);
 		nextNodeMarker++;
-		
+
 		NeatEdge newLeftGene = new NeatEdge(nextEdgeMarker, toMutate.getIn(), newNode, 30.0, 1);
 		nextEdgeMarker++;
 		edgeList.add(newLeftGene);
@@ -572,7 +535,7 @@ public abstract class God implements Serializable{
 	    		}
 	    	}
 		}
-		
+
 		public String toString() {
 	           return "(" + first.toString() + ", " + second.toString() + ")";
 	    }
@@ -614,7 +577,7 @@ public abstract class God implements Serializable{
 			this.stringRep = agent.getStringRep();
 			this.fitness = agent.getFitness();
 		}
-		
+
 		public AgentFitness(Genome genome) {
 			this.stringRep = genome;
 			this.fitness = 0;
@@ -629,15 +592,15 @@ public abstract class God implements Serializable{
 				return 0;
 			}
 		}
-		
+
 		@Override
 		public String toString() {
 			return "Genome: " + this.stringRep + " fitness: " + this.fitness;
 		}
 	}
-	
+
 	/* Calculate distances whilst the simulation is running. */
-	private class CalcAllDistances implements Runnable { 
+	private class CalcAllDistances implements Runnable {
 		private ArrayList<Genome> agents;
 
 		public CalcAllDistances(ArrayList<Genome> allChildren) {
@@ -656,7 +619,7 @@ public abstract class God implements Serializable{
 			}
 		}
 	}
-	
+
 	private class CalcDistance implements Runnable {
 		private AgentFitness thisAgent;
 		private AgentFitness speciesRep;
@@ -673,11 +636,11 @@ public abstract class God implements Serializable{
 			latch.countDown();
 		}
 	}
-	
+
 	private class CreateOffspring implements Runnable {
 		private AgentFitness mother;
 		private AgentFitness father;
-		
+
 		public CreateOffspring(AgentFitness mother, AgentFitness father) {
 			this.mother = mother;
 			this.father = father;
@@ -687,7 +650,7 @@ public abstract class God implements Serializable{
 			children.addAll(CreateOffspring(mother, father));
 		}
 	}
-	
+
 	/* Getter methods for variables that may differ between God types.*/
 	public abstract double getStructuralMutationChance();
 	public abstract double getAddConnectionChance();
@@ -704,4 +667,6 @@ public abstract class God implements Serializable{
 	public abstract double getc3();
 	public abstract double getCompatibilityThreshold();
 	public abstract double getMinReproduced();
+
+	public abstract void setCompatabilityThreshold(double threshold);
 }
