@@ -14,8 +14,9 @@ public class Genome implements Serializable {
 	// Genes represent edges
 	private final NeatEdge[] genome;
 	private final ArrayList<NeatNode> nodes;
+	private final Parents parents;
+	// Species must be changeable after creation.
 	private int speciesId;
-	private Parents parents;
 	
 	public Genome(NeatEdge[] genome, Collection<NeatNode> nodes, int speciesId,
 		Genome mother, Genome father) {

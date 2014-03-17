@@ -272,13 +272,7 @@ public abstract class God implements Serializable{
 			selectedAgents.remove(mother);
 			AgentFitness father = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
 			selectedAgents.remove(father);
-			/*
-			// If mother and father are the same, just mutate.
-			if (mother.getStringRep().equals(father.getStringRep())) {
-				children.add(mutate(mother.getStringRep()));
-			} else {*/
 			children.add(crossover(father, mother));
-			//}
 		}
 
 		ArrayList<Genome> mutatedChildren = new ArrayList<Genome>();
@@ -333,7 +327,7 @@ public abstract class God implements Serializable{
 		int marker = 0;
 		for (int i = 0; i < dominant.getLength(); i++) {
 			for (int j = marker; j < recessive.getLength(); j++) {
-				if (dominant.getXthHistoricalMarker(i) == recessive.getXthHistoricalMarker(j) ) {
+				if (dominant.getXthHistoricalMarker(i) == recessive.getXthHistoricalMarker(j)) {
 					marker = j + 1;
 					matches.put(dominant.getXthGene(i), recessive.getXthGene(j));
 				}
@@ -374,14 +368,14 @@ public abstract class God implements Serializable{
 
 	// Mutate the parameters of a gene.
 	private void parameterMutation(Genome child) {
-		if (getRandom() < getParameterMutationChance()) {
-			NeatNode toMutate = child.getNodes().get(
-					(int) Math.floor(getRandom()*child.getNodes().size()));
-			MNeuronParams params = toMutate.getParams();
-			if (getRandom() < getParameterIncreaseChance()) {
-				mutateParam(params, getRandom());
-			} else {
-				mutateParam(params, -1 * getRandom());
+		for (NeatNode node : child.getNodes()) {
+			if (getRandom() < getParameterMutationChance()) {
+				MNeuronParams params = node.getParams();
+				if (getRandom() < getParameterIncreaseChance()) {
+					mutateParam(params, getRandom());
+				} else {
+					mutateParam(params, -1 * getRandom());
+				}
 			}
 		}
 	}
@@ -389,13 +383,13 @@ public abstract class God implements Serializable{
 	// Method to mutate one of a b c d tau am or ap by the given amount
 	private void mutateParam(MNeuronParams params, double amount) {
 		double random = getRandom();
-		if (random < 0.14) params.a += 0.01;
-		else if (random < 0.28) params.b += 0.01;
-		else if (random < 0.42) params.c += 0.01;
-		else if (random < 0.56) params.ap += 1.0;
-		else if (random < 0.7) params.am += 1.0;
-		else if (random < 0.84) params.tau += 0.001;
-		else params.d += 0.01;
+		if (random < 0.14) params.a += amount * 0.1;
+		else if (random < 0.28) params.b += amount * 0.1;
+		else if (random < 0.42) params.c += amount * 0.1;
+		else if (random < 0.56) params.ap += amount * 3;
+		else if (random < 0.7) params.am += amount * 3;
+		else if (random < 0.84) params.tau += amount * 0.01;
+		else params.d += amount * 0.1;
 	}
 
 	// Mutate a genome structurally
