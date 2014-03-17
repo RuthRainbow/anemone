@@ -40,7 +40,7 @@ public abstract class CPPNNode {
 	 * @param input the input double
 	 * @return an output double
 	 */
-	public abstract double apply(double input);
+	///public abstract double apply(double input);
 	
 	/**
 	 * Retrieves the presynaptic nodes in this node's adjacency list.

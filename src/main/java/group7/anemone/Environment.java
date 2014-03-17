@@ -410,9 +410,19 @@ public class Environment implements Serializable{
 
 	protected void addFish(Point2D.Double coords, int heading){
 		Genome genome = getGenome();
+		
+		//TODO: Agent will get Chromosomes instead of a single genome, to then pass into the agent
 
 		//Creates an agent with a generic genome for a network that has no hidden nodes
 		fishes.add(new Agent(coords, heading, parent, genome));
+	}
+	
+	private ArrayList<Genome> getChromosomes() {
+		ArrayList<Genome> chromosomes= new ArrayList<Genome>();
+		
+		//TODO:Create the chromosomes here, for the initial set of agents
+		
+		return chromosomes;
 	}
 
 	private Genome getGenome() {

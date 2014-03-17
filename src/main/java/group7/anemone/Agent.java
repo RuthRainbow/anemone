@@ -1,9 +1,10 @@
 package group7.anemone;
 
+import group7.anemone.CPPN.CPPNEdge;
+import group7.anemone.CPPN.CPPNNode;
 import group7.anemone.Genetics.Gene;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.NeatNode;
-
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuron;
@@ -17,6 +18,7 @@ import group7.anemone.MNetwork.MVec3f;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -40,7 +42,10 @@ public class Agent extends SimulationObject implements Serializable {
 	private double viewHeading = 0; // in degrees 0-360
 
 	/* The agent's genome (from which the brain is generated). */
-	private final Genome genome;
+	//private final Genome genome;
+	
+	/*In hyper neat, this is the list of genomes to create the CPPN Networks to create the agents brain*/
+	private final ArrayList<Genome> chromosomes;
 
 	/* Brain state. */
 	private MNetwork mnetwork;
@@ -73,14 +78,46 @@ public class Agent extends SimulationObject implements Serializable {
 	 * @param genome	the genome to be used to construct the brain
 	 */
 	public Agent(Point2D.Double coords, double viewHeading, PApplet p,
-		Genome genome) {
+		ArrayList<Genome> chromo) {
 		super(coords);
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
-		this.genome = genome;
-		createNeuralNet();
+		//this.genome = genome;
+		this.chromosomes = chromo;
+		//createNeuralNet();
+		createBrain();
 		calculateNetworkPositions();
+	}
+	
+	private void createBrain() {
+		//This will be called instead of createNeuralNetwork
+		
+		//An arraylist of CPPNNodes and CPPNEdges, in the CPPN which will be queried to create the current layer of neurons and links in the brain.
+		ArrayList<CPPNNode> neuronParameterNodes = new ArrayList<CPPNNode>();
+		ArrayList<CPPNEdge> neuronParameterLinks = new ArrayList<CPPNEdge>();
+		
+		//An arraylist of CPPNNodes and CPPNEdges, in the CPPN which will be queried to link neurons in the current layer of the brain
+		ArrayList<CPPNNode> synapseParameterNodes = new ArrayList<CPPNNode>();
+		ArrayList<CPPNEdge> synapseParameterLinks = new ArrayList<CPPNEdge>();
+		
+		//The number of neurons that are currently being created in this layer of the brain
+		int layerSize;
+		
+		//First, loop through every chromosome that the agent contains
+		
+		//For each chromosome, go through each gene and do what it says. 
+		//Genes can have three different instructions in them:
+		// 1: Add neurons directly to the agents brain. This is only done for immutable input and output neurons
+		// 2: Add neurons/Links to the neuronParameter CPPN Network
+		// 3: Add neurons/links to the synapseParameter CPPN Network
+		// 4: Set up some intial parameters for the network, such as number of neurons in this layer that will need to be queried.
+		
+		//Once all genes have been read in, the neuronParameter CPPN Network can be run, to work out the parameters of all of the neurons in this layer
+	}
+	
+	private void createCPPNNetwork() {
+		
 	}
 
 	/**
