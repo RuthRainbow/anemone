@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 public abstract class God implements Serializable{
 	private static final long serialVersionUID = 619717007643693268L;
 
-	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
+	// Next historical marker / id for newly created edges / nodes.
 	private int nextEdgeMarker;
 	private int nextNodeMarker;
 	private ArrayList<NeatEdge> newGenes;
@@ -99,7 +99,7 @@ public abstract class God implements Serializable{
 		}
 
 		// Pre calculate the distances of new children so this is faster next round.
-		Runnable r = new CalcAllDistances(children);
+		Runnable r = new CalcAllSpecies(children);
 		Thread thread = new Thread(r);
 		thread.start();
 		return children;
@@ -203,23 +203,22 @@ public abstract class God implements Serializable{
 	protected void shareFitnesses() {
 		// For every species...
 		for (Species specie : species) {
-			// For every member of this species...
+			// Calculate the average fitness
+			double fitnessTotal = 0;
+			for (AgentFitness member : specie.members) {
+				fitnessTotal += sharingFunction(member.fitness);		
+			}
 			for (AgentFitness agent : specie.members) {
-				double fitnessTotal = 0;
-				// average fitness over all other members of this species...
-				for (AgentFitness member : specie.members) {
-					fitnessTotal += member.fitness;
-				}
 				// Check for 0 to avoid NaNs
-				agent.fitness = fitnessTotal == 0 ? 0 : (agent.fitness / Math.abs(fitnessTotal));
+				agent.fitness = fitnessTotal == 0 ? 0 :
+					(agent.fitness / Math.abs(fitnessTotal));
 			}
 		}
 	}
 
 	protected int sharingFunction(double distance) {
-		if (distance > getCompatibilityThreshold()) {
-			return 0; // Seems pointless. Why not only compare with dudes from the same species,
-			// if all others will be made 0?!
+		if (distance > getSharingThreshold()) {
+			return 0;
 		} else {
 			return 1;
 		}
@@ -542,7 +541,7 @@ public abstract class God implements Serializable{
 	}
 
 	// Class used to hold an entire species.
-	private class Species  implements Serializable{
+	private class Species implements Serializable{
 		private static final long serialVersionUID = -4988086681147167058L;
 		private ArrayList<AgentFitness> members;
 		private AgentFitness rep;
@@ -599,11 +598,11 @@ public abstract class God implements Serializable{
 		}
 	}
 
-	/* Calculate distances whilst the simulation is running. */
-	private class CalcAllDistances implements Runnable {
+	/* Sort into species whilst the simulation is running. */
+	private class CalcAllSpecies implements Runnable {
 		private ArrayList<Genome> agents;
 
-		public CalcAllDistances(ArrayList<Genome> allChildren) {
+		public CalcAllSpecies(ArrayList<Genome> allChildren) {
 			this.agents = allChildren;
 		}
 
@@ -666,6 +665,7 @@ public abstract class God implements Serializable{
 	public abstract double getc2();
 	public abstract double getc3();
 	public abstract double getCompatibilityThreshold();
+	public abstract double getSharingThreshold();
 	public abstract double getMinReproduced();
 
 	public abstract void setCompatabilityThreshold(double threshold);

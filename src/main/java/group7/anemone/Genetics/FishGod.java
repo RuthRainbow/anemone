@@ -28,6 +28,9 @@ public class FishGod extends God {
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 1.3;
 	public double minReproduced = 5;
+	
+	// Threshold over which an agent's fitness isn't counted in the sharing function.
+	public double sharingThreshold = 20;
 	/** End of graphical vars **/
 
 	/* Getter methods for variables that may differ between God types.*/
@@ -82,5 +85,9 @@ public class FishGod extends God {
 	@Override
 	public void setCompatabilityThreshold(double threshold) {
 		this.compatibilityThreshold = threshold;
+	}
+	@Override
+	public double getSharingThreshold() {
+		return this.sharingThreshold;
 	}
 }
