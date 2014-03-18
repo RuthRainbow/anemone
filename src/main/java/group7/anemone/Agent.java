@@ -53,6 +53,7 @@ public class Agent extends SimulationObject implements Serializable {
 
 	/* Brain simulation instance. */
 	private MSimulation msimulation;
+	
 
 	/* Interface between the world and the brain. */
 	private final NInterface ninterface = new NInterface(configNumSegments);
@@ -102,27 +103,50 @@ public class Agent extends SimulationObject implements Serializable {
 		ArrayList<CPPNNode> synapseParameterNodes = new ArrayList<CPPNNode>();
 		ArrayList<CPPNEdge> synapseParameterLinks = new ArrayList<CPPNEdge>();
 		
+		//These arrayLists will temprarily hold the results of querying a CPPN, before it gets appended to the agents brain
+		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
+		ArrayList<MSynapse> synapse = new ArrayList<MSynapse>();
+		
 		//The number of neurons that are currently being created in this layer of the brain
 		int layerSize;
 		
 		//First, loop through every chromosome that the agent contains
-		
-		//For each chromosome, go through each gene and do what it says. 
-		//Genes can have three different instructions in them:
-		// 1: Add neurons directly to the agents brain. This is only done for immutable input and output neurons
-		// 2: Add neurons/Links to the neuronParameter CPPN Network
-		// 3: Add neurons/links to the synapseParameter CPPN Network
-		// 4: Set up some intial parameters for the network, such as number of neurons in this layer that will need to be queried.
-		
-		//Once all genes have been read in, the neuronParameter CPPN Network can be run, to work out the parameters of all of the neurons in this layer
+		for (int g=0; g<chromosomes.size(); g++) {
+			//For each chromosome, go through each gene and do what it says. 
+			//Genes can have three different instructions in them:
+			// 1: Add neurons directly to the agents brain. This is only done for immutable input and output neurons
+			// 2: Add neurons/Links to the neuronParameter CPPN Network
+			// 3: Add neurons/links to the synapseParameter CPPN Network
+			// 4: Set up some intial parameters for the network, such as number of neurons in this layer that will need to be queried.
+			
+			//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
+			CPPNSimulation buildNeurons = new CPPNSimulation(neuronParameterNodes, neuronParameterLinks);
+			CPPNSimulation buildSynapse = new CPPNSimulation(synapseParameterNodes, synapseParameterLinks);
+			
+			//Pass off the CPPN and get back the arraylist of neurons to append to the agents brain
+			neurons = CPPNNeuronQuery(buildNeurons);
+			synapse = CPPNSynapseQuery(buildSynapse);
+			
+			//Now that the neurons and synapse for this layer have been calculated, the arraylists can be appended to the brain
+			mnetwork.addNeurons(neurons);
+			mnetwork.addSynapse(synapse);
+			
+			//This layer has finished being made, so the next chromosone can be read in now.
+		}
 	}
 	
-	private void createCPPNNetwork(ArrayList<CPPNNode> nodes, ArrayList<CPPNEdge> edges) {
-		//Create a local CPPN network with the nodes and edges passed in
-		CPPNSimulation simulation = new CPPNSimulation(nodes, edges);
-		
-		
-		
+	private ArrayList<MNeuron> CPPNNeuronQuery(CPPNSimulation neuronCPPN) {
+		//Query the CPPN Network, to build the neurons for the brain, for this layer.
+		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
+		//TODO: The querying
+		return neurons;
+	}
+	
+	private ArrayList<MSynapse> CPPNSynapseQuery(CPPNSimulation synapseCPPN) {
+		//Query the CPPN Network, to build the neurons for the brain, for this layer.
+		ArrayList<MSynapse> synapse = new ArrayList<MSynapse>();
+		//TODO: The querying
+		return synapse;
 	}
 
 	/**
