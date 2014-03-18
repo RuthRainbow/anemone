@@ -32,6 +32,21 @@ public class NeatEdge implements Serializable{
 				" DELAY: " + delay;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof NeatEdge)) {
+    		return false;
+    	} else {
+    		NeatEdge otherEdge = (NeatEdge) other;
+			if (this.historicalMarker != otherEdge.historicalMarker) return false;
+			if (this.delay != otherEdge.delay) return false;
+			if (!this.in.equals(otherEdge.in)) return false; 
+			if (!this.out.equals(otherEdge.out)) return false;
+			if (this.weight != otherEdge.weight) return false;
+			return true;
+    	}
+	}
+	
 	public NeatNode getIn() {
 		return this.in;
 	}

@@ -1,83 +1,112 @@
+import java.util.ArrayList;
+
+import org.mockito.Mockito;
+
 import group7.anemone.Genetics.FishGod;
-import group7.anemone.Genetics.God;
+import group7.anemone.Genetics.Genome;
+import group7.anemone.Genetics.NeatEdge;
+import group7.anemone.Genetics.NeatNode;
 import junit.framework.TestCase;
 
 public class GodTest extends TestCase {
 
-	static God god = new FishGod();
+	static FishGod god = new FishGod();
 
-	// EXTREMELY LEGIT AND 100% COVERAGE TESTS.
 	public static void testSetup() {}
-	/*public void testSinglePointCrossover() {
-		int[][] mother = {{0,1},{2,3}};
-		int[][] father = {{4,5},{6,7}};
-		int[][] child = god.SinglePointCrossover(mother, father);
-		int[][] expected = {{0,1},{6,7}};
-		for (int y = 0; y < child[0].length; y++) {
-			for (int x = 0; x < child.length; x++) {
-				assertEquals(expected[x][y], child[x][y]);
-			}
+	
+	// Create a very simple child - 2 nodes with 1 edge between them.
+	private Genome createChild() {
+		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
+		for (int i = 0; i < 2; i++) {
+			nodes.add(NeatNode.createRSNeatNode(i));
 		}
+	    ArrayList<NeatEdge> edge = new ArrayList<NeatEdge>();
+	    edge.add(new NeatEdge(1, nodes.get(0), nodes.get(1), 0.0, 0));
+		return new Genome(edge, nodes, 1, null, null);
 	}
-
-	public void testUniformCrossover() {
-		God spy = Mockito.spy(god);
+	
+	public void testNoParamMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.parameterMutationChance = 0.5;
+		Mockito.when(spy.getRandom()).thenReturn(0.6);
+		Genome child = createChild();
+		assertEquals(child, spy.parameterMutation(child));
+	}
+	
+	public void testYesIncreaseParamMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.parameterMutationChance = 0.5;
+		spy.parameterIncreaseChance = 0.5;
 		Mockito.when(spy.getRandom()).thenReturn(0.1);
-		int[][] mother = {{0,1},{2,3}};
-		int[][] father = {{4,5},{6,7}};
-		int[][] child = spy.UniformCrossover(mother, father);
-		int[][] expected = {{0,1},{2,3}};
-		for (int y = 0; y < child[0].length; y++) {
-			for (int x = 0; x < child.length; x++) {
-				assertEquals(expected[x][y], child[x][y]);
-			}
-		}
+		Genome child = createChild();
+		Genome mutated = child.clone();
+		mutated.getNodes().get(0).getParams().a += 0.01;
+		assertEquals(mutated, spy.parameterMutation(child));
 	}
-
-	public void testMutation() {
-		God spy = Mockito.spy(god);
+	
+	public void testYesDecreaseParamMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.parameterMutationChance = 0.5;
+		spy.parameterIncreaseChance = 0.01;
 		Mockito.when(spy.getRandom()).thenReturn(0.1);
-		int[][] child = {{0,1},{2,3}};
-		int[][] mutated = spy.mutate(child);
-		int[][] expected = {{9,1},{2,3}};
-		for (int y = 0; y < mutated[0].length; y++) {
-			for (int x = 0; x < mutated.length; x++) {
-				assertEquals(expected[x][y], mutated[x][y]);
-			}
-		}
+		Genome child = createChild();
+		Genome mutated = child.clone();
+		mutated.getNodes().get(0).getParams().a += -0.01;
+		assertEquals(mutated, spy.parameterMutation(child));
 	}
-
-	public void testCreateOffspringNoMutation() {
-		God spy = Mockito.spy(god);
+	
+	public void testNoStructuralMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.structuralMutationChance = 0.5;
+		Mockito.when(spy.getRandom()).thenReturn(0.6);
+		Genome child = createChild();
+		assertEquals(child, spy.structuralMutation(child));	
+	}
+	
+	public void testAddConnStructuralMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.structuralMutationChance = 0.7;
+		spy.addConnectionChance = 0.7;
+		spy.addNodeChance = 0.5;
+		spy.setNextEdgeMarker(2);
+		Mockito.when(spy.getRandom()).thenReturn(0.6);
+		Genome child = createChild();
+		
+		@SuppressWarnings("unchecked")
+		ArrayList<NeatEdge> newEdges = (ArrayList<NeatEdge>) child.getGene().clone();
+		NeatEdge newEdge = new NeatEdge(2, child.getXthOut(0), child.getXthOut(0), 30.0, 1);
+		newEdges.add(newEdge);
+		Genome mutated = new Genome(newEdges, child.getNodes(), 1, null, null);
+		assertEquals(mutated, spy.structuralMutation(child));
+	}
+	
+	public void testNoWeightMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.weightMutationChance = 0.5;
+		Mockito.when(spy.getRandom()).thenReturn(0.6);
+		Genome child = createChild();
+		assertEquals(child, spy.weightMutation(child));
+	}
+	
+	public void testYesIncreaseWeightMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.weightMutationChance = 0.5;
+		spy.weightIncreaseChance = 0.7;
 		Mockito.when(spy.getRandom()).thenReturn(0.1);
-		int[][] motherGenome = {{0,1},{2,3}};
-		int[][] fatherGenome = {{4,5},{6,7}};
-		Agent mother = new Agent(motherGenome);
-		Agent father = new Agent(fatherGenome);
-		ArrayList<int[][]> children = spy.CreateOffspring(mother, father);
-		int[][] expected = {{0,1},{6,7}};
-		int[][] child = children.get(0);
-		for (int y = 0; y < child[0].length; y++) {
-			for (int x = 0; x < child.length; x++) {
-				assertEquals(expected[x][y], child[x][y]);
-			}
-		}
+		Genome child = createChild();
+		Genome mutated = child.clone();
+		mutated.getXthGene(0).addWeight(0.6);
+		assertEquals(mutated, spy.weightMutation(child));
 	}
-
-	public void testCreateOffspringMutation() {
-		God spy = Mockito.spy(god);
-		Mockito.when(spy.getRandom()).thenReturn(0.01);
-		int[][] motherGenome = {{0,1},{2,3}};
-		int[][] fatherGenome = {{4,5},{6,7}};
-		Agent mother = new Agent(motherGenome);
-		Agent father = new Agent(fatherGenome);
-		ArrayList<int[][]> children = spy.CreateOffspring(mother, father);
-		int[][] expected = {{9,1},{6,7}};
-		int[][] child = children.get(0);
-		for (int y = 0; y < child[0].length; y++) {
-			for (int x = 0; x < child.length; x++) {
-				assertEquals(expected[x][y], child[x][y]);
-			}
-		}
-	}*/
+	
+	public void testYesDecreaseWeightMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.weightMutationChance = 0.5;
+		spy.weightIncreaseChance = 0.01;
+		Mockito.when(spy.getRandom()).thenReturn(0.1);
+		Genome child = createChild();
+		Genome mutated = child.clone();
+		mutated.getXthGene(0).addWeight(-0.6);
+		assertEquals(mutated, spy.weightMutation(child));
+	}
 }

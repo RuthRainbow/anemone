@@ -7,8 +7,8 @@ import java.io.Serializable;
 
 public class NeatNode implements Serializable{
 	private static final long serialVersionUID = -2203972193315345834L;
-	MNeuronParams params;
-	int id;
+	private MNeuronParams params;
+	private final int id;
 
 	public NeatNode(int id, MNeuronParams params) {
 		this.params = new MNeuronParams(params);
@@ -35,6 +35,6 @@ public class NeatNode implements Serializable{
 
 	@Override
 	public String toString() {
-		return ""+this.id;
+		return "ID: " + this.id;// + " Params: " + this.params;
 	}
 }

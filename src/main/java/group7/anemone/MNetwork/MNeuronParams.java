@@ -21,6 +21,12 @@ public class MNeuronParams implements Serializable {
 
 	/* 3D Spatial coordinates. */
 	public MVec3f spatialCoords = new MVec3f(0, 0, 0);
+	
+	@Override
+	public String toString() {
+		return "a: " + this.a + " b: " + this.b + " c: " + this.c + " d: "
+			+ this.d + " tau: " + this.tau + " ap: " + this.ap + " am: " + this.am;
+	}
 
 	/**
 	 * Copy constructor.

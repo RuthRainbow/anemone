@@ -32,14 +32,22 @@ public abstract class God implements Serializable{
 	private List<Genome> children;
 
 	public God() {
-		this.species = new ArrayList<Species>();
-		this.distances = new ConcurrentHashMap<God.Pair<AgentFitness>, Double>();
+		initialiseDataStructures();
 	}
 
 	public God(double compatabilityThreshold) {
 		this.setCompatabilityThreshold(compatabilityThreshold);
+		initialiseDataStructures();
+	}
+	
+	private void initialiseDataStructures() {
 		this.species = new ArrayList<Species>();
 		this.distances = new ConcurrentHashMap<God.Pair<AgentFitness>, Double>();
+		this.newGenes = new ArrayList<NeatEdge>();
+	}
+	
+	public void setNextEdgeMarker(int i) {
+		this.nextEdgeMarker = i;
 	}
 
 	// This is inside it's own method to make unittesting easier.
@@ -55,7 +63,7 @@ public abstract class God implements Serializable{
 		if (species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
 			nextNodeMarker = agents.get(0).getStringRep().getNodes().size();
-			nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
+			nextEdgeMarker = agents.get(0).getStringRep().getGeneLength();
 		}
 
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
@@ -240,11 +248,11 @@ public abstract class God implements Serializable{
 
 		Genome a = thisAgent.stringRep;
 		Genome b = speciesRep.stringRep;
-		int numExcess = Math.abs(a.getLength() - b.getLength());
+		int numExcess = Math.abs(a.getGeneLength() - b.getGeneLength());
 		int numDisjoint = 0;
 		double weightDiff = 0.0;
-		int minLength = Math.min(a.getLength(), b.getLength());
-		int maxLength = Math.max(a.getLength(), b.getLength());
+		int minLength = Math.min(a.getGeneLength(), b.getGeneLength());
+		int maxLength = Math.max(a.getGeneLength(), b.getGeneLength());
 		for (int i = 0; i < minLength; i++) {
 			if (a.getXthHistoricalMarker(i) != b.getXthHistoricalMarker(i)) {
 				numDisjoint++;
@@ -309,7 +317,7 @@ public abstract class God implements Serializable{
 
 	protected Genome crossover(AgentFitness mother, AgentFitness father) {
 		// If an agent has no edges, it is definitely not dominant.
-		if (mother.stringRep.getGene().length > 0 && mother.fitness > father.fitness) {
+		if (mother.stringRep.getGeneLength() > 0 && mother.fitness > father.fitness) {
 			return crossover(mother.stringRep, father.stringRep);
 		} else {
 			return crossover(father.stringRep, mother.stringRep);
@@ -320,13 +328,13 @@ public abstract class God implements Serializable{
 	// The mother should always be the parent with the highest fitness.
 	// TODO may be a problem if they have equal fitness that one is always dominant
 	private Genome crossover(Genome dominant, Genome recessive) {
-		List<NeatEdge> child = new ArrayList<NeatEdge>();
+		ArrayList<NeatEdge> child = new ArrayList<NeatEdge>();
 
 		// "Match" genes...
 		Map<NeatEdge, NeatEdge> matches = new HashMap<NeatEdge, NeatEdge>();
 		int marker = 0;
-		for (int i = 0; i < dominant.getLength(); i++) {
-			for (int j = marker; j < recessive.getLength(); j++) {
+		for (int i = 0; i < dominant.getGeneLength(); i++) {
+			for (int j = marker; j < recessive.getGeneLength(); j++) {
 				if (dominant.getXthHistoricalMarker(i) == recessive.getXthHistoricalMarker(j)) {
 					marker = j + 1;
 					matches.put(dominant.getXthGene(i), recessive.getXthGene(j));
@@ -335,7 +343,7 @@ public abstract class God implements Serializable{
 		}
 
 		// Generate the child
-		for (int i = 0; i < dominant.getLength(); i++) {
+		for (int i = 0; i < dominant.getGeneLength(); i++) {
 			NeatEdge gene = dominant.getXthGene(i);
 			if (matches.containsKey(gene)) {
 				// Randomly select matched gene from either parent
@@ -349,25 +357,20 @@ public abstract class God implements Serializable{
 			}
 		}
 
-		NeatEdge[] childGene = new NeatEdge[child.size()];
-		for (int i = 0; i < child.size(); i++) {
-			childGene[i] = child.get(i);
-		}
-
 		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
 		nodeSet.addAll(recessive.getNodes());
-		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
+		return new Genome(child, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
 	}
 
 	// Possibly mutate a child structurally or by changing edge weights.
 	private Genome mutate(Genome child) {
 		child = structuralMutation(child);
-		parameterMutation(child);
+		child = parameterMutation(child);
 		return weightMutation(child);
 	}
 
 	// Mutate the parameters of a gene.
-	private void parameterMutation(Genome child) {
+	public Genome parameterMutation(Genome child) {
 		for (NeatNode node : child.getNodes()) {
 			if (getRandom() < getParameterMutationChance()) {
 				MNeuronParams params = node.getParams();
@@ -378,6 +381,7 @@ public abstract class God implements Serializable{
 				}
 			}
 		}
+		return child;
 	}
 
 	// Method to mutate one of a b c d tau am or ap by the given amount
@@ -393,14 +397,14 @@ public abstract class God implements Serializable{
 	}
 
 	// Mutate a genome structurally
-	private Genome structuralMutation(Genome child) {
+	public Genome structuralMutation(Genome child) {
 		List<NeatEdge> edgeList = new ArrayList<NeatEdge>();
 		int max = 0;
 		for (NeatEdge gene : child.getGene()) {
 			// Copy across all genes to new child
 			edgeList.add(gene);
-			max = Math.max(gene.getIn().id, max);
-			max = Math.max(gene.getOut().id, max);
+			max = Math.max(gene.getIn().getId(), max);
+			max = Math.max(gene.getOut().getId(), max);
 		}
 
 		List<NeatNode> nodeList = child.getNodes();
@@ -416,12 +420,9 @@ public abstract class God implements Serializable{
 				max = addNodeBetweenEdges(edgeList, max, nodeList);
 			}
 		}
-		NeatEdge[] mutatedGeneArray = new NeatEdge[edgeList.size()];
-		for (int i = 0; i < edgeList.size(); i++) {
-			mutatedGeneArray[i] = edgeList.get(i);
-		}
+
 		return new Genome(
-				mutatedGeneArray,
+				(ArrayList<NeatEdge>) edgeList,
 				nodeList,
 				child.getSpeciesId(),
 				child.getMother(),
@@ -476,7 +477,7 @@ public abstract class God implements Serializable{
 	}
 
 	// Each weight is subject to random mutation.
-	private Genome weightMutation(Genome child) {
+	public Genome weightMutation(Genome child) {
 		for (NeatEdge gene : child.getGene()) {
 			if (getRandom() < getWeightMutationChance()) {
 				if (getRandom() < getWeightIncreaseChance()) {

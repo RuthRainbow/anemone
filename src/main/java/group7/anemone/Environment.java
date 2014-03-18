@@ -472,7 +472,7 @@ public class Environment implements Serializable{
 			}
 		}
 
-		return new Genome(edges.toArray(new NeatEdge[0]), nodes, 0, null, null);
+		return new Genome(edges, nodes, 0, null, null);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){
