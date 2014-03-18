@@ -1,10 +1,5 @@
 package group7.anemone.CPPN;
 
-import group7.anemone.MNetwork.MNetwork;
-import group7.anemone.MNetwork.MNeuron;
-import group7.anemone.MNetwork.MSimulationConfig;
-import group7.anemone.MNetwork.MSynapse;
-
 import java.util.ArrayList;
 
 /**
@@ -18,9 +13,10 @@ public class CPPNSimulation {
 	//The network that will be getting run by this simulation
 	private CPPN network;
 
-	public CPPNSimulation(CPPN network) {
+	public CPPNSimulation(ArrayList<CPPNNode> nodes, ArrayList<CPPNEdge> edges) {
 		/* Get a reference to the network. */
-		this.network = network;
+		
+		this.network = new CPPN(nodes, edges);
 
 		initialise();
 	}

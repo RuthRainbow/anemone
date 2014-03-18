@@ -2,6 +2,7 @@ package group7.anemone;
 
 import group7.anemone.CPPN.CPPNEdge;
 import group7.anemone.CPPN.CPPNNode;
+import group7.anemone.CPPN.CPPNSimulation;
 import group7.anemone.Genetics.Gene;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.NeatNode;
@@ -116,7 +117,11 @@ public class Agent extends SimulationObject implements Serializable {
 		//Once all genes have been read in, the neuronParameter CPPN Network can be run, to work out the parameters of all of the neurons in this layer
 	}
 	
-	private void createCPPNNetwork() {
+	private void createCPPNNetwork(ArrayList<CPPNNode> nodes, ArrayList<CPPNEdge> edges) {
+		//Create a local CPPN network with the nodes and edges passed in
+		CPPNSimulation simulation = new CPPNSimulation(nodes, edges);
+		
+		
 		
 	}
 
