@@ -7,10 +7,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -246,7 +244,7 @@ public abstract class God implements Serializable{
 	}
 
 	// Compute distance between thisAgent and speciesRep (see NEAT specification).
-	protected double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
+	public double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		Pair<AgentFitness> agentPair = new Pair<AgentFitness>(thisAgent, speciesRep);
 
 		Genome a = thisAgent.stringRep;
@@ -564,7 +562,7 @@ public abstract class God implements Serializable{
 
 	// This class is used so we can easily compare agents by fitness.
 	// Also used to be more lightweight than Agent class.
-	private class AgentFitness implements Comparable<AgentFitness>, Serializable {
+	public class AgentFitness implements Comparable<AgentFitness>, Serializable {
 		private static final long serialVersionUID = 2130549794698082883L;
 		private Genome stringRep;
 		private double fitness;

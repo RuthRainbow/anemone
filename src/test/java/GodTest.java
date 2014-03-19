@@ -4,6 +4,7 @@ import org.mockito.Mockito;
 
 import group7.anemone.Genetics.FishGod;
 import group7.anemone.Genetics.Genome;
+import group7.anemone.Genetics.God.AgentFitness;
 import group7.anemone.Genetics.NeatEdge;
 import group7.anemone.Genetics.NeatNode;
 import junit.framework.TestCase;
@@ -44,6 +45,21 @@ public class GodTest extends TestCase {
 	    ArrayList<NeatEdge> edge = new ArrayList<NeatEdge>();
 	    edge.add(new NeatEdge(1, nodes.get(0), nodes.get(1), 0.0, 0));
 		return new Genome(edge, nodes, -1, createParent(), createParent());
+	}
+	
+	public void testIdenticalCalcDistance() {
+		AgentFitness testing = god.new AgentFitness(createParent());
+		AgentFitness testAgainst = god.new AgentFitness(createParent());
+		assertEquals(0.0, god.calcDistance(testing, testAgainst));
+	}
+	
+	public void testNonIdenticalCalcDistance() {
+		AgentFitness testing = god.new AgentFitness(createParent());
+		AgentFitness testAgainst = god.new AgentFitness(createLargerGenome());
+		god.c1 = 1.0;
+		god.c2 = 1.0;
+		god.c3 = 1.0;
+		assertEquals(1.0, god.calcDistance(testing, testAgainst));
 	}
 	
 	public void testIdenticalCrossover() {
