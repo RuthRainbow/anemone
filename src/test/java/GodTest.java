@@ -80,6 +80,35 @@ public class GodTest extends TestCase {
 		assertEquals(mutated, spy.structuralMutation(child));
 	}
 	
+	public void testAddNodeStructuralMutation() {
+		FishGod spy = Mockito.spy(god);
+		spy.structuralMutationChance = 0.7;
+		spy.addConnectionChance = 0.5;
+		spy.addNodeChance = 0.7;
+		spy.setNextEdgeMarker(1);
+		spy.setNextNodeMarker(2);
+		Mockito.when(spy.getRandom()).thenReturn(0.6);
+		Genome child = createChild();
+
+		NeatNode newNode = NeatNode.createRSNeatNode(2);
+		@SuppressWarnings("unchecked")
+		ArrayList<NeatNode> newNodes = (ArrayList<NeatNode>) child.getNodes().clone();
+		newNodes.add(newNode);
+		
+		@SuppressWarnings("unchecked")
+		ArrayList<NeatEdge> newEdges = (ArrayList<NeatEdge>) child.getGene().clone();
+		NeatEdge toMutate = child.getXthGene(0);
+		newEdges.remove(0);
+		NeatEdge leftEdge = new NeatEdge(1, toMutate.getIn(), newNode, 30.0, 1);
+		// Right edge should have weight 0 as it is copied from the mutated edge.
+		NeatEdge rightEdge = new NeatEdge(2, newNode, toMutate.getOut(), 0.0, 1);
+		newEdges.add(leftEdge);
+		newEdges.add(rightEdge);
+		
+		Genome mutated = new Genome(newEdges, newNodes, 1, null, null);
+		assertEquals(mutated, spy.structuralMutation(child));
+	}
+	
 	public void testNoWeightMutation() {
 		FishGod spy = Mockito.spy(god);
 		spy.weightMutationChance = 0.5;

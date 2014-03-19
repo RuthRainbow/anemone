@@ -29,6 +29,18 @@ public class MVec3f implements Serializable {
 		this.y = y;
 		this.z = z;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof MVec3f)) return false;
+		else {
+			MVec3f other = (MVec3f) o;
+			if (this.x != other.x) return false;
+			if (this.y != other.y) return false;
+			if (this.z != other.z) return false;
+			return true;
+		}
+	}
 
 	public static MVec3f zero() {
 		return new MVec3f(0, 0, 0);

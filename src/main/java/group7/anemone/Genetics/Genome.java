@@ -52,7 +52,7 @@ public class Genome implements Serializable {
 			}
 			if (this.nodes.size() != otherGenome.getNodes().size()) return false;
 			for (int i = 0; i < this.nodes.size(); i++) {
-				if (this.nodes.get(i) != otherGenome.getNodes().get(i)) return false;
+				if (!this.nodes.get(i).equals(otherGenome.getNodes().get(i))) return false;
 			}
     		if (this.parents.father != otherGenome.getFather()) return false;
     		if (this.parents.mother != otherGenome.getMother()) return false;

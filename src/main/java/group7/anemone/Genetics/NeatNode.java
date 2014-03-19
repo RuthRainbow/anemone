@@ -35,6 +35,18 @@ public class NeatNode implements Serializable{
 
 	@Override
 	public String toString() {
-		return "ID: " + this.id;// + " Params: " + this.params;
+		return "ID: " + this.id ;//+ " Params: " + this.params;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof NeatNode)) {
+			return false;
+		} else {
+			NeatNode othernode = (NeatNode) other;
+			if (this.id != othernode.id) return false;
+			if (this.params.equals(othernode.params)) return true;
+		}
+		return false;
 	}
 }

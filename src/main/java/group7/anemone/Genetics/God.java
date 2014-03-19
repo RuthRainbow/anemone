@@ -1,7 +1,6 @@
 package group7.anemone.Genetics;
 
 import group7.anemone.Agent;
-import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuronParams;
 
 import java.io.Serializable;
@@ -48,6 +47,10 @@ public abstract class God implements Serializable{
 	
 	public void setNextEdgeMarker(int i) {
 		this.nextEdgeMarker = i;
+	}
+	
+	public void setNextNodeMarker(int i) {
+		this.nextNodeMarker = i;
 	}
 
 	// This is inside it's own method to make unittesting easier.
@@ -399,12 +402,9 @@ public abstract class God implements Serializable{
 	// Mutate a genome structurally
 	public Genome structuralMutation(Genome child) {
 		List<NeatEdge> edgeList = new ArrayList<NeatEdge>();
-		int max = 0;
 		for (NeatEdge gene : child.getGene()) {
 			// Copy across all genes to new child
 			edgeList.add(gene);
-			max = Math.max(gene.getIn().getId(), max);
-			max = Math.max(gene.getOut().getId(), max);
 		}
 
 		List<NeatNode> nodeList = child.getNodes();
@@ -417,7 +417,7 @@ public abstract class God implements Serializable{
 
 			// Add a new node in the middle of an old connection/edge.
 			if (getRandom() < getAddNodeChance() && edgeList.size() > 0) {
-				max = addNodeBetweenEdges(edgeList, max, nodeList);
+				addNodeBetweenEdges(edgeList, nodeList);
 			}
 		}
 
@@ -453,15 +453,13 @@ public abstract class God implements Serializable{
 	}
 
 	// Add a node between two pre-existing edges
-	private int addNodeBetweenEdges(List<NeatEdge> edgeList, int max, List<NeatNode> nodeList) {
+	private void addNodeBetweenEdges(List<NeatEdge> edgeList, List<NeatNode> nodeList) {
 		// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
 		NeatEdge toMutate = edgeList.get(
 				(int) Math.floor(getRandom() * edgeList.size()));
 		edgeList.remove(toMutate);
 		// Make a new intermediate node TODO can do this more randomly than default params.
-		// Increment max to keep track of max node id.
-		max += 1;
-		NeatNode newNode = new NeatNode(nextNodeMarker, MFactory.createRSNeuronParams());
+		NeatNode newNode = NeatNode.createRSNeatNode(nextNodeMarker);
 		nodeList.add(newNode);
 		nextNodeMarker++;
 
@@ -473,7 +471,6 @@ public abstract class God implements Serializable{
 				nextEdgeMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
 		nextEdgeMarker++;
 		edgeList.add(newRightGene);
-		return max;
 	}
 
 	// Each weight is subject to random mutation.

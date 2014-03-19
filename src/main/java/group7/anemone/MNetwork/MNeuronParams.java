@@ -1,5 +1,7 @@
 package group7.anemone.MNetwork;
 
+import group7.anemone.Genetics.NeatNode;
+
 import java.io.Serializable;
 
 /**
@@ -26,6 +28,24 @@ public class MNeuronParams implements Serializable {
 	public String toString() {
 		return "a: " + this.a + " b: " + this.b + " c: " + this.c + " d: "
 			+ this.d + " tau: " + this.tau + " ap: " + this.ap + " am: " + this.am;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof MNeuronParams)) {
+			return false;
+		} else {
+			MNeuronParams otherparams = (MNeuronParams) other;
+			if (!this.spatialCoords.equals(otherparams.spatialCoords)) return false;
+			if (this.a != otherparams.a) return false;
+			if (this.b != otherparams.b) return false;
+			if (this.am != otherparams.am) return false;
+			if (this.ap != otherparams.ap) return false;
+			if (this.c != otherparams.c) return false;
+			if (this.d != otherparams.d) return false;
+			if (this.tau != otherparams.tau) return false;
+			return true;
+		}
 	}
 
 	/**
