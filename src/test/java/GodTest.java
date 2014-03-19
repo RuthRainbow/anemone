@@ -15,6 +15,27 @@ public class GodTest extends TestCase {
 	public static void testSetup() {}
 	
 	// Create a very simple child - 2 nodes with 1 edge between them.
+	private Genome createParent() {
+		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
+		for (int i = 0; i < 2; i++) {
+			nodes.add(NeatNode.createRSNeatNode(i));
+		}
+	    ArrayList<NeatEdge> edge = new ArrayList<NeatEdge>();
+	    edge.add(new NeatEdge(1, nodes.get(0), nodes.get(1), 0.0, 0));
+		return new Genome(edge, nodes, -1, null, null);
+	}
+	
+	private Genome createLargerGenome() {
+		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
+		for (int i = 0; i < 3; i++) {
+			nodes.add(NeatNode.createRSNeatNode(i));
+		}
+	    ArrayList<NeatEdge> edge = new ArrayList<NeatEdge>();
+	    edge.add(new NeatEdge(1, nodes.get(0), nodes.get(1), 0.0, 0));
+	    edge.add(new NeatEdge(2, nodes.get(1), nodes.get(2), 0.0, 0));
+		return new Genome(edge, nodes, -1, null, null);
+	}
+	
 	private Genome createChild() {
 		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
 		for (int i = 0; i < 2; i++) {
@@ -22,7 +43,38 @@ public class GodTest extends TestCase {
 		}
 	    ArrayList<NeatEdge> edge = new ArrayList<NeatEdge>();
 	    edge.add(new NeatEdge(1, nodes.get(0), nodes.get(1), 0.0, 0));
-		return new Genome(edge, nodes, 1, null, null);
+		return new Genome(edge, nodes, -1, createParent(), createParent());
+	}
+	
+	public void testIdenticalCrossover() {
+		Genome mother = createParent();
+		Genome father = createParent();
+		assertEquals(createChild(), god.crossover(mother, father));
+	}
+	
+	public void testNonIndenticalCrossover() {
+		Genome dominant = createParent();
+		Genome recessive = createLargerGenome();
+		NeatEdge matchedEdge = new NeatEdge(
+				1, dominant.getNodes().get(0), dominant.getNodes().get(1), 0.0, 0);
+		ArrayList<NeatEdge> edges = new ArrayList<NeatEdge>();
+		edges.add(matchedEdge);
+		Genome child = new Genome(edges, recessive.getNodes(), -1, createParent(), createLargerGenome());
+		assertEquals(child, god.crossover(dominant, recessive));
+	}
+	
+	public void testNonIdenticalUnmatchedGeneCrossover() {
+		Genome dominant = createLargerGenome();
+		Genome recessive = createParent();
+		NeatEdge matchedEdge = new NeatEdge(
+				1, dominant.getNodes().get(0), dominant.getNodes().get(1), 0.0, 0);
+		NeatEdge extraEdge = new NeatEdge(
+				2, dominant.getNodes().get(1), dominant.getNodes().get(2), 0.0, 0);
+		ArrayList<NeatEdge> edges = new ArrayList<NeatEdge>();
+		edges.add(matchedEdge);
+		edges.add(extraEdge);
+		Genome child = new Genome(edges, dominant.getNodes(), -1, createLargerGenome(), createParent());
+		assertEquals(child, god.crossover(dominant, recessive));
 	}
 	
 	public void testNoParamMutation() {
@@ -76,7 +128,7 @@ public class GodTest extends TestCase {
 		ArrayList<NeatEdge> newEdges = (ArrayList<NeatEdge>) child.getGene().clone();
 		NeatEdge newEdge = new NeatEdge(2, child.getXthOut(0), child.getXthOut(0), 30.0, 1);
 		newEdges.add(newEdge);
-		Genome mutated = new Genome(newEdges, child.getNodes(), 1, null, null);
+		Genome mutated = new Genome(newEdges, child.getNodes(), -1, createParent(), createParent());
 		assertEquals(mutated, spy.structuralMutation(child));
 	}
 	
@@ -105,7 +157,7 @@ public class GodTest extends TestCase {
 		newEdges.add(leftEdge);
 		newEdges.add(rightEdge);
 		
-		Genome mutated = new Genome(newEdges, newNodes, 1, null, null);
+		Genome mutated = new Genome(newEdges, newNodes, -1, createParent(), createParent());
 		assertEquals(mutated, spy.structuralMutation(child));
 	}
 	

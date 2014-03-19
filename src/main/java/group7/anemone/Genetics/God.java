@@ -330,7 +330,7 @@ public abstract class God implements Serializable{
 	// Method for crossover - return crossover method you want.
 	// The mother should always be the parent with the highest fitness.
 	// TODO may be a problem if they have equal fitness that one is always dominant
-	private Genome crossover(Genome dominant, Genome recessive) {
+	public Genome crossover(Genome dominant, Genome recessive) {
 		ArrayList<NeatEdge> child = new ArrayList<NeatEdge>();
 
 		// "Match" genes...
@@ -360,9 +360,14 @@ public abstract class God implements Serializable{
 			}
 		}
 
-		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
-		nodeSet.addAll(recessive.getNodes());
-		return new Genome(child, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
+		HashMap<Integer, NeatNode> nodeSet = new HashMap<Integer, NeatNode>();
+		for (NeatNode node : dominant.getNodes()) {
+			nodeSet.put(node.getId(), node);
+		}
+		for (NeatNode node : recessive.getNodes()) {
+			if (!nodeSet.containsKey(node.getId())) nodeSet.put(node.getId(), node);
+		}
+		return new Genome(child, new ArrayList<NeatNode>(nodeSet.values()), -1, dominant, recessive);
 	}
 
 	// Possibly mutate a child structurally or by changing edge weights.

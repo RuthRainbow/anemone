@@ -54,8 +54,14 @@ public class Genome implements Serializable {
 			for (int i = 0; i < this.nodes.size(); i++) {
 				if (!this.nodes.get(i).equals(otherGenome.getNodes().get(i))) return false;
 			}
-    		if (this.parents.father != otherGenome.getFather()) return false;
-    		if (this.parents.mother != otherGenome.getMother()) return false;
+			if (this.parents.mother == null && otherGenome.getMother() != null) return false;
+			if (this.parents.mother != null && otherGenome.getMother() == null) return false;
+			if (this.parents.mother != null && otherGenome.getMother() != null 
+					&& !this.parents.mother.equals(otherGenome.getMother())) return false;
+			if (this.parents.father == null && otherGenome.getFather() != null) return false;
+			if (this.parents.father != null && otherGenome.getFather() == null) return false;
+			if (this.parents.father != null && otherGenome.getFather() != null 
+					&& !this.parents.father.equals(otherGenome.getFather())) return false;
     		if (this.speciesId != otherGenome.getSpeciesId()) return false;
     		return true;
     	}
@@ -64,7 +70,7 @@ public class Genome implements Serializable {
 	@Override
 	public String toString() {
 		return "Genome: " + this.genome + " Nodes: " + this.nodes +
-				" Species: " + this.speciesId + " Parents: " + this.parents;
+				" Species: " + this.speciesId;// + " Parents: " + this.parents;
 	}
 	
 	public int getGeneLength() {
