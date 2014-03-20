@@ -154,6 +154,14 @@ public class MNeuron implements Serializable {
 	public void setPostSynapses(Collection<MSynapse> synapses) {
 		this.postSynapses = new ArrayList<MSynapse>(synapses);
 	}
+	
+	public void addPreSynapse(MSynapse synapse) {
+		this.preSynapses.add(synapse);
+	}
+	
+	public void addPostSynapse(MSynapse synapse) {
+		this.postSynapses.add(synapse);
+	}
 
 	@Override
 	public String toString() {

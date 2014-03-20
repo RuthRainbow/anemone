@@ -123,7 +123,8 @@ public class Agent extends SimulationObject implements Serializable {
 			
 			//For each chromosome, go through each gene and do what it says. 
 			//Genes can have three different instructions in them:
-			// 1: Add neurons directly to the agents brain. This is only done for immutable input and output neurons
+			// 1: A sort of 'header' gene that says how many neurons are in this layer of the brain
+			// 2: Add neurons directly to the agents brain. This is only done for immutable input and output neurons
 			// 3: Add nodes/links to the synapseParameter CPPN Network
 			// 4: Set up some intial parameters for the network, such as number of neurons in this layer that will need to be queried.
 			
@@ -133,6 +134,9 @@ public class Agent extends SimulationObject implements Serializable {
 			//Call the factory to add the new CPPN's and generate more of the agents brain
 			cFactory.inputCPPN(buildSynapse, layerSize);
 		}
+		
+		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
+		mnetwork = cFactory.getBrain();
 	}
 
 	/**
