@@ -1,8 +1,7 @@
 package group7.anemone.Genetics;
 
 import group7.anemone.Agent;
-import group7.anemone.MNetwork.MFactory;
-import group7.anemone.MNetwork.MNeuronParams;
+import group7.anemone.CPPN.CPPNFunction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -415,25 +414,32 @@ public abstract class God implements Serializable{
 		if (getRandom() < getParameterMutationChance()) {
 			NeatNode toMutate = child.getNodes().get(
 					(int) Math.floor(getRandom()*child.getNodes().size()));
-			MNeuronParams params = toMutate.getParams();
+			
+			CPPNFunction func = toMutate.getCPPNFunction();
+
 			if (getRandom() < getParameterIncreaseChance()) {
-				mutateParam(params, getRandom());
+				mutateParam(func, 1);
 			} else {
-				mutateParam(params, -1 * getRandom());
+				mutateParam(func, -1);
 			}
 		}
 	}
 	
 	// Method to mutate one of a b c d tau am or ap by the given amount
-	private void mutateParam(MNeuronParams params, double amount) {
+	private void mutateParam(CPPNFunction func, double delta) {
 		double random = getRandom();
-		if (random < 0.14) params.a += 0.01;
-		else if (random < 0.28) params.b += 0.01;
-		else if (random < 0.42) params.c += 0.01;
-		else if (random < 0.56) params.ap += 1.0;
-		else if (random < 0.7) params.am += 1.0;
-		else if (random < 0.84) params.tau += 0.001;
-		else params.d += 0.01;
+		double pA, pB, pC;
+		
+		pA = func.getParamA();
+		pB = func.getParamB();
+		pC = func.getParamC();
+		
+		if (random < 0.3)
+			func.setParamA(pA + delta*0.1);
+		else if (random < 0.6)
+			func.setParamB(pB + delta*0.1);
+		else
+			func.setParamC(pC + delta*0.1);
 	}
 
 	// Mutate a genome structurally
@@ -504,7 +510,7 @@ public abstract class God implements Serializable{
 		// Make a new intermediate node TODO can do this more randomly than default params.
 		// Increment max to keep track of max node id.
 		max += 1;
-		NeatNode newNode = new NeatNode(nextNodeMarker, MFactory.createRSNeuronParams());
+		NeatNode newNode = NeatNode.createRandomNeatNode(nextNodeMarker);
 		nodeList.add(newNode);
 		nextNodeMarker++;
 		

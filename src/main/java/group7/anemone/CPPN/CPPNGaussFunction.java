@@ -4,7 +4,7 @@ package group7.anemone.CPPN;
  * A CPPN function that computes the Gaussian of its input.
  */
 public class CPPNGaussFunction extends CPPNFunction {
-	CPPNGaussFunction(double paramA, double paramB, double paramC) {
+	public CPPNGaussFunction(double paramA, double paramB, double paramC) {
 		super(paramA, paramB, paramC);
 	}
 	

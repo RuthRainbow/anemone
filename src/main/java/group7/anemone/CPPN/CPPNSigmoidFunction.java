@@ -4,7 +4,7 @@ package group7.anemone.CPPN;
  * A CPPN function that computes the logistic function on its input.
  */
 public class CPPNSigmoidFunction extends CPPNFunction {
-	CPPNSigmoidFunction(double paramA, double paramB, double paramC) {
+	public CPPNSigmoidFunction(double paramA, double paramB, double paramC) {
 		super(paramA, paramB, paramC);
 	}
 	

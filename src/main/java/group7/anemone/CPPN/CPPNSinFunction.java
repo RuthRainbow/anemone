@@ -4,7 +4,7 @@ package group7.anemone.CPPN;
  * A CPPN node that computes `sin' on its input.
  */
 public class CPPNSinFunction extends CPPNFunction {
-	CPPNSinFunction(double paramA, double paramB, double paramC) {
+	public CPPNSinFunction(double paramA, double paramB, double paramC) {
 		super(paramA, paramB, paramC);
 	}
 	

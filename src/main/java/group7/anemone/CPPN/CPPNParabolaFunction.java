@@ -4,7 +4,7 @@ package group7.anemone.CPPN;
  * A CPPN function that computes the sum of its input.
  */
 public class CPPNParabolaFunction extends CPPNFunction {
-	CPPNParabolaFunction(double paramA, double paramB, double paramC) {
+	public CPPNParabolaFunction(double paramA, double paramB, double paramC) {
 		super(paramA, paramB, paramC);
 	}
 	

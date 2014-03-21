@@ -6,7 +6,7 @@ import java.util.ArrayList;
 /**
  * An abstract class enforcing the basic functionality of a CPPN node.
  */
-public abstract class CPPNNode {
+public class CPPNNode {
 	ArrayList<CPPNNode> preNodes, postNodes;
 	CPPNFunction function;
 	boolean isInputNode;
@@ -33,14 +33,6 @@ public abstract class CPPNNode {
 		this.postNodes = new ArrayList<CPPNNode>(postNodes);
 		this.function = function;
 	}
-	
-	/**
-	 * The concrete implementation must perform its calculation here.
-	 * 
-	 * @param input the input double
-	 * @return an output double
-	 */
-	///public abstract double apply(double input);
 	
 	/**
 	 * Retrieves the presynaptic nodes in this node's adjacency list.
