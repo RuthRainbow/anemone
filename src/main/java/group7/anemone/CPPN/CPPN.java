@@ -9,7 +9,6 @@ import java.util.List;
  */
 public class CPPN {
 	ArrayList<CPPNNode> nodes;
-	ArrayList<CPPNEdge> edges;
 	
 	/**
 	 * Constructs a CPPN object using the given nodes and edges.
@@ -17,9 +16,8 @@ public class CPPN {
 	 * @param nodes collection of CPPN nodes
 	 * @param edges collection of CPPN edges
 	 */
-	CPPN(Collection<CPPNNode> nodes, Collection<CPPNEdge> edges) {
+	CPPN(Collection<CPPNNode> nodes) {
 		this.nodes = new ArrayList<CPPNNode>(nodes);
-		this.edges = new ArrayList<CPPNEdge>(edges);
 	}
 	
 	/**
@@ -39,13 +37,5 @@ public class CPPN {
 	 */
 	public ArrayList<CPPNNode> getNodes() {
 		return new ArrayList<CPPNNode>(nodes);
-	}
-	
-	/**
-	 * Retrieves an ArrayList of CPPN edges for this object.
-	 * @return 
-	 */
-	public ArrayList<CPPNEdge> getEdges() {
-		return new ArrayList<CPPNEdge>(edges);
 	}
 }

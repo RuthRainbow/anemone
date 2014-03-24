@@ -106,13 +106,16 @@ public class Agent extends SimulationObject implements Serializable {
 		 * The final brain will then be pulled from cFactory by calling "getBrain" and the returned MNetwork can be saved
 		 * into the mnetwork value already stored globally by this agent class.
 		 */
+
+		//How many input and output nodes to create in the agents brain
+		int inputNodes = 30;
+		int outputNodes = 3;
 		
 		//Create a CPPNFactory. Feed the factory a series of CPPN and after all chromosomes have been read in, it can return a fully formed brain.
-		CPPNFactory cFactory = new CPPNFactory();
+		CPPNFactory cFactory = new CPPNFactory(inputNodes,outputNodes);
 		
 		//An arraylist of CPPNNodes and CPPNEdges, in the CPPN which will be queried to link neurons in the current layer of the brain
 		ArrayList<CPPNNode> synapseParameterNodes = new ArrayList<CPPNNode>();
-		ArrayList<CPPNEdge> synapseParameterLinks = new ArrayList<CPPNEdge>();
 		
 		//The number of neurons that are currently being created in this layer of the brain
 		int layerSize=0;
@@ -121,15 +124,29 @@ public class Agent extends SimulationObject implements Serializable {
 		for (int g=0; g<chromosomes.size(); g++) {
 			//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
 			
-			//For each chromosome, go through each gene and do what it says. 
-			//Genes can have three different instructions in them:
-			// 1: A sort of 'header' gene that says how many neurons are in this layer of the brain
-			// 2: Add neurons directly to the agents brain. This is only done for immutable input and output neurons
-			// 3: Add nodes/links to the synapseParameter CPPN Network
-			// 4: Set up some intial parameters for the network, such as number of neurons in this layer that will need to be queried.
+			/**
+			 * Each 'chromosome' the agent contains is an instance of the genome class.
+			 * 
+			 * Each chromosome contains multiple types of genes that can contain the following information to build the CPPN:
+			 * 1: A sort of 'header' gene that says how many neurons will be in this layer of the brain
+			 * 2: Add nodes to the CPPN, so this will need to include a 'type' integer, to designate the kind of function
+			 * 		that this node will use. 3 Parameter integers, which will be used to augment the function so that
+			 * 		each node has a higher degree of possible diversity.
+			 * 		There are 4 different 'types' of nodes, which correspond to 0: Parabola, 1: Sigmoid, 2: Gauss, 3: Sin.
+			 * 
+			 * Some additional notes:
+			 * 1: The first two nodes in any CPPN arrayList of nodes will always be the input nodes for that network.
+			 * 2: The last node in the CPPN arrayList of nodes will always be the output node for that network.
+			 */
+			
+			/**
+			 * ##############
+			 * CREATE CPPN HERE ###############################
+			 * ##############
+			 */
 			
 			//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
-			CPPNSimulation buildSynapse = new CPPNSimulation(synapseParameterNodes, synapseParameterLinks);
+			CPPNSimulation buildSynapse = new CPPNSimulation(synapseParameterNodes);
 			
 			//Call the factory to add the new CPPN's and generate more of the agents brain
 			cFactory.inputCPPN(buildSynapse, layerSize);
@@ -137,78 +154,6 @@ public class Agent extends SimulationObject implements Serializable {
 		
 		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
 		mnetwork = cFactory.getBrain();
-	}
-
-	/**
-	 * Uses the agent's genome to construct a neural network.
-	 */
-	private void createNeuralNet() {
-		MSimulationConfig simConfig;
-		HashMap<Integer, MNeuron> neuronMap
-			= new HashMap<Integer, MNeuron>();
-		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
-		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
-
-		/* Create neurons. */
-		for (NeatNode nn : genome.getNodes()) {
-			int id = nn.getId();
-			MNeuronParams params = nn.getParams();
-			MNeuronState state =
-				MFactory.createInitialRSNeuronState();
-			
-			/* Create a neuron. */
-			MNeuron neuron = new MNeuron(params, state, id);
-
-			/* Add it to temporary NID->Neuron map. */
-			neuronMap.put(id, neuron);
-
-			/* Add neuron to the list. */
-			neurons.add(neuron);
-		}
-
-		/* Create synapses. */
-		for (Gene g : genome.getGene()) {
-			/* Get the synapse information. */
-			NeatNode preNode = g.getIn();
-			NeatNode postNode = g.getOut();
-			double weight = g.getWeight();
-			int delay = g.getDelay();
-			Integer preNid = new Integer(preNode.getId());
-			Integer postNid = new Integer(postNode.getId());
-
-			/* Find the pre and post neurons. */
-			MNeuron preNeuron = neuronMap.get(preNid);
-			MNeuron postNeuron = neuronMap.get(postNid);
-
-			/* Create the synapse. */
-			MSynapse synapse = new MSynapse(preNeuron, postNeuron,
-				weight, delay);
-			/*
-			 Add the synapse to the pre and post neuron synapse list
-			 */
-			ArrayList<MSynapse> postSynapses
-				= preNeuron.getPostSynapses();
-			ArrayList<MSynapse> preSynapses
-				= postNeuron.getPreSynapses();
-
-			postSynapses.add(synapse);
-			preSynapses.add(synapse);
-
-			preNeuron.setPostSynapses(postSynapses);
-			postNeuron.setPreSynapses(preSynapses);
-
-			/* Add the synapse to the list. */
-			synapses.add(synapse);
-		}
-
-		/* Create the network. */
-		this.mnetwork = new MNetwork(neurons, synapses);
-
-		/* Create and set the simulation configuration parameters. */
-		simConfig = new MSimulationConfig(20);
-
-		/* Create the simulation instance with our network. */
-		this.msimulation = new MSimulation(this.mnetwork, simConfig);
 	}
 
 	/**

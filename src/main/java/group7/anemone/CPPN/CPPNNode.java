@@ -12,6 +12,8 @@ public class CPPNNode {
 	boolean isInputNode;
 	boolean isMutatable;
 	
+	private double totalInputs;
+	
 	double paraA, paraB, paraC;
 	
 	/**
@@ -32,6 +34,7 @@ public class CPPNNode {
 		this.preNodes = new ArrayList<CPPNNode>(preNodes);
 		this.postNodes = new ArrayList<CPPNNode>(postNodes);
 		this.function = function;
+		totalInputs=0;
 	}
 	
 	/**
@@ -77,5 +80,17 @@ public class CPPNNode {
 	 */
 	public CPPNFunction getFunction() {
 		return function;
+	}
+	
+	public double calculate() {
+		double result =0;
+		
+		result = function.calculate(totalInputs);
+		
+		return result;
+	}
+	
+	public void addNodeInput(double input) {
+		totalInputs = totalInputs + input;
 	}
 }
