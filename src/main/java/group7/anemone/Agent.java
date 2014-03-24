@@ -288,7 +288,7 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	void updatePhysics() {//update speed to be ...
-		/*//calculate new drag value, average of speed x / y
+		//calculate new drag value, average of speed x / y
 		drag.x = Math.abs(speed.x / 100);
 		drag.y = Math.abs(speed.y / 100);
 		if (drag.x < 0.0001) {
@@ -321,12 +321,10 @@ public class Agent extends SimulationObject implements Serializable {
 			double ratio = maxSpeed / this.getMovingSpeed();
 			speed.x = speed.x * ratio;
 			speed.y = speed.y * ratio;
-		}*/
+		}
 	}
 
 	void updatePosition() {
-		//coords.x += speed.x;
-		//coords.y += speed.y;
 		coords.x = body.getPosition().x;
 		coords.y = body.getPosition().y;
 	}
@@ -373,7 +371,7 @@ public class Agent extends SimulationObject implements Serializable {
 			updateMNetwork();
 		}
 		applyMotorOutputs();
-		updatePhysics();
+		//updatePhysics();
 		updatePosition();
 
 		age++;

@@ -139,12 +139,12 @@ public class Simulation extends PApplet {
 		//Left wall
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
 		
-		//Spawn area walls
-		env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
-		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
+		//TODO: Spawn area walls
+		//env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
+		//env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
 		
-		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
-		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
+		//env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
+		//env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
 		
 		/*env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2));
 		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2));
@@ -884,8 +884,8 @@ public class Simulation extends PApplet {
 
     		switch(type){
     			case Collision.TYPE_FOOD: eatFood(cc);break;
-    			case Collision.TYPE_WALL: bounceAgent(cc); break;
-    			case Collision.TYPE_AGENT: breeding(cc); break;
+    			//case Collision.TYPE_WALL: bounceAgent(cc); break;
+    			//case Collision.TYPE_AGENT: breeding(cc); break;
     		}
 		}
 

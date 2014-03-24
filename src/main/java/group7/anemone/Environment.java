@@ -54,10 +54,8 @@ public class Environment implements Serializable{
 
 	//JBox2D Variables
 	World world;
-	//TODO: fix agents not thrusting
 	//TODO: force field walls
-	//TODO: generate 90 degree walls in wall constructor
-	//TODO: generate walls for any angle
+	//TODO: generate walls for any angle - check
 	//TODO: update wall placement button 
 
 	public Environment(PApplet p){
@@ -75,59 +73,6 @@ public class Environment implements Serializable{
 		//JBox2D
 		Vec2 gravity = new Vec2(0.0f, 0.0f);
 		this.world = new World(gravity);
-		
-		//TODO: do this properly!!
-		PolygonShape ps = new PolygonShape(); //TOP
-	    ps.setAsBox(width, 1);
-	         
-	    FixtureDef fd = new FixtureDef();
-	    fd.shape = ps;
-	    fd.density = 1.0f;
-	 
-	    BodyDef bd = new BodyDef();
-	    bd.position = new Vec2(0, 0);
-	    bd.type = BodyType.STATIC;
-	 
-	    world.createBody(bd).createFixture(fd);
-	    
-	    ps = new PolygonShape(); //BOTTOM
-	    ps.setAsBox(width, 1);
-	         
-	    fd = new FixtureDef();
-	    fd.shape = ps;
-	    fd.density = 1.0f;
-	 
-	    bd = new BodyDef();
-	    bd.position = new Vec2(0, height);
-	    bd.type = BodyType.STATIC;
-	 
-	    world.createBody(bd).createFixture(fd);
-	    
-	    ps = new PolygonShape(); //LEFT
-	    ps.setAsBox(1, height);
-	         
-	    fd = new FixtureDef();
-	    fd.shape = ps;
-	    fd.density = 1.0f;
-	 
-	    bd = new BodyDef();
-	    bd.position = new Vec2(0, 0);
-	    bd.type = BodyType.STATIC;
-	 
-	    world.createBody(bd).createFixture(fd);
-	    
-	    ps = new PolygonShape(); //RIGHT
-	    ps.setAsBox(1, height);
-	         
-	    fd = new FixtureDef();
-	    fd.shape = ps;
-	    fd.density = 1.0f;
-	 
-	    bd = new BodyDef();
-	    bd.position = new Vec2(width, 0);
-	    bd.type = BodyType.STATIC;
-	 
-	    world.createBody(bd).createFixture(fd);
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -137,13 +82,13 @@ public class Environment implements Serializable{
 
     	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
 
-    		/*for (Agent aa: getAllAgents()) { // check if collides to any other agent
+    		for (Agent aa: getAllAgents()) { // check if collides to any other agent
         		if(ag == aa) continue;
 
         		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
         			collisions.add(new Collision(ag, aa));
         		}
-    		}*/
+    		}
 
     		for (Food fd: food) { //check collisions to food
         		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
@@ -151,19 +96,19 @@ public class Environment implements Serializable{
         		}
     		}
 
-    		/*if(ag.coords.x < 10){
+    		/*if(ag.coords.x < 0){
     			collisions.add(new Collision(ag, wall.get(3)));
     		}
-    		if(ag.coords.y < 10){
+    		if(ag.coords.y < 0){
     			collisions.add(new Collision(ag, wall.get(0)));
     		}
-    		if(ag.coords.x > (width - 10)){
+    		if(ag.coords.x > width){
     			collisions.add(new Collision(ag, wall.get(1)));
     		}
-    		if(ag.coords.y > (height - 10)){
+    		if(ag.coords.y > height){
     			collisions.add(new Collision(ag, wall.get(2)));
     		}
-
+    		
     		for (Wall wl: wall) {
     			boolean wallDist = wl.getLine().ptLineDist(ag.getCoordinates()) < 10.0;
         		boolean startDist = wallDist && ag.getCoordinates().distance(wl.getStart()) < wl.getLength();
@@ -227,7 +172,7 @@ public class Environment implements Serializable{
 						//get the midpoint
 						Point2D.Double midPoint = new Point2D.Double((lineIntersection1.getX()+lineIntersection2.getX())/2,(lineIntersection1.y+lineIntersection2.y)/2);
 						//now it is simply a point pass to checkObject method
-						SightInformation temp = checkObject(new Wall(midPoint,midPoint),ag);
+						SightInformation temp = checkObject(new Wall(midPoint, midPoint, null), ag);
 						if(temp != null) result.add(temp);
 						//NB creating a wall object here so that the object type is stored
 
@@ -574,7 +519,7 @@ public class Environment implements Serializable{
 
 	}
 	void addWall(Point2D.Double start, Point2D.Double end){
-		wall.add(new Wall(start, end));
+		wall.add(new Wall(start, end, world));
 	}
 	void addWall(Point2D.Double start, Point2D.Double end, int type){
 		wall.add(new Wall(start, end, type));
