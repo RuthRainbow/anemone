@@ -5,6 +5,8 @@ import group7.anemone.Genetics.Genome;
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 
+import org.jbox2d.dynamics.World;
+
 
 import processing.core.PApplet;
 
@@ -14,9 +16,9 @@ public class Enemy extends Agent implements Serializable {
 	private static final long serialVersionUID = 3142943967920947865L;
 
 	public Enemy(Double coords, double viewHeading, PApplet p,
-                Genome genome)
+                Genome genome, World world)
         {
-		super(coords, viewHeading, p, genome);	
+		super(coords, viewHeading, p, genome, world);	
 	}
 	public Enemy(Double coords){
 		super(coords);	

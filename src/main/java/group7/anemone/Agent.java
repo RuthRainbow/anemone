@@ -19,6 +19,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import org.jbox2d.collision.shapes.CircleShape;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.BodyDef;
+import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.World;
+
 import processing.core.PApplet;
 
 public class Agent extends SimulationObject implements Serializable {
@@ -27,7 +35,7 @@ public class Agent extends SimulationObject implements Serializable {
 	transient PApplet parent;
 
 	/* Anatomical parameters. */
-	public static int configNumSegments = 2;
+	public static int configNumSegments = 7;
 	final double visionRange = 100;
 	final double fov = 90;
 	private final double maxSpeed = 15;
@@ -56,6 +64,10 @@ public class Agent extends SimulationObject implements Serializable {
 	private int numFoodsEaten = 0;
 	private int numWallsHit = 0;
 	private int age = 0; // Age of agent in number of updates.
+	
+	//JBox2D variables
+	private World world;
+	protected Body body;
 
 	/* Objects  of interest within the agent's visual field. */
 	private ArrayList<SightInformation> canSee
@@ -74,20 +86,40 @@ public class Agent extends SimulationObject implements Serializable {
 	 * @param genome	the genome to be used to construct the brain
 	 */
 	public Agent(Point2D.Double coords, double viewHeading, PApplet p,
-		Genome genome) {
+		Genome genome, World world) {
 		super(coords);
 		this.parent = p;
 		this.viewHeading = viewHeading;
-		thrust(1);
 		this.genome = genome;
 		createNeuralNet();
 		calculateNetworkPositions(false);
+		this.world = world;
+		setupBox2d();
+		thrust(1);
 	}
 
 	public Agent(Point2D.Double coords){
 		super(coords);
 
 		this.genome = null;
+	}
+	
+	private void setupBox2d(){
+        BodyDef bd = new BodyDef();
+        bd.type = BodyType.DYNAMIC;
+        bd.position.set((float) coords.x, (float) coords.y);
+         
+        CircleShape cs = new CircleShape();
+        cs.m_radius = 10.0f;
+        
+        FixtureDef fd = new FixtureDef();
+        fd.shape = cs;
+        fd.density = 0.6f;
+        fd.friction = 0.3f;        
+        fd.restitution = 0.5f;
+        
+        body = world.createBody(bd);
+        body.createFixture(fd);
 	}
 
 	/**
@@ -256,7 +288,7 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	void updatePhysics() {//update speed to be ...
-		//calculate new drag value, average of speed x / y
+		/*//calculate new drag value, average of speed x / y
 		drag.x = Math.abs(speed.x / 100);
 		drag.y = Math.abs(speed.y / 100);
 		if (drag.x < 0.0001) {
@@ -289,12 +321,14 @@ public class Agent extends SimulationObject implements Serializable {
 			double ratio = maxSpeed / this.getMovingSpeed();
 			speed.x = speed.x * ratio;
 			speed.y = speed.y * ratio;
-		}
+		}*/
 	}
 
 	void updatePosition() {
-		coords.x += speed.x;
-		coords.y += speed.y;
+		//coords.x += speed.x;
+		//coords.y += speed.y;
+		coords.x = body.getPosition().x;
+		coords.y = body.getPosition().y;
 	}
 
 	/**
@@ -559,9 +593,12 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	protected void thrust(double strength) {
-		double x = strength * Math.cos(viewHeading * Math.PI / 180);
-		double y = strength * Math.sin(viewHeading * Math.PI / 180);
-		setThrust(x, y);
+		double x = strength * Math.cos(viewHeading * Math.PI / 180) * 400;
+		double y = strength * Math.sin(viewHeading * Math.PI / 180) * 400;
+		//setThrust(x, y);
+		Vec2 force  = new Vec2((float) x, (float) y);
+		Vec2 point = body.getWorldPoint(body.getWorldCenter());
+		body.applyLinearImpulse(force, point);
 	}
 
 	protected void changeViewHeading(double h) {

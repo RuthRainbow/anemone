@@ -14,6 +14,14 @@ import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.jbox2d.collision.shapes.ChainShape;
+import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.BodyDef;
+import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.World;
+
 import processing.core.PApplet;
 
 public class Environment implements Serializable{
@@ -44,6 +52,13 @@ public class Environment implements Serializable{
 	//Save number of segments used by agent for analysis tool
 	public int agentNumSegments;
 
+	//JBox2D Variables
+	World world;
+	//TODO: fix agents not thrusting
+	//TODO: force field walls
+	//TODO: generate 90 degree walls in wall constructor
+	//TODO: generate walls for any angle
+	//TODO: update wall placement button 
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -56,6 +71,63 @@ public class Environment implements Serializable{
 		this.seaweed = new ArrayList<Seaweed>();
 		this.foodPos = new ArrayList<Point2D.Double>();
 		this.agentNumSegments = Agent.configNumSegments;
+		
+		//JBox2D
+		Vec2 gravity = new Vec2(0.0f, 0.0f);
+		this.world = new World(gravity);
+		
+		//TODO: do this properly!!
+		PolygonShape ps = new PolygonShape(); //TOP
+	    ps.setAsBox(width, 1);
+	         
+	    FixtureDef fd = new FixtureDef();
+	    fd.shape = ps;
+	    fd.density = 1.0f;
+	 
+	    BodyDef bd = new BodyDef();
+	    bd.position = new Vec2(0, 0);
+	    bd.type = BodyType.STATIC;
+	 
+	    world.createBody(bd).createFixture(fd);
+	    
+	    ps = new PolygonShape(); //BOTTOM
+	    ps.setAsBox(width, 1);
+	         
+	    fd = new FixtureDef();
+	    fd.shape = ps;
+	    fd.density = 1.0f;
+	 
+	    bd = new BodyDef();
+	    bd.position = new Vec2(0, height);
+	    bd.type = BodyType.STATIC;
+	 
+	    world.createBody(bd).createFixture(fd);
+	    
+	    ps = new PolygonShape(); //LEFT
+	    ps.setAsBox(1, height);
+	         
+	    fd = new FixtureDef();
+	    fd.shape = ps;
+	    fd.density = 1.0f;
+	 
+	    bd = new BodyDef();
+	    bd.position = new Vec2(0, 0);
+	    bd.type = BodyType.STATIC;
+	 
+	    world.createBody(bd).createFixture(fd);
+	    
+	    ps = new PolygonShape(); //RIGHT
+	    ps.setAsBox(1, height);
+	         
+	    fd = new FixtureDef();
+	    fd.shape = ps;
+	    fd.density = 1.0f;
+	 
+	    bd = new BodyDef();
+	    bd.position = new Vec2(width, 0);
+	    bd.type = BodyType.STATIC;
+	 
+	    world.createBody(bd).createFixture(fd);
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -65,13 +137,13 @@ public class Environment implements Serializable{
 
     	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
 
-    		for (Agent aa: getAllAgents()) { // check if collides to any other agent
+    		/*for (Agent aa: getAllAgents()) { // check if collides to any other agent
         		if(ag == aa) continue;
 
         		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
         			collisions.add(new Collision(ag, aa));
         		}
-    		}
+    		}*/
 
     		for (Food fd: food) { //check collisions to food
         		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
@@ -79,7 +151,7 @@ public class Environment implements Serializable{
         		}
     		}
 
-    		if(ag.coords.x < 10){
+    		/*if(ag.coords.x < 10){
     			collisions.add(new Collision(ag, wall.get(3)));
     		}
     		if(ag.coords.y < 10){
@@ -100,7 +172,7 @@ public class Environment implements Serializable{
     			if (letsThrough){
     				collisions.add(new Collision(ag, wl));
     			}
-    		}
+    		}*/
 		}
 
     	return collisions;
@@ -257,6 +329,8 @@ public class Environment implements Serializable{
     }
 
     protected void updateAllAgents(){
+    	world.step(1.0f / 30.0f, 6, 3);
+    	
     	for (Agent fish: fishes) { //drawing the ikkle fishes
     		fish.update();
     	}
@@ -398,19 +472,19 @@ public class Environment implements Serializable{
 
 	protected void spawnFish(
 			Point2D.Double coords, int heading, Genome genome) {
-		fishes.add(new Agent(coords, heading, parent, genome));
+		fishes.add(new Agent(coords, heading, parent, genome, world));
 	}
 
 	protected void spawnShark(
 			Point2D.Double coords, int heading, Genome genome) {
-		sharks.add(new Enemy(coords, heading, parent, genome));
+		sharks.add(new Enemy(coords, heading, parent, genome, world));
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
 		Genome genome = getGenome();
 
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		fishes.add(new Agent(coords, heading, parent, genome));
+		fishes.add(new Agent(coords, heading, parent, genome, world));
 	}
 
 	private Genome getGenome() {
@@ -478,7 +552,7 @@ public class Environment implements Serializable{
 	protected void addShark(Point2D.Double coords, int heading){
 		Genome genome = getGenome();
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		sharks.add(new Enemy(coords, heading, parent, genome));
+		sharks.add(new Enemy(coords, heading, parent, genome, world));
 	}
 
 	void addFood(Point2D.Double coords) {
@@ -513,6 +587,7 @@ public class Environment implements Serializable{
 	protected void removeAgent(Agent ag){
 		if(ag instanceof Enemy) sharks.remove(ag);
 		else fishes.remove(ag);
+		world.destroyBody(ag.body);
 	}
 
 	protected void removeFood(Food fd) {

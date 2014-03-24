@@ -299,7 +299,7 @@ public class Simulation extends PApplet {
 	}
 
 	public void draw(){
-		long start = System.nanoTime();
+		//long start = System.nanoTime();
 		background(theme.getColor(Types.BACKGROUND));	//Draws background, basically refreshes the screen
 		win.setBackground(theme.getColor(Types.BACKGROUND));
 		sidePanel.setBackground(theme.getColor(Types.SIDEPANEL1));
@@ -310,7 +310,7 @@ public class Simulation extends PApplet {
 			env.updateCollisions(); //update the environment with the new collisions
 			env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 			handleCollisions();
-			env.killOutsideAgents(env.width, env.height);
+			//env.killOutsideAgents(env.width, env.height);
 			if (!env.fitnessOnly) {
 				checkDeaths();
 			}
@@ -330,10 +330,10 @@ public class Simulation extends PApplet {
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 		text("Mouse X: " + mouseX + "Mouse Y: " + mouseY, 10, 30);
     	
-	   	long end = System.nanoTime();
-    	long elapsedTime = end - start;
-    	double seconds = (double)elapsedTime / 1000000000.0; 
-    	System.out.println("Draw time: "+seconds + "s");
+	   	//long end = System.nanoTime();
+    	//long elapsedTime = end - start;
+    	//double seconds = (double)elapsedTime / 1000000000.0; 
+    	//System.out.println("Draw time: "+seconds + "s");
 	}
 
 	private void drawSimulation(PApplet canvas){
