@@ -39,12 +39,15 @@ public class Wall extends SimulationObject implements Serializable{
 		double x = start.x + (end.x - start.x) / 2.0f;
 		double y = start.y + (end.y - start.y) / 2.0;
 		
+		if(length == 0) return;
+		
 		PolygonShape ps = new PolygonShape();
 	    ps.setAsBox((float) (length / 2.0f), 1.0f, new Vec2(0, 0), (float) angle);
 	         
 	    FixtureDef fd = new FixtureDef();
 	    fd.shape = ps;
 	    fd.density = 1.0f;
+	    fd.filter.categoryBits = (letsThrough == -1 ? Collision.TYPE_WALL : letsThrough);
 	 
 	    BodyDef bd = new BodyDef();
 	    bd.position = new Vec2((float) x, (float) y);
@@ -54,11 +57,14 @@ public class Wall extends SimulationObject implements Serializable{
 	    body.createFixture(fd);
 	}
 	
-	Wall(Double start, Double end, int ag) {
+	Wall(Double start, Double end, World world, int ag) {
 		super(start);
 		this.start = start;
 		this.end = end;
+		this.world = world;
 		this.letsThrough = ag;
+		
+		setupBox2d();
 	}
 	
 	Wall(Line2D.Double wall){
@@ -81,8 +87,12 @@ public class Wall extends SimulationObject implements Serializable{
 		return start.distance(end);
 	}
 	
-	public int getLetsThrough(){
+	public int getWallType(){
 		return letsThrough;
+	}
+	
+	public void addToWorld(){
+		setupBox2d();
 	}
 	
 }

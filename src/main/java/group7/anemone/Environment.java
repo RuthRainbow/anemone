@@ -14,12 +14,7 @@ import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.jbox2d.collision.shapes.ChainShape;
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 import processing.core.PApplet;
@@ -54,9 +49,6 @@ public class Environment implements Serializable{
 
 	//JBox2D Variables
 	World world;
-	//TODO: force field walls
-	//TODO: generate walls for any angle - check
-	//TODO: update wall placement button 
 
 	public Environment(PApplet p){
 		this.parent = p;
@@ -147,7 +139,7 @@ public class Environment implements Serializable{
     private ArrayList<SightInformation> checkFOVWalls( ArrayList<Wall> walls, Agent ag) {
     	ArrayList<SightInformation> result = new ArrayList<SightInformation>();
 		for(Wall wl : walls){
-			if(ag.getType() == wl.getLetsThrough()) continue;
+			if(ag.getType() == wl.getWallType()) continue;
 
 			wallChecking = wl;
 
@@ -203,7 +195,7 @@ public class Environment implements Serializable{
 	private boolean lineIntersectsWall(Line2D.Double line, SimulationObject ignore, Agent ag){
 		for(Wall wl : wall){
 			if(ignore instanceof Wall && wallChecking == wl) continue;
-			if(ag.getType() == wl.getLetsThrough()) continue;
+			if(ag.getType() == wl.getWallType()) continue;
 
 			if(wl.getLine().intersectsLine(line)) return true;
 		}
@@ -522,7 +514,7 @@ public class Environment implements Serializable{
 		wall.add(new Wall(start, end, world));
 	}
 	void addWall(Point2D.Double start, Point2D.Double end, int type){
-		wall.add(new Wall(start, end, type));
+		wall.add(new Wall(start, end, world, type));
 	}
 
 	public int foodsize() { return food.size(); }

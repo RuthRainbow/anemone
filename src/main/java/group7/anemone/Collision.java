@@ -11,8 +11,10 @@ public class Collision implements Serializable{
 	private static final long serialVersionUID = -1344240281159275276L;
 	public static final int TYPE_FOOD = 1;
 	public static final int TYPE_AGENT = 2;
-	public static final int TYPE_ENEMY = 3;
-	public static final int TYPE_WALL = 4;
+	public static final int TYPE_ENEMY = 4;
+	public static final int TYPE_WALL = 8;
+	public static final int TYPE_WALL_AGENT = 16;
+	public static final int TYPE_WALL_ENEMY = 32;
 	
 	private Agent agent;
 	private Object collided;

@@ -117,6 +117,12 @@ public class Agent extends SimulationObject implements Serializable {
         fd.density = 0.6f;
         fd.friction = 0.3f;        
         fd.restitution = 0.5f;
+        fd.filter.categoryBits = Collision.TYPE_AGENT;
+        if(this instanceof Enemy){
+        	 fd.filter.maskBits = Collision.TYPE_AGENT | Collision.TYPE_WALL | Collision.TYPE_WALL_AGENT;
+        }else{
+        	 fd.filter.maskBits = Collision.TYPE_AGENT | Collision.TYPE_WALL | Collision.TYPE_WALL_ENEMY;
+        }
         
         body = world.createBody(bd);
         body.createFixture(fd);

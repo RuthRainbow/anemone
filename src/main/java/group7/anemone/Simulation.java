@@ -140,22 +140,16 @@ public class Simulation extends PApplet {
 		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
 		
 		//TODO: Spawn area walls
-		//env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
-		//env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
+		env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_WALL_AGENT);
+		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_WALL_AGENT);
 		
-		//env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
-		//env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
-		
-		/*env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2));
-		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2));
-		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8));
-		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8));*/
-		
+		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
+		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
 		
 		//internal walls
-		//env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
-		//env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
-		//env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4), Collision.TYPE_AGENT);
+		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
+		env.addWall(new Point2D.Double(env.width/2,env.height/2),new Point2D.Double(env.width/2,3*env.height/4));
+		env.addWall(new Point2D.Double(env.width/4, env.height / 4),new Point2D.Double(3 * env.width/4, 3 * env.height / 4));
 
 	}
 	public void mousePressed(){
@@ -179,8 +173,12 @@ public class Simulation extends PApplet {
 		int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
 		if(!Utilities.isPointInBox(simMouseX, simMouseY, 0, 0, env.width, env.height)) return;
 		
+		//A wall has been placed -> add to the world
 		if(PLACE_MODE){
 			PLACE_MODE = false;
+			ArrayList<Wall> walls = env.getAllWalls();
+			Wall wl = walls.get(walls.size() - 1);
+			wl.addToWorld();
 			return;
 		}
 		switch(mouseMode){
@@ -201,7 +199,7 @@ public class Simulation extends PApplet {
 						agent_clicked.thrust(2);
 					}
 					break;
-			case 4: env.addWall(new Point2D.Double(simMouseX, simMouseY),new Point2D.Double(simMouseX, simMouseY));
+			case 4: env.addWall(new Point2D.Double(simMouseX, simMouseY), new Point2D.Double(simMouseX, simMouseY));
 					PLACE_MODE = true;
 		}
 
@@ -414,10 +412,11 @@ public class Simulation extends PApplet {
 		stroke(theme.getColor(Types.WALL));
 		noFill();
 		for(Wall wl : walls){ //Runs through arraylist of walls, will draw them on the canvas
-			int letsThrough = wl.getLetsThrough();
-			if(letsThrough == Collision.TYPE_AGENT) stroke(theme.getColor(Types.FISH));
-			else if(letsThrough == Collision.TYPE_ENEMY) stroke(theme.getColor(Types.SHARK));
-			else stroke(theme.getColor(Types.WALL));
+			switch(wl.getWallType()){
+				case Collision.TYPE_WALL_AGENT: stroke(theme.getColor(Types.FISH)); break;
+				case Collision.TYPE_WALL_ENEMY: stroke(theme.getColor(Types.SHARK)); break;
+				default: stroke(theme.getColor(Types.WALL));
+			}
 			
 			line((float) wl.getStart().x, (float) wl.getStart().y, (float) wl.getEnd().x, (float) wl.getEnd().y);
 		}
