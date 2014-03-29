@@ -293,42 +293,7 @@ public class Agent extends SimulationObject implements Serializable {
 		return this.fitness;
 	}
 
-	void updatePhysics() {//update speed to be ...
-		//calculate new drag value, average of speed x / y
-		drag.x = Math.abs(speed.x / 100);
-		drag.y = Math.abs(speed.y / 100);
-		if (drag.x < 0.0001) {
-			speed.x = 0;
-		}
-		if (drag.y < 0.0001) {
-			speed.y = 0;
-		}
 
-		//implements thrusting
-		speed.x += thrust.x;
-		speed.y += thrust.y;
-		thrust.x = 0;
-		thrust.y = 0;
-
-		//implements drag
-		if (speed.x > 0) {
-			speed.x -= drag.x;
-		} else if (speed.x < 0) {
-			speed.x += drag.x;
-		}
-
-		if (speed.y > 0) {
-			speed.y -= drag.y;
-		} else if (speed.y < 0) {
-			speed.y += drag.y;
-		}
-
-		if (this.getMovingSpeed() > maxSpeed) {
-			double ratio = maxSpeed / this.getMovingSpeed();
-			speed.x = speed.x * ratio;
-			speed.y = speed.y * ratio;
-		}
-	}
 
 	void updatePosition() {
 		coords.x = body.getPosition().x;
@@ -377,7 +342,6 @@ public class Agent extends SimulationObject implements Serializable {
 			updateMNetwork();
 		}
 		applyMotorOutputs();
-		//updatePhysics();
 		updatePosition();
 
 		age++;
@@ -591,10 +555,6 @@ public class Agent extends SimulationObject implements Serializable {
 		return canSee;
 	}
 
-	private void setThrust(double x, double y) {
-		thrust.x = x;
-		thrust.y = y;
-	}
 
 	protected void thrust(double strength) {
 		double x = strength * Math.cos(viewHeading * Math.PI / 180) * 400;

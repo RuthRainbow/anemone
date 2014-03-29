@@ -76,46 +76,18 @@ public class Utilities {
 		return intersection;
 	}
 	
+	//Use a Point2D point, angle and length to generate a Line2D line
 	public static Line2D.Double generateLine(Point2D.Double point, double length, double angle){
+		//find end point X and Y by converting angle to radians
+		//and trigonometry  
 		double endX = length * Math.cos(angle*(Math.PI/180)) + point.x;
 		double endY = length * Math.sin(angle*(Math.PI/180)) + point.y;
 		
 		return new Line2D.Double(point,new Point2D.Double(endX,endY));
 	}
 	
-	public static Point2D.Double getClosestPoint(Line2D.Double line, Point2D.Double point) {
-		/*double opp = line.ptLineDist(point);
-		double hyp = point.distance(line.getP1());
-		double theta = Math.asin(opp/hyp);
-		double agt = opp / Math.tan(theta);
-		
-		double alpha = Math.atan((line.y2-line.y1)/(line.x2-line.x1))*(Math.PI / 180);
-		Line2D.Double tmp = generateLine((Double) line.getP1(),agt,alpha);
-		
-		System.out.println("opp: "+opp+" hyp: "+hyp+" theta: "+theta+" agt: "+agt+" alpha: "+alpha);
-		return (Double) tmp.getP2();*/
-		double A1 = line.y2 - line.y1; 
-	    double B1 = line.x1 - line.x2; 
-	    double C1 = (line.y2 - line.y1)*line.x1 + (line.x1 - line.x2)*line.y1; 
-	    double C2 = -B1*point.x + A1*point.y; 
-	    double det = A1*A1 - -B1*B1; 
-	    double cx = 0; 
-	    double cy = 0; 
-	    if(det != 0){ 
-	    	cx = (A1*C1 - B1*C2)/det; 
-	     	cy = (A1*C2 - -B1*C1)/det; 
-	    }else{ 
-	    	cx = point.x; 
-	    	cy = point.y; 
-	    } 
-	    return new Point2D.Double(cx, cy); 
-	}
-	public static double[] quadratic(double a, double b, double c) {
-		double[] result = new double[2];
-		result[0] = (-b + Math.sqrt(b*b - 4*a*c))/2*a;
-		result[1] = (-b - Math.sqrt(b*b - 4*a*c))/2*a;
-		return result;
-	}
+
+
 	public static double toRadians(double deg){
 		return deg * Math.PI / 180;
 	}

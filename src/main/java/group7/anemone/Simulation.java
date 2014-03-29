@@ -90,8 +90,8 @@ public class Simulation extends PApplet {
 	boolean agentFocused = false;
 	int trackingBounds = 100;
 	
-	int numStartingAgents = 10;
-	int numStartingSharks = 5;
+	int numStartingAgents = 100;
+	int numStartingSharks = 0;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -108,8 +108,6 @@ public class Simulation extends PApplet {
 		draw_height = screen.height;
 
 		for(int i = 0; i < numStartingAgents; i++){
-			//int x = (int) Math.floor(env.width*0.2 + Math.random() * env.width*0.2);
-			//int y = (int) Math.floor( env.width*0.2+ Math.random() * env.height*0.2);
 			int x = (int) Math.floor( Math.random() * env.width*0.2);
 			int y = (int) Math.floor( Math.random() * env.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
@@ -145,6 +143,13 @@ public class Simulation extends PApplet {
 		
 		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
 		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
+		
+		//Test walls TODO:REMOVE
+		env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2));
+		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2));
+		
+		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8));
+		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8));
 		
 		//internal walls
 		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
@@ -297,7 +302,6 @@ public class Simulation extends PApplet {
 	}
 
 	public void draw(){
-		//long start = System.nanoTime();
 		background(theme.getColor(Types.BACKGROUND));	//Draws background, basically refreshes the screen
 		win.setBackground(theme.getColor(Types.BACKGROUND));
 		sidePanel.setBackground(theme.getColor(Types.SIDEPANEL1));
@@ -308,7 +312,6 @@ public class Simulation extends PApplet {
 			env.updateCollisions(); //update the environment with the new collisions
 			env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 			handleCollisions();
-			//env.killOutsideAgents(env.width, env.height);
 			if (!env.fitnessOnly) {
 				checkDeaths();
 			}
@@ -328,10 +331,6 @@ public class Simulation extends PApplet {
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 		text("Mouse X: " + mouseX + "Mouse Y: " + mouseY, 10, 30);
     	
-	   	//long end = System.nanoTime();
-    	//long elapsedTime = end - start;
-    	//double seconds = (double)elapsedTime / 1000000000.0; 
-    	//System.out.println("Draw time: "+seconds + "s");
 	}
 
 	private void drawSimulation(PApplet canvas){
@@ -355,17 +354,17 @@ public class Simulation extends PApplet {
 
 			pushMatrix();
 			translate(ag.getX(), ag.getY());
-			rotate((float) toRadians(ag.getViewHeading() - ag.getFOV()));
+			rotate((float) Utilities.toRadians(ag.getViewHeading() - ag.getFOV()));
 			line(0, 0, (int) (range / 2), 0);
 			popMatrix();
 
 			pushMatrix();
 			translate(ag.getX(), ag.getY());
-			rotate((float) toRadians(ag.getViewHeading() + ag.getFOV()));
+			rotate((float) Utilities.toRadians(ag.getViewHeading() + ag.getFOV()));
 			line(0, 0, (int) (range / 2), 0);
 			popMatrix();
 
-			arc((float) ag.getX(), (float) ag.getY(), (float) range, (float) range, (float) toRadians(ag.getViewHeading() - ag.getFOV()) , (float) toRadians(ag.getViewHeading() + ag.getFOV()));
+			arc((float) ag.getX(), (float) ag.getY(), (float) range, (float) range, (float) Utilities.toRadians(ag.getViewHeading() - ag.getFOV()) , (float) Utilities.toRadians(ag.getViewHeading() + ag.getFOV()));
 
 			//draw our circle representation for the agent
 			noStroke();
@@ -375,7 +374,7 @@ public class Simulation extends PApplet {
 				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256);
 				pushMatrix();
 				translate(ag.getX(), ag.getY());
-				rotate((float) toRadians(ag.getViewHeading()));
+				rotate((float) Utilities.toRadians(ag.getViewHeading()));
 				rect(-10, -10, 20, 20);
 				popMatrix();
 			} else {
@@ -401,6 +400,8 @@ public class Simulation extends PApplet {
 			Food fd = food.get(i);
 			ellipse(fd.getX(), fd.getY(), 5, 5);
 		}
+		
+		
 		
 		noStroke();
 		fill(201, 23, 134);
@@ -859,9 +860,7 @@ public class Simulation extends PApplet {
 		winStats.addObject(lbl);
 		return lbl;
 	}
-	private double toRadians(double deg){
-		return deg * Math.PI / 180;
-	}
+
 
 	private void checkDeaths(){ //mwahahaha >:)
 		ArrayList<Agent> agents = env.getAllAgents();
@@ -880,103 +879,9 @@ public class Simulation extends PApplet {
 
 		for (Collision cc: collisions) { //check collisions to food
     		int type = cc.getType();
-
-    		switch(type){
-    			case Collision.TYPE_FOOD: eatFood(cc);break;
-    			//case Collision.TYPE_WALL: bounceAgent(cc); break;
-    			//case Collision.TYPE_AGENT: breeding(cc); break;
-    		}
+    		if(type == Collision.TYPE_FOOD) eatFood(cc);
 		}
 
-	}
-
-	// If two agents collided, breed with some random chance.
-	private void breeding(Collision cc) {
-		if (Math.random() > 0.8) {
-			env.Breed(cc.getAgent(), (Agent) cc.getCollidedObject());
-			// Encourage agents to breed...
-			// cc.getAgent().updateFitness(0.01);
-		}
-		Agent agent1 = cc.getAgent();
-		Agent agent2 = (Agent) cc.getCollidedObject();
-		bounceAgents(agent1, agent2);
-		/*Point2D.Double midpoint = new Point2D.Double((agent1.coords.x+agent2.coords.x)/2,(agent1.coords.y+agent2.coords.y)/2);
-		Wall bisector = new Wall(Utilities.generateLine(midpoint, 10, Utilities.angleBetweenPoints(agent1.coords.x, agent1.coords.y, agent2.coords.x, agent2.coords.y)+90));
-		bounceAgent(new Collision(agent1,bisector));
-		bounceAgent(new Collision(agent2, bisector));*/
-	}
-
-	private void bounceAgents(Agent agent1, Agent agent2) {
-		Point2D.Double midpoint = new Point2D.Double((agent1.coords.x+agent2.coords.x)/2,(agent1.coords.y+agent2.coords.y)/2);
-		double dist = agent1.coords.distance(agent2.coords);
-
-		double changeX1 = agent1.coords.x - agent2.coords.x;
-		double changeY1 = agent1.coords.y - agent2.coords.y;
-		double changeX2 = agent2.coords.x - agent1.coords.x;
-		double changeY2 = agent2.coords.y - agent1.coords.y;
-
-		agent1.coords.x = midpoint.x + 10 * (changeX1 / dist);
-		agent1.coords.y = midpoint.y + 10 * (changeY1 / dist);
-		agent2.coords.x = midpoint.x + 10 * (changeX2 / dist);
-		agent2.coords.y = midpoint.y + 10 * (changeY2 / dist);
-	}
-
-	private void bounceAgent(Collision cc) {
-		Agent ag = cc.getAgent();
-		
-		ag.hitWall();
-		
-		Line2D.Double line = ((Wall) cc.getCollidedObject()).getLine();
-		double lineAngle = Utilities.angleBetweenPoints(line.x1, line.y1, line.x2, line.y2);
-		double normalAngle = lineAngle + 90;
-		double agentAngle = ag.getMovingAngle();
-		double newAngle = normalAngle + (normalAngle - agentAngle - 180);
-		double oldHeading = ag.getViewHeading();
-		double thrust = ag.getMovingSpeed();
-
-
-		Wall wl = (Wall) cc.getCollidedObject();
-		double distanceToWall = wl.getLine().ptLineDist(ag.coords);
-		double thrustIncrease = (10-distanceToWall)/50 + 1;
-		boolean leftWall = wl.getLine().ptLineDist(new Point2D.Double(0,env.height/2)) == 0;
-		boolean rightWall = wl.getLine().ptLineDist(new Point2D.Double(env.width,env.height/2)) == 0;
-		boolean topWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,0)) == 0;
-		boolean bottomWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,env.height)) == 0;
-		
-		//TODO make this work for artbitary walls
-		if(leftWall) ag.coords.x += (10 - distanceToWall);
-		else if (rightWall) ag.coords.x -= (10 - distanceToWall);
-		else if (topWall) ag.coords.y += (10 - distanceToWall);
-		else if (bottomWall) ag.coords.y -= (10 - distanceToWall);
-		else ag.coords = internalWallBounce(wl,ag);
-
-		ag.stop();
-		ag.changeViewHeading(newAngle - ag.getViewHeading());
-		ag.thrust(thrustIncrease * thrust);
-		ag.changeViewHeading(oldHeading - newAngle);
-		ag.updateHealth(thrust / -100);
-	}
-
-	private Point2D.Double internalWallBounce(Wall wl, Agent ag ) {
-		Line2D.Double line = wl.getLine();
-		Point2D.Double coords = ag.coords;
-		double m = (line.y2-line.y1)/(line.x2-line.x1);
-        double c = line.y1 - m*line.x1;
-        double r = 10;
-        double a = coords.x;
-        double b = coords.y;
-        double x = 1 + m;
-        double y = 2*m*(c-b);
-        double z = (c-b)*(c-b) + a*a +2*a - r*r;
-        double[] Xcoord = Utilities.quadratic(x, y, z);
-        double[] Ycoord = new double[2];
-        Ycoord[0] = m*Xcoord[0] + c;
-        Ycoord[1] = m*Xcoord[1] + c;
-        Point2D.Double closestWallPoint = Utilities.getClosestPoint(line, ag.coords);
-        double wallToNewPositionAngle = Utilities.angleBetweenPoints(closestWallPoint.x, closestWallPoint.y, ag.coords.x, ag.coords.y);
-        Point2D.Double newAgentPosition = (Point2D.Double) Utilities.generateLine(closestWallPoint, 10, wallToNewPositionAngle).getP2();
-        
-		return newAgentPosition;
 	}
 
 	private void eatFood(Collision cc) {

@@ -27,7 +27,7 @@ public class Branch extends SimulationObject{
 		if(Math.random() < 0.01) maxSize = 50;
 		double dist = currentPoint.distance(root);
 		if(dist  > maxSize) currentPoint = root;
-		if(env.foodsize() == 0 || Math.random() < (0.5/(env.foodsize()/100))){ //if(true){ for fireworks 
+		if(env.foodsize() == 0 || Math.random() < (0.5/(env.foodsize()/100))){
 			if(env.checkFood(currentPoint)){
 				Point2D.Double nextPoint = new Point2D.Double(currentPoint.x + directionVector[0]*5,currentPoint.y + directionVector[1]*5);
 				env.addFood(nextPoint);
@@ -55,8 +55,5 @@ public class Branch extends SimulationObject{
 		}
 		return newSw;
 	}
-	
-	/*public double getMaxSize(){
-		return maxSize;
-	}*/
+
 }

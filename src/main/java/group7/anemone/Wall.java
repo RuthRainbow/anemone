@@ -67,7 +67,7 @@ public class Wall extends SimulationObject implements Serializable{
 		setupBox2d();
 	}
 	
-	Wall(Line2D.Double wall){
+	public Wall(Line2D.Double wall){
 		super((Double) wall.getP1());
 		this.start = (Double) wall.getP1();
 		this.end = (Double) wall.getP2();

@@ -24,6 +24,7 @@ import group7.anemone.UI.Utilities;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,7 +74,7 @@ public class AnalysisTool extends PApplet {
 	private Food defaultFood = new Food(new Point2D.Double(0, 0));
 	private Agent defaultAgent = new Agent(new Point2D.Double(0, 0));
 	private Enemy defaultEnemy = new Enemy(new Point2D.Double(0, 0));
-	private Wall defaultWall = new Wall(new Point2D.Double(0, 0), new Point2D.Double(0, 0));
+	private Wall defaultWall = new Wall(new Line2D.Double(new Point2D.Double(0, 0), new Point2D.Double(0, 0)));
 
 	public static void main(String args[]){
 		PApplet.main(new String[] { "--present", "group7.anemone.Analysis.AnalysisTool" });

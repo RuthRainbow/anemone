@@ -88,28 +88,6 @@ public class Environment implements Serializable{
         		}
     		}
 
-    		/*if(ag.coords.x < 0){
-    			collisions.add(new Collision(ag, wall.get(3)));
-    		}
-    		if(ag.coords.y < 0){
-    			collisions.add(new Collision(ag, wall.get(0)));
-    		}
-    		if(ag.coords.x > width){
-    			collisions.add(new Collision(ag, wall.get(1)));
-    		}
-    		if(ag.coords.y > height){
-    			collisions.add(new Collision(ag, wall.get(2)));
-    		}
-    		
-    		for (Wall wl: wall) {
-    			boolean wallDist = wl.getLine().ptLineDist(ag.getCoordinates()) < 10.0;
-        		boolean startDist = wallDist && ag.getCoordinates().distance(wl.getStart()) < wl.getLength();
-        		boolean endDist = wallDist && startDist && ag.getCoordinates().distance(wl.getEnd()) < wl.getLength();
-        		boolean letsThrough = endDist && !(ag.getType() == wl.getLetsThrough());
-    			if (letsThrough){
-    				collisions.add(new Collision(ag, wl));
-    			}
-    		}*/
 		}
 
     	return collisions;
@@ -275,21 +253,7 @@ public class Environment implements Serializable{
     		shark.update();
     	}
     	tick++;
-    	/*System.out.println("Number of food: "+food.size());
-    	double avg = 0;
-    	double min = 10000000;
-    	double max = 0;
-    	for(int i=0;i<seaweed.size();i++){
-    		Seaweed sw = seaweed.get(i);
-    		for(int j=0;j<9;j++){
-    			double temp = sw.getBranches().get(j).getMaxSize();
-    			avg+= temp;
-    			if(temp < min) min = temp;
-    			if(temp > max) max = temp;
-    		}
-    	}
-    	avg = avg / (9*seaweed.size());
-    	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
+    	
     	if (tick % 1000 == 0) {
     		if (tick % 2000 == 0) {
     			ArrayList<Genome> nextSharks = sharkGod.BreedPopulation(sharks, fitnessOnly);
@@ -337,14 +301,6 @@ public class Environment implements Serializable{
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
 
-    		/*for(int i = 0; i < fishes.size()/2; i++){
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
-    			addFood(new Point2D.Double(x, y));
-    		}*/
-
-
-
     	}
     	if(tick % 50 == 0 && food.size() > 10){
     		food.remove(0);
@@ -363,27 +319,6 @@ public class Environment implements Serializable{
 			Seaweed sw = seaweed.get(i);
 			if(Math.random() < 0.02) sw.update();
 		}
-		/* FIREWORKS
-	   	if(food.size() > 10){
-    		while(food.size() > 1000){
-    			food.remove(0);
-    		}
-
-    	}
-    	while(seaweed.size() > 10){
-    		seaweed.remove(0);
-    	}
-    	if(tick % 10 == 0){
-			int x = (int) Math.floor(Math.random() * width);
-			int y = (int) Math.floor(height*0.2 + Math.random() * height*0.6);
-			addSeaweed(new Point2D.Double(x, y));
-    	}
-
-		for(int i = 0; i < seaweed.size(); i++){
-			Seaweed sw = seaweed.get(i);
-			sw.update();
-
-		}*/
 
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
@@ -393,18 +328,8 @@ public class Environment implements Serializable{
     			int heading = (int) Math.floor(Math.random() * 360);
     			spawnFish(new Point2D.Double(x,y), heading, genome);
     		}
-    		//System.out.println("Fish population got to small, generating.");
     	}
-    	/*if(sharks.size() <= 5) {
-    		for (int i = sharks.size(); i < 5; i++) {
-    			Gene[] genome = getGenome();
-    			int x = (int) Math.floor(Math.random() * width);
-    			int y = (int) Math.floor(Math.random() * height);
-    			int heading = (int) Math.floor(Math.random() * 360);
-    			spawnShark(new Point2D.Double(x,y), heading, genome, 0);
-    		}
-			System.out.println("Shark population got to small, generating.");
-    	}*/
+
     }
 
 	protected void spawnFish(
@@ -563,49 +488,13 @@ public class Environment implements Serializable{
 		};
 	}
 
-	protected void Breed(Agent mother, Agent father) {
-		// TODO for enemies
-		/*if (!(mother instanceof Enemy) && !(father instanceof Enemy) &&
-				mother.getAge() > 100 && father.getAge() > 100 &&
-				mother.getAge() < 400 && father.getAge() < 400) {
-			HashMap<Gene[], Integer> children = fishGod.createOffspring(mother, father);
-			for (Gene[] child : children.keySet()) {
-				int x = (int) Math.floor(Math.random() * width);
-				int y = (int) Math.floor(Math.random() * height);
-				int heading = (int) Math.floor(Math.random() * 360);
-				spawnFish(new Point2D.Double(x,y), heading, child, children.get(child));
-			}
-		}*/
-	}
-
-	public void killOutsideAgents(double width, double height) {
-		for(Agent fish: getAllAgents()){
-			if(fish.coords.x < 0 || fish.coords.x > width || fish.coords.y < 0 || fish.coords.y > height){
-				fish.updateHealth(-1);
+	public boolean checkFood(Point2D.Double pt) {
+		for(int i=-1;i<2;i++){
+			for(int j = -1;j<2;j++){
+				if (foodPos.contains(adjustPt(pt, i, j)))
+					return true;
 			}
 		}
-
-	}
-
-	public boolean checkFood(Point2D.Double pt) {
-		if (foodPos.contains(pt))
-			return true;
-		if (foodPos.contains(adjustPt(pt, 0, 1)))
-			return true;
-		if (foodPos.contains(adjustPt(pt, 1, 0)))
-			return true;
-		if (foodPos.contains(adjustPt(pt, 1, 1)))
-			return true;
-		if (foodPos.contains(adjustPt(pt, 0, -1)))
-			return true;
-		if (foodPos.contains(adjustPt(pt, -1, 0)))
-			return true;
-		if (foodPos.contains(adjustPt(pt, -1, -1)))
-			return true;
-		if (foodPos.contains(adjustPt(pt, 1, -1)))
-			return true;
-		if (foodPos.contains(adjustPt(pt, -1, 1)))
-			return true;
 		return false;
 	}
 
@@ -614,7 +503,6 @@ public class Environment implements Serializable{
 	}
 
 	public int getSeaweedSize() {
-
 		return seaweed.size();
 	}
 
