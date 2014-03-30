@@ -132,10 +132,13 @@ public class Agent extends SimulationObject implements Serializable {
 			 * 
 			 * Each chromosome contains multiple types of genes that can contain the following information to build the CPPN:
 			 * 1: A sort of 'header' gene that says how many neurons will be in this layer of the brain
-			 * 2: Add nodes to the CPPN, so this will need to include a 'type' integer, to designate the kind of function
+			 * 2: Add nodes to the buildSyanpse CPPN, so this will need to include a 'type' integer, to designate the kind of function
 			 * 		that this node will use. 3 Parameter integers, which will be used to augment the function so that
 			 * 		each node has a higher degree of possible diversity.
 			 * 		There are 4 different 'types' of nodes, which correspond to 0: Parabola, 1: Sigmoid, 2: Gauss, 3: Sin.
+			 * 3: Add nodes to the buildNeurons CPPN, this should be built just like the buildSynapseCPPN. There will probably need to
+			 * 		be some field in the gene that lets this part of the code distinguish between genes for the buildNeuronCPPN and the
+			 * 		buildSyanpse CPPNs.
 			 * 
 			 * Some additional notes:
 			 * 1: The first two nodes in any CPPN arrayList of nodes will always be the input nodes for that network.
