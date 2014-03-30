@@ -95,7 +95,7 @@ public class Agent extends SimulationObject implements Serializable {
 	
 	private void createBrain() {
 		/**
-		 * This method will create the agets brain.
+		 * This method will create the agents brain.
 		 * 
 		 * The actual brain creation is handled by the CPPNFactory class, which will take as input the CPPNs that are 
 		 * made from the agents genomes, and generate parts of the brain as each CPPN is fed into it.
@@ -114,8 +114,11 @@ public class Agent extends SimulationObject implements Serializable {
 		//Create a CPPNFactory. Feed the factory a series of CPPN and after all chromosomes have been read in, it can return a fully formed brain.
 		CPPNFactory cFactory = new CPPNFactory(inputNodes,outputNodes);
 		
-		//An arraylist of CPPNNodes and CPPNEdges, in the CPPN which will be queried to link neurons in the current layer of the brain
+		//An arraylist of CPPNNodes for the CPPN which will be queried to link neurons in the current layer of the brain
 		ArrayList<CPPNNode> synapseParameterNodes = new ArrayList<CPPNNode>();
+		
+		//An arraylist of CPPNNodes for the CPPN which will be queries to get neuron parameters
+		ArrayList<CPPNNode> neuronParameterNodes = new ArrayList<CPPNNode>();
 		
 		//The number of neurons that are currently being created in this layer of the brain
 		int layerSize=0;
@@ -148,8 +151,11 @@ public class Agent extends SimulationObject implements Serializable {
 			//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
 			CPPNSimulation buildSynapse = new CPPNSimulation(synapseParameterNodes);
 			
+			CPPNSimulation buildNeurons = new CPPNSimulation(neuronParameterNodes);
+			
 			//Call the factory to add the new CPPN's and generate more of the agents brain
-			cFactory.inputCPPN(buildSynapse, layerSize);
+			cFactory.neuronCPPN(buildNeurons,layerSize);
+			cFactory.synapseCPPN(buildSynapse, layerSize);
 		}
 		
 		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
