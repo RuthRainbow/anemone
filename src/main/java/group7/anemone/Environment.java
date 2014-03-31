@@ -48,7 +48,7 @@ public class Environment implements Serializable{
 	public int agentNumSegments;
 
 	//JBox2D Variables
-	World world;
+	transient World world;
 
 	public Environment(PApplet p){
 		this.parent = p;

@@ -66,8 +66,8 @@ public class Agent extends SimulationObject implements Serializable {
 	private int age = 0; // Age of agent in number of updates.
 	
 	//JBox2D variables
-	private World world;
-	protected Body body;
+	private transient World world;
+	protected transient Body body;
 
 	/* Objects  of interest within the agent's visual field. */
 	private ArrayList<SightInformation> canSee
@@ -560,9 +560,11 @@ public class Agent extends SimulationObject implements Serializable {
 		double x = strength * Math.cos(viewHeading * Math.PI / 180) * 400;
 		double y = strength * Math.sin(viewHeading * Math.PI / 180) * 400;
 		//setThrust(x, y);
-		Vec2 force  = new Vec2((float) x, (float) y);
-		Vec2 point = body.getWorldPoint(body.getWorldCenter());
-		body.applyLinearImpulse(force, point);
+		if(body != null){
+			Vec2 force  = new Vec2((float) x, (float) y);
+			Vec2 point = body.getWorldPoint(body.getWorldCenter());
+			body.applyLinearImpulse(force, point);
+		}
 	}
 
 	protected void changeViewHeading(double h) {
