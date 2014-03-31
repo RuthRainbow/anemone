@@ -90,8 +90,8 @@ public class Simulation extends PApplet {
 	boolean agentFocused = false;
 	int trackingBounds = 100;
 	
-	int numStartingAgents = 100;
-	int numStartingSharks = 0;
+	int numStartingAgents = 10;
+	int numStartingSharks = 5;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -143,13 +143,6 @@ public class Simulation extends PApplet {
 		
 		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
 		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
-		
-		//Test walls TODO:REMOVE
-		env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2));
-		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2));
-		
-		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8));
-		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8));
 		
 		//internal walls
 		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));
