@@ -1,9 +1,10 @@
 package group7.anemone;
 
-import group7.anemone.CPPN.CPPNEdge;
+//import group7.anemone.CPPN.CPPNEdge;
 import group7.anemone.CPPN.CPPNNode;
 import group7.anemone.CPPN.CPPNSimulation;
 import group7.anemone.CPPN.CPPNFactory;
+import group7.anemone.Genetics.Chromosome;
 import group7.anemone.Genetics.Gene;
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.NeatNode;
@@ -47,7 +48,7 @@ public class Agent extends SimulationObject implements Serializable {
 	//private final Genome genome;
 	
 	/*In hyper neat, this is the list of genomes to create the CPPN Networks to create the agents brain*/
-	private final ArrayList<Genome> chromosomes;
+	private final Chromosome chromosome;
 
 	/* Brain state. */
 	private MNetwork mnetwork;
@@ -80,14 +81,15 @@ public class Agent extends SimulationObject implements Serializable {
 	 * @param p
 	 * @param genome	the genome to be used to construct the brain
 	 */
-	public Agent(Point2D.Double coords, double viewHeading, PApplet p,
-		ArrayList<Genome> chromo) {
+	public Agent(Point2D.Double coords,
+			     double viewHeading,
+			     PApplet p,
+			     Chromosome chromo) {
 		super(coords);
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
-		//this.genome = genome;
-		this.chromosomes = chromo;
+		this.chromosome = chromo;
 		//createNeuralNet();
 		createBrain();
 		calculateNetworkPositions();
@@ -124,7 +126,7 @@ public class Agent extends SimulationObject implements Serializable {
 		int layerSize=0;
 		
 		//First, loop through every chromosome that the agent contains
-		for (int g=0; g<chromosomes.size(); g++) {
+		for (int g=0; g<chromosome.getGenomeSize(); g++) {
 			//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
 			
 			/**
@@ -250,8 +252,12 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 	}
 
-	public Genome getStringRep() {
-		return this.genome;
+	public ArrayList<Genome> getStringRep() {
+		return this.chromosome.getGenome();
+	}
+	
+	public Chromosome getChromosome() {
+		return this.chromosome;
 	}
 
 	public double getFitness() {
@@ -665,7 +671,7 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	public int getSpeciesId() {
-		return genome.getSpeciesId();
+		return chromosome.getSpeciesId();
 	}
 
 	public int getAge() {

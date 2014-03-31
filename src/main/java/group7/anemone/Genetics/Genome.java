@@ -14,24 +14,15 @@ public class Genome implements Serializable {
 	// Genes represent edges
 	private final Gene[] genome;
 	private final ArrayList<NeatNode> nodes;
-	private int speciesId;
-	private Parents parents;
 	
-	public Genome(Gene[] genome, Collection<NeatNode> nodes, int speciesId,
-		Genome mother, Genome father) {
+	public Genome(Gene[] genome, Collection<NeatNode> nodes) {
 		this.genome = genome;
 		this.nodes = new ArrayList<NeatNode>(nodes);
-		this.speciesId = speciesId;
-		this.parents = new Parents(mother, father);
-	}
-	
-	public void setSpecies(int speciesId) {
-		this.speciesId = speciesId;
 	}
 	
 	@Override
 	public String toString() {
-		return "Genome: " + Arrays.toString(this.genome) + " Species: " + this.speciesId;
+		return "Genome: " + Arrays.toString(this.genome);
 	}
 	
 	public int getLength() {
@@ -57,10 +48,6 @@ public class Genome implements Serializable {
 	public Gene[] getGene() {
 		return this.genome;
 	}
-
-	public int getSpeciesId() {
-		return this.speciesId;
-	}
 	
 	public ArrayList<NeatNode> getNodes() {
 		return this.nodes;
@@ -73,22 +60,5 @@ public class Genome implements Serializable {
 	public Gene getXthGene(int x) {
 		return this.genome[x];
 	}
-	
-	public Genome getMother() {
-		return this.parents.mother;
-	}
-	
-	public Genome getFather() {
-		return this.parents.father;
-	}
-	
-	private class Parents {
-		private Genome mother;
-		private Genome father;
-		
-		public Parents(Genome mother, Genome father) {
-			this.mother = mother;
-			this.father = father;
-		}
-	}
+
 }
