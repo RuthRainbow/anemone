@@ -446,22 +446,22 @@ public class Environment implements Serializable{
 		
 		/* Motor neurons. */
 		for (int i=0; i<3; i++) {
-			NeatNode node = NeatNode.createRSNeatNode(total++);
+			NeatNode node = NeatNode.createRandomNeatNode(total++);
 			motorNodes.add(node);
 		}
                 /* Food sensory neurons. */
 		for (int i = 0; i < Agent.configNumSegments; i++){//Food
-			NeatNode node = NeatNode.createRSNeatNode(total++);
+			NeatNode node = NeatNode.createRandomNeatNode(total++);
 			visualNodes.add(node);
 		}
                 /* Wall sensory neurons. */
 		for (int i = 0; i < Agent.configNumSegments; i++){//Wall
-			NeatNode node = NeatNode.createRSNeatNode(total++);
+			NeatNode node = NeatNode.createRandomNeatNode(total++);
 			visualNodes.add(node);
 		}
                 /* Enemy sensory neurons. */
 		for (int i = 0; i < Agent.configNumSegments; i++){//Enemy
-			NeatNode node = NeatNode.createRSNeatNode(total++);
+			NeatNode node = NeatNode.createRandomNeatNode(total++);
 			visualNodes.add(node);
 		}
 		
