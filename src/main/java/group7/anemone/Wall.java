@@ -23,8 +23,8 @@ public class Wall extends SimulationObject implements Serializable{
 	private Double start;
 	private Double end;
 	private int letsThrough = -1;
-	private World world;
-	protected Body body;
+	private transient World world;
+	protected transient Body body;
 	
 	public Wall(Double start, Double end, World world) {
 		super(start);

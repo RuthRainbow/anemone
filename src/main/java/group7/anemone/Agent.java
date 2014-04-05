@@ -63,8 +63,8 @@ public class Agent extends SimulationObject implements Serializable {
 	private int age = 0; // Age of agent in number of updates.
 	
 	//JBox2D variables
-	private World world;
-	protected Body body;
+	private transient World world;
+	protected transient Body body;
 
 	/* Objects  of interest within the agent's visual field. */
 	private ArrayList<SightInformation> canSee
