@@ -25,7 +25,6 @@ import group7.anemone.UI.Utilities;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,6 +84,9 @@ public class Simulation extends PApplet {
 	int SIM_TICKS = 1;
 	int SIM_TPS_MAX = 51;
 	boolean PLACE_MODE = false;
+	
+	//Scale ratio of pixels to meters for Box2D
+	public static float meterToPixel = 50.0f;
 
 	//agent tracking / focused settings
 	boolean agentFocused = false;
@@ -143,6 +145,7 @@ public class Simulation extends PApplet {
 		
 		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
 		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_WALL_ENEMY);
+	
 		
 		//internal walls
 		env.addWall(new Point2D.Double(env.width/3,env.height/5),new Point2D.Double(env.width/2,env.height/5));

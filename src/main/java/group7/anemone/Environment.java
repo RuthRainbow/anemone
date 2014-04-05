@@ -43,6 +43,9 @@ public class Environment implements Serializable{
 
 	static int width = 1000;
 	static int height = 1000;
+	
+	static float box2Dwidth = width/Simulation.meterToPixel;
+	static float box2Dheight = height/Simulation.meterToPixel;
 
 	//Save number of segments used by agent for analysis tool
 	public int agentNumSegments;
@@ -244,7 +247,7 @@ public class Environment implements Serializable{
     }
 
     protected void updateAllAgents(){
-    	world.step(1.0f / 30.0f, 6, 3);
+    	world.step(1.0f / (30.0f*Simulation.meterToPixel*Simulation.meterToPixel), 6, 3);
     	
     	for (Agent fish: fishes) { //drawing the ikkle fishes
     		fish.update();

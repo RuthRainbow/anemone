@@ -38,12 +38,9 @@ public class Agent extends SimulationObject implements Serializable {
 	public static int configNumSegments = 7;
 	final double visionRange = 100;
 	final double fov = 90;
-	private final double maxSpeed = 15;
 
 	/* Physics state. */
 	private final Point2D.Double speed = new Point2D.Double(0, 0);
-	private final Point2D.Double thrust = new Point2D.Double(0, 0);
-	private final Point2D.Double drag = new Point2D.Double(0, 0);
 	private double viewHeading = 0; // in degrees 0-360
 
 	/* The agent's genome (from which the brain is generated). */
@@ -105,12 +102,14 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 	
 	private void setupBox2d(){
+		float box2Dx = (float) (coords.x/Simulation.meterToPixel);
+		float box2Dy = (float) (coords.y/Simulation.meterToPixel);
         BodyDef bd = new BodyDef();
         bd.type = BodyType.DYNAMIC;
-        bd.position.set((float) coords.x, (float) coords.y);
+        bd.position.set(box2Dx,box2Dy);
          
         CircleShape cs = new CircleShape();
-        cs.m_radius = 10.0f;
+        cs.m_radius = 10.0f/Simulation.meterToPixel;
         
         FixtureDef fd = new FixtureDef();
         fd.shape = cs;
@@ -294,10 +293,12 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 
-
+	//Use meter/pixel ratio to convert to draw coords
 	void updatePosition() {
-		coords.x = body.getPosition().x;
-		coords.y = body.getPosition().y;
+		
+		coords.x = body.getPosition().x*Simulation.meterToPixel;
+		coords.y = body.getPosition().y*Simulation.meterToPixel;
+		//System.out.println("Box2D coords: "+body.getPosition().x+" , "+body.getPosition().y+" Pixel coords: "+coords.x+" , "+coords.y);
 	}
 
 	/**
@@ -559,10 +560,15 @@ public class Agent extends SimulationObject implements Serializable {
 	protected void thrust(double strength) {
 		double x = strength * Math.cos(viewHeading * Math.PI / 180) * 400;
 		double y = strength * Math.sin(viewHeading * Math.PI / 180) * 400;
-		//setThrust(x, y);
-		Vec2 force  = new Vec2((float) x, (float) y);
-		Vec2 point = body.getWorldPoint(body.getWorldCenter());
-		body.applyLinearImpulse(force, point);
+
+		float box2Dx = (float) (x/Simulation.meterToPixel);
+		float box2Dy = (float) (y/Simulation.meterToPixel);
+		
+		if(body != null){
+			Vec2 force  = new Vec2(box2Dx,box2Dy);
+			Vec2 point = body.getWorldPoint(body.getWorldCenter());
+			body.applyLinearImpulse(force, point);
+		}
 	}
 
 	protected void changeViewHeading(double h) {
