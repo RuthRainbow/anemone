@@ -6,7 +6,6 @@ import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 
 import org.jbox2d.collision.shapes.EdgeShape;
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
@@ -41,29 +40,7 @@ public class Wall extends SimulationObject implements Serializable{
 		float startbox2Dy = (float) (start.y/Simulation.meterToPixel);
 		float endbox2Dx = (float) (end.x/Simulation.meterToPixel);
 		float endbox2Dy = (float) (end.y/Simulation.meterToPixel);
-		/*
-		double length = getLength(startbox2Dx,startbox2Dy,endbox2Dx,endbox2Dy);
-		double angle = Math.atan((endbox2Dy - startbox2Dy) / (endbox2Dx - startbox2Dx));
-		double x = startbox2Dx + (endbox2Dx - startbox2Dx) / 2.0f;
-		double y = startbox2Dy + (endbox2Dy - startbox2Dy) / 2.0f;
-		
-		if(length == 0) return;
-		
-		PolygonShape ps = new PolygonShape();
-	    ps.setAsBox((float) (length / 2.0f), 1.0f, new Vec2(0, 0), (float) angle);
-	         
-	    FixtureDef fd = new FixtureDef();
-	    fd.shape = ps;
-	    fd.density = 1.0f;
-	    fd.filter.categoryBits = (letsThrough == -1 ? Collision.TYPE_WALL : letsThrough);
-	 
-	    BodyDef bd = new BodyDef();
-	    bd.position = new Vec2((float) x, (float) y);
-	    bd.type = BodyType.STATIC;
-	 
-	    body = world.createBody(bd);
-	    body.createFixture(fd);*/
-		
+				
 		Vec2 point1 = new Vec2(startbox2Dx,startbox2Dy);
 		Vec2 point2 = new Vec2(endbox2Dx,endbox2Dy);
 
@@ -78,6 +55,7 @@ public class Wall extends SimulationObject implements Serializable{
 		 fd.shape = wall;
 		 fd.density = 1.0f;
 		 fd.filter.categoryBits = (letsThrough == -1 ? Collision.TYPE_WALL : letsThrough);
+		 fd.userData = this;
 		 body = world.createBody(bd);
 		 body.createFixture(fd);
 	}
@@ -113,6 +91,11 @@ public class Wall extends SimulationObject implements Serializable{
 		Point2D.Double end = new Point2D.Double(endbox2Dx,endbox2Dy);
 		return start.distance(end);
 	}
+	
+	public double getLength(){
+		return start.distance(end);
+	}
+	
 	
 	public int getWallType(){
 		return letsThrough;

@@ -876,6 +876,9 @@ public class Simulation extends PApplet {
 		for (Collision cc: collisions) { //check collisions to food
     		int type = cc.getType();
     		if(type == Collision.TYPE_FOOD) eatFood(cc);
+    		if(type == Collision.TYPE_WALL) {
+    			cc.getAgent().hitWall();
+    		}
 		}
 
 	}

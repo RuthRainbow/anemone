@@ -14,8 +14,13 @@ import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.jbox2d.callbacks.ContactImpulse;
+import org.jbox2d.callbacks.ContactListener;
+import org.jbox2d.collision.Manifold;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Fixture;
 import org.jbox2d.dynamics.World;
+import org.jbox2d.dynamics.contacts.Contact;
 
 import processing.core.PApplet;
 
@@ -68,6 +73,46 @@ public class Environment implements Serializable{
 		//JBox2D
 		Vec2 gravity = new Vec2(0.0f, 0.0f);
 		this.world = new World(gravity);
+		world.setContactListener(new ContactListener() {
+
+
+			@Override
+			public void beginContact(Contact contact) {
+				Fixture ob1 = contact.getFixtureA();
+				Fixture ob2 = contact.getFixtureB();
+				SimulationObject simOb1 = (SimulationObject) ob1.getUserData();
+				SimulationObject simOb2 = (SimulationObject) ob2.getUserData();
+				if(simOb1 instanceof Wall || simOb2 instanceof Wall){
+					if(simOb1 instanceof Agent){
+						((Agent) simOb1).hitWall();
+					} else if(simOb2 instanceof Agent){
+						((Agent) simOb2).hitWall();
+					}
+				}
+			}
+
+			@Override
+			public void endContact(Contact arg0) {
+				
+				
+			}
+
+			@Override
+			public void postSolve(Contact arg0, ContactImpulse arg1) {
+				
+				
+			}
+
+			@Override
+			public void preSolve(Contact arg0, Manifold arg1) {
+				
+				
+			}
+
+
+        });
+
+		
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -76,14 +121,6 @@ public class Environment implements Serializable{
 
 
     	for (Agent ag: getAllAgents()) { //for each agent, check for any collision
-
-    		for (Agent aa: getAllAgents()) { // check if collides to any other agent
-        		if(ag == aa) continue;
-
-        		if(ag.getCoordinates().distance(aa.getCoordinates()) <= 20){
-        			collisions.add(new Collision(ag, aa));
-        		}
-    		}
 
     		for (Food fd: food) { //check collisions to food
         		if(ag.getCoordinates().distance(fd.getCoordinates()) <= 12){
@@ -510,3 +547,4 @@ public class Environment implements Serializable{
 	}
 
 }
+

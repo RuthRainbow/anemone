@@ -122,7 +122,7 @@ public class Agent extends SimulationObject implements Serializable {
         }else{
         	 fd.filter.maskBits = Collision.TYPE_AGENT | Collision.TYPE_WALL | Collision.TYPE_WALL_ENEMY;
         }
-        
+        fd.userData = this;
         body = world.createBody(bd);
         body.createFixture(fd);
 	}
@@ -365,6 +365,7 @@ public class Agent extends SimulationObject implements Serializable {
 
 	protected void hitWall() {
 		numWallsHit++;
+		System.out.println("Numwalls hit is "+numWallsHit);
 	}
 
 	//Pre-calculates the coordinates of each neuron in the network
