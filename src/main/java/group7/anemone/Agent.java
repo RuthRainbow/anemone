@@ -365,7 +365,6 @@ public class Agent extends SimulationObject implements Serializable {
 
 	protected void hitWall() {
 		numWallsHit++;
-		System.out.println("Numwalls hit is "+numWallsHit);
 	}
 
 	//Pre-calculates the coordinates of each neuron in the network
