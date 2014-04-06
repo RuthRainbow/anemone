@@ -33,7 +33,7 @@ public abstract class God implements Serializable{
 	// The distances between all genes:
 	private ConcurrentHashMap<Pair<AgentFitness>, Double> distances;
 	
-	private List<Genome> children;
+	private List<Chromosome> children;
 
 	public God() {
 		this.species = new ArrayList<Species>();
@@ -46,24 +46,25 @@ public abstract class God implements Serializable{
 	}
 
 	// Method to breed the entire population without species.
-	protected HashMap<Genome, Integer> BreedPopulation(ArrayList<Agent> agents) {
+	protected HashMap<Chromosome, Integer> BreedPopulation(ArrayList<Agent> agents) {
 		newGenes = new ArrayList<Gene>();
 		ArrayList<AgentFitness> selectedAgents = Selection(agents);
-		ArrayList<Genome> children = GenerateChildren(selectedAgents);
-		HashMap<Genome, Integer> childrenSpecies = new HashMap<Genome, Integer>();
-		for (Genome child : children) {
+		ArrayList<Chromosome> children = GenerateChildren(selectedAgents);
+		HashMap<Chromosome, Integer> childrenSpecies = new HashMap<Chromosome, Integer>();
+		for (Chromosome child : children) {
 			childrenSpecies.put(child, 0);
 		}
 		return childrenSpecies;
 	}
 
-	public ArrayList<Genome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
+	public ArrayList<Chromosome> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
 		newGenes = new ArrayList<Gene>();
 		
 		if (species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
-			nextNodeMarker = agents.get(0).getStringRep().getNodes().size();
-			nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
+			//TODO count using headers?
+			//nextNodeMarker = agents.get(0).getStringRep().getNodes().size();
+			//nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
 		}
 		
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
@@ -98,10 +99,10 @@ public abstract class God implements Serializable{
 		propagateFitnesses(agents);
 		
 		shareFitnesses();
-		ArrayList<Genome> children = new ArrayList<Genome>();
+		ArrayList<Chromosome> children = new ArrayList<Chromosome>();
 		// Breed each species
 		for (Species specie : species) {
-			ArrayList<Genome> speciesChildren =
+			ArrayList<Chromosome> speciesChildren =
 					breedSpecies(specie, agents.size(), fitnessOnly);
 			children.addAll(speciesChildren);
 		}
@@ -136,7 +137,7 @@ public abstract class God implements Serializable{
 
 	// Sort given AgentFitness into a species or create a new one.
 	private void sortIntoSpecies(AgentFitness thisAgent) {
-		Genome genome = thisAgent.stringRep;
+		Chromosome chromo = thisAgent.stringRep;
 		boolean foundSpecies = false;
 		for (Species specie : species) {
 			AgentFitness rep = specie.rep;
@@ -145,30 +146,30 @@ public abstract class God implements Serializable{
 			if (dist < getCompatibilityThreshold()) {
 				foundSpecies = true;
 				specie.addMember(thisAgent);
-				genome.setSpecies(specie.id);
+				chromo.setSpecies(specie.id);
 				break;
 			}
 		}
 		if (!foundSpecies) {
 			int newSpeciesId = species.size();
 			species.add(new Species(thisAgent, newSpeciesId));
-			genome.setSpecies(newSpeciesId);
+			chromo.setSpecies(newSpeciesId);
 		}
 	}
 
-	private ArrayList<Genome> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
-		children = Collections.synchronizedList(new ArrayList<Genome>());
+	private ArrayList<Chromosome> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
+		children = Collections.synchronizedList(new ArrayList<Chromosome>());
 		if (specie.members.size() < 2) {
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
-				children.add(new Genome(
+				children.add(new Chromosome(
 								mutate(agent.stringRep).getGene(),
 								agent.stringRep.getNodes(),
 								agent.stringRep.getSpeciesId(),
 								agent.stringRep,
 								agent.stringRep));
 			}
-			return new ArrayList<Genome>(children);
+			return new ArrayList<Chromosome>(children);
 		}
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
@@ -204,7 +205,7 @@ public abstract class God implements Serializable{
 			children.add(children.get(i % children.size()));
 			i += 1;
 		}
-		return new ArrayList<Genome>(children);
+		return new ArrayList<Chromosome>(children);
 	}
 
 	// Share fitnesses over species by updating AgentFitness objects (see NEAT paper)
@@ -247,8 +248,20 @@ public abstract class God implements Serializable{
 	protected double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		Pair<AgentFitness> agentPair = new Pair<AgentFitness>(thisAgent, speciesRep);
 
-		Genome a = thisAgent.stringRep;
-		Genome b = speciesRep.stringRep;
+		Chromosome a = thisAgent.stringRep;
+		Chromosome b = speciesRep.stringRep;
+		double distance = 0;
+		// Loop through each genome in chromosome and total distance of matched ones?
+		for (Genome genome : a.getGenome()) {
+			//...
+		}
+		
+		// Save this distance so we don't need to recalculate:
+		distances.put(agentPair, distance);
+		return distance;
+	}
+	
+	private double CalcGenomeDistance(Genome a, Genome b) {
 		int numExcess = Math.abs(a.getLength() - b.getLength());
 		int numDisjoint = 0;
 		double weightDiff = 0.0;
@@ -263,12 +276,9 @@ public abstract class God implements Serializable{
 		}
 		double averageLength = (maxLength + minLength) / 2;
 		if (averageLength == 0) averageLength = 1; // Avoid divide by zero.
-		double distance = (getc1()*numExcess)/averageLength +
+		return (getc1()*numExcess)/averageLength +
 				(getc2()*numDisjoint)/averageLength +
 				(getc3()*weightDiff);
-		// Save this distance so we don't need to recalculate:
-		distances.put(agentPair, distance);
-		return distance;
 	}
 
 	protected ArrayList<AgentFitness> Selection(ArrayList<Agent> agents) {
@@ -299,10 +309,10 @@ public abstract class God implements Serializable{
 		return selectedAgents;
 	}
 
-	protected ArrayList<Genome> GenerateChildren(
+	protected ArrayList<Chromosome> GenerateChildren(
 			ArrayList<AgentFitness> selectedAgents) {
 		// Crossover - should select partner randomly (unless we are having genders).
-		ArrayList<Genome> children = new ArrayList<Genome>();
+		ArrayList<Chromosome> children = new ArrayList<Chromosome>();
 
 		while (selectedAgents.size() > 1) {
 			AgentFitness mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
@@ -318,27 +328,27 @@ public abstract class God implements Serializable{
 			//}
 		}
 
-		ArrayList<Genome> mutatedChildren = new ArrayList<Genome>();
+		ArrayList<Chromosome> mutatedChildren = new ArrayList<Chromosome>();
 		// Put every child through mutation process
-		for (Genome child : children) {
+		for (Chromosome child : children) {
 			mutatedChildren.add(mutate(child));
 		}
 
 		return mutatedChildren;
 	}
 
-	protected ArrayList<Genome> createOffspring(Agent mother, Agent father) {
+	protected ArrayList<Chromosome> createOffspring(Agent mother, Agent father) {
 		AgentFitness motherFitness = new AgentFitness(mother);
 		AgentFitness fatherFitness = new AgentFitness(father);
-		ArrayList<Genome> children = CreateOffspring(motherFitness, fatherFitness);
+		ArrayList<Chromosome> children = CreateOffspring(motherFitness, fatherFitness);
 		return children;
 	}
 
 	// Method to create offspring from 2 given parents.
-	protected ArrayList<Genome> CreateOffspring(
+	protected ArrayList<Chromosome> CreateOffspring(
 			AgentFitness mother, AgentFitness father) {
 		newGenes = new ArrayList<Gene>();
-		ArrayList<Genome> children = new ArrayList<Genome>();
+		ArrayList<Chromosome> children = new ArrayList<Chromosome>();
 
 		children.add(crossover(mother, father));
 		if (getRandom() < getTwinChance()) {
@@ -350,7 +360,7 @@ public abstract class God implements Serializable{
 		return children;
 	}
 
-	protected Genome crossover(AgentFitness mother, AgentFitness father) {
+	protected Chromosome crossover(AgentFitness mother, AgentFitness father) {
 		// If an agent has no edges, it is definitely not dominant.
 		if (mother.stringRep.getGene().length > 0 && mother.fitness > father.fitness) {
 			return crossover(mother.stringRep, father.stringRep);
@@ -362,7 +372,7 @@ public abstract class God implements Serializable{
 	// Method for crossover - return crossover method you want.
 	// The mother should always be the parent with the highest fitness.
 	// TODO may be a problem if they have equal fitness that one is always dominant
-	private Genome crossover(Genome dominant, Genome recessive) {
+	private Chromosome crossover(Chromosome dominant, Chromosome recessive) {
 		List<Gene> child = new ArrayList<Gene>();
 
 		// "Match" genes...
@@ -399,18 +409,18 @@ public abstract class God implements Serializable{
 		
 		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
 		nodeSet.addAll(recessive.getNodes());
-		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
+		return new Chromosome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
 	}
 
 	// Possibly mutate a child structurally or by changing edge weights.
-	private Genome mutate(Genome child) {
+	private Chromosome mutate(Chromosome child) {
 		child = structuralMutation(child);
 		parameterMutation(child);
 		return weightMutation(child);
 	}
 
 	// Mutate the parameters of a gene.
-	private void parameterMutation(Genome child) {
+	private void parameterMutation(Chromosome child) {
 		if (getRandom() < getParameterMutationChance()) {
 			NeatNode toMutate = child.getNodes().get(
 					(int) Math.floor(getRandom()*child.getNodes().size()));
@@ -434,16 +444,17 @@ public abstract class God implements Serializable{
 		pB = func.getParamB();
 		pC = func.getParamC();
 		
-		if (random < 0.3)
+		if (random < 0.3) {
 			func.setParamA(pA + delta*0.1);
-		else if (random < 0.6)
+		} else if (random < 0.6) {
 			func.setParamB(pB + delta*0.1);
-		else
+		} else {
 			func.setParamC(pC + delta*0.1);
+		}
 	}
 
 	// Mutate a genome structurally
-	private Genome structuralMutation(Genome child) {
+	private Chromosome structuralMutation(Chromosome child) {
 		List<Gene> edgeList = new ArrayList<Gene>();
 		int max = 0;
 		for (Gene gene : child.getGene()) {
@@ -470,7 +481,7 @@ public abstract class God implements Serializable{
 		for (int i = 0; i < edgeList.size(); i++) {
 			mutatedGeneArray[i] = edgeList.get(i);
 		}
-		return new Genome(
+		return new Chromosome(
 				mutatedGeneArray,
 				nodeList,
 				child.getSpeciesId(),
@@ -526,7 +537,7 @@ public abstract class God implements Serializable{
 	}
 
 	// Each weight is subject to random mutation.
-	private Genome weightMutation(Genome child) {
+	private Chromosome weightMutation(Chromosome child) {
 		for (Gene gene : child.getGene()) {
 			if (getRandom() < getWeightMutationChance()) {
 				if (getRandom() < getWeightIncreaseChance()) {
@@ -610,16 +621,16 @@ public abstract class God implements Serializable{
 	// This class is used so we can easily compare agents by fitness.
 	// Also used to be more lightweight than Agent class.
 	private class AgentFitness implements Comparable<AgentFitness> {
-		private Genome stringRep;
+		private Chromosome stringRep;
 		private double fitness;
 
 		public AgentFitness(Agent agent) {
-			this.stringRep = agent.getStringRep();
+			this.stringRep = agent.getChromosome();
 			this.fitness = agent.getFitness();
 		}
 		
-		public AgentFitness(Genome genome) {
-			this.stringRep = genome;
+		public AgentFitness(Chromosome chromo) {
+			this.stringRep = chromo;
 			this.fitness = 0;
 		}
 
@@ -641,9 +652,9 @@ public abstract class God implements Serializable{
 	
 	/* Calculate distances whilst the simulation is running. */
 	private class CalcAllDistances implements Runnable { 
-		private ArrayList<Genome> agents;
+		private ArrayList<Chromosome> agents;
 
-		public CalcAllDistances(ArrayList<Genome> allChildren) {
+		public CalcAllDistances(ArrayList<Chromosome> allChildren) {
 			this.agents = allChildren;
 		}
 
@@ -653,7 +664,7 @@ public abstract class God implements Serializable{
 				specie.clear();
 			}
 			// Put each agent given for reproduction into a species.
-			for (Genome agent : this.agents) {
+			for (Chromosome agent : this.agents) {
 				AgentFitness thisAgent = new AgentFitness(agent);
 				sortIntoSpecies(thisAgent);
 			}
