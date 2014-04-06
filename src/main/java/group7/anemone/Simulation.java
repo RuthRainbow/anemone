@@ -44,7 +44,7 @@ import processing.core.PFont;
 @SuppressWarnings("serial")
 public class Simulation extends PApplet {
 	Environment env = new Environment(this);
-	Agent selectedAgent = null;
+	static Agent selectedAgent = null;
 	PFont f = createFont("Arial",12,true);
 	int mouseMode=0;
 
@@ -443,10 +443,10 @@ public class Simulation extends PApplet {
 
 			lblX.setText("x = " + selectedAgent.getX());
 			lblY.setText("y = " + selectedAgent.getY());
-			lblHeading.setText("heading = " + Math.round(selectedAgent.getViewHeading()) + "°");
-			lblHealth.setText("fitness = " + selectedAgent.getFitness());
-			lblAngle.setText("angle = " + selectedAgent.getMovingAngle() + "°");
-			lblSpeed.setText("speed = " + Math.round(selectedAgent.getMovingSpeed() * 10) / 10.0 + "MPH x 10^6");
+			lblHeading.setText("heading = " + Math.round(selectedAgent.getViewHeading()*100.0)/100.0 + "°");
+			lblAngle.setText("moving angle = " + Math.round(selectedAgent.getMovingAngle()*100.0)/100.0 + "°");
+			lblHealth.setText("fitness = " + Math.round(selectedAgent.getFitness()*1000.0)/1000.0);
+			lblSpeed.setText("speed = " + Math.round((selectedAgent.getMovingSpeed()/1000)) + " m/s");
 			//lblX.setText("Selected agent see = "+selectedAgent.getCanSee().size()+ " "+tmp, 10, 70);
 			//lblX.setText("Selected agent see food (seg 0)= "+selectedAgent.viewingObjectOfTypeInSegment(0, SightInformation.TYPE_FOOD), 10, 85);
 		}
@@ -577,7 +577,6 @@ public class Simulation extends PApplet {
 		btnSelectThrust.setEventHandler(new UIAction(){
 			public void click(UIButton btn){
 				if(selectedAgent != null){
-					selectedAgent.thrust(2);
 				}
 			}
 		});
@@ -589,7 +588,8 @@ public class Simulation extends PApplet {
 		btnSelectKill.setEventHandler(new UIAction(){
 			public void click(UIButton btn){
 				if(selectedAgent != null){
-					env.removeAgent(selectedAgent);
+					//env.removeAgent(selectedAgent);
+					env.scheduledRemove.add(selectedAgent);
 					selectedAgent = null;
 				}
 			}
@@ -863,7 +863,8 @@ public class Simulation extends PApplet {
 
 		for (Agent ag: agents) {
 			if(ag.getHealth() <= 0){
-				env.removeAgent(ag);
+				//env.removeAgent(ag);
+				env.scheduledRemove.add(ag);
 				if(selectedAgent == ag) selectedAgent = null;
 			}
 		}
@@ -875,33 +876,15 @@ public class Simulation extends PApplet {
 
 		for (Collision cc: collisions) { //check collisions to food
     		int type = cc.getType();
-    		if(type == Collision.TYPE_FOOD) eatFood(cc);
-    		if(type == Collision.TYPE_WALL) {
-    			cc.getAgent().hitWall();
-    		}
+    		if(type == Collision.TYPE_FOOD) env.eatFood(cc);
+
 		}
 
 	}
 
-	private void eatFood(Collision cc) {
-		Object obj = cc.getCollidedObject();
 
-		if(obj instanceof Food){
-			Food fd = (Food) obj;
-			env.removeFood(fd);
-			cc.getAgent().ateFood();
-		} else {
-			Agent ag = (Agent) cc.getCollidedObject();
-			killAgent(ag);
-		}
-	}
 
-	private void killAgent(Agent ag){
-		env.removeAgent(ag);
-		if(selectedAgent == ag){
-			selectedAgent = null;
-		}
-	}
+
 
 	private Agent getClickedAgent(ArrayList<Agent> agents, int mx, int my){
 		Agent agent_clicked = null;

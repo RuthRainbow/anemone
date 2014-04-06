@@ -125,6 +125,7 @@ public class Agent extends SimulationObject implements Serializable {
         fd.userData = this;
         body = world.createBody(bd);
         body.createFixture(fd);
+        
 	}
 
 	/**
@@ -299,6 +300,8 @@ public class Agent extends SimulationObject implements Serializable {
 		coords.x = body.getPosition().x*Simulation.meterToPixel;
 		coords.y = body.getPosition().y*Simulation.meterToPixel;
 		//System.out.println("Box2D coords: "+body.getPosition().x+" , "+body.getPosition().y+" Pixel coords: "+coords.x+" , "+coords.y);
+		speed.x = body.m_linearVelocity.x;
+		speed.y = body.m_linearVelocity.y;
 	}
 
 	/**

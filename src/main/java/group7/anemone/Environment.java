@@ -38,6 +38,7 @@ public class Environment implements Serializable{
 	private ArrayList<Wall> wall;
 	private ArrayList<Seaweed> seaweed;
 	private static ArrayList<Point2D.Double> foodPos;
+	public ArrayList<Agent> scheduledRemove;
 
 	private ArrayList<Collision> collisions;
 
@@ -69,6 +70,7 @@ public class Environment implements Serializable{
 		this.seaweed = new ArrayList<Seaweed>();
 		this.foodPos = new ArrayList<Point2D.Double>();
 		this.agentNumSegments = Agent.configNumSegments;
+		this.scheduledRemove = new ArrayList<Agent>();
 		
 		//JBox2D
 		Vec2 gravity = new Vec2(0.0f, 0.0f);
@@ -78,6 +80,18 @@ public class Environment implements Serializable{
 
 			@Override
 			public void beginContact(Contact contact) {
+
+
+			}
+
+			@Override
+			public void endContact(Contact arg0) {
+				
+				
+			}
+
+			@Override
+			public void postSolve(Contact contact, ContactImpulse arg1) {
 				Fixture ob1 = contact.getFixtureA();
 				Fixture ob2 = contact.getFixtureB();
 				SimulationObject simOb1 = (SimulationObject) ob1.getUserData();
@@ -89,17 +103,22 @@ public class Environment implements Serializable{
 						((Agent) simOb2).hitWall();
 					}
 				}
-			}
-
-			@Override
-			public void endContact(Contact arg0) {
-				
-				
-			}
-
-			@Override
-			public void postSolve(Contact arg0, ContactImpulse arg1) {
-				
+				boolean obisAgent1 = (simOb1 instanceof Agent) && !(simOb1 instanceof Enemy);
+				boolean obisAgent2 = (simOb2 instanceof Agent) && !(simOb2 instanceof Enemy);
+				boolean obisEnemy1 = (simOb1 instanceof Agent) && (simOb1 instanceof Enemy);
+				boolean obisEnemy2 = (simOb2 instanceof Agent) && (simOb2 instanceof Enemy);
+				if(obisEnemy1 && obisAgent2){
+					Collision cc = new Collision((Agent) simOb1,simOb2);
+					eatFood(cc);
+					//world.destroyBody(ob2.getBody());
+					scheduledRemove.add((Agent) simOb2);
+				} 
+				if(obisAgent1 && obisEnemy2){
+					Collision cc = new Collision((Agent) simOb2,simOb1);
+					eatFood(cc);
+					//world.destroyBody(ob1.getBody());
+					scheduledRemove.add((Agent) simOb1);
+				}
 				
 			}
 
@@ -285,6 +304,10 @@ public class Environment implements Serializable{
 
     protected void updateAllAgents(){
     	world.step(1.0f / (30.0f*Simulation.meterToPixel*Simulation.meterToPixel), 6, 3);
+    	for(int i=0;i<scheduledRemove.size();i++){
+    		removeAgent(scheduledRemove.get(i));
+    	}
+    	scheduledRemove.clear();
     	
     	for (Agent fish: fishes) { //drawing the ikkle fishes
     		fish.update();
@@ -546,5 +569,25 @@ public class Environment implements Serializable{
 		return seaweed.size();
 	}
 
+	public void eatFood(Collision cc) {
+		Object obj = cc.getCollidedObject();
+
+		if(obj instanceof Food){
+			Food fd = (Food) obj;
+			removeFood(fd);
+			cc.getAgent().ateFood();
+		} else {
+			Agent ag = (Agent) cc.getCollidedObject();
+			killAgent(ag);
+		}
+	}
+	
+	private void killAgent(Agent ag){
+		//removeAgent(ag);
+		scheduledRemove.add(ag);
+		if(Simulation.selectedAgent == ag){
+			Simulation.selectedAgent = null;
+		}
+	}
 }
 
