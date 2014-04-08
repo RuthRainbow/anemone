@@ -1,11 +1,6 @@
 package group7.anemone.Genetics;
 
 import group7.anemone.CPPN.CPPNFunction;
-import group7.anemone.CPPN.CPPNGaussFunction;
-import group7.anemone.CPPN.CPPNParabolaFunction;
-import group7.anemone.CPPN.CPPNSigmoidFunction;
-import group7.anemone.CPPN.CPPNSinFunction;
-import group7.anemone.CPPN.CPPNSumFunction;
 import java.util.Random;
 
 public class NeatNode {
@@ -13,7 +8,7 @@ public class NeatNode {
 	int id;
 
 	public NeatNode(int id, CPPNFunction cppnFunction) {
-		this.cppnFunction = cppnFunction.copyInstance();
+		this.cppnFunction = new CPPNFunction(cppnFunction);
 		this.id = id;
 	}
 	
@@ -35,23 +30,7 @@ public class NeatNode {
 		pC = rand.nextDouble();
 		
 		/* Create a random CPPN function. */
-		switch(randInt) {
-			case 0:
-				func = new CPPNGaussFunction(pA, pB, pC);
-				break;
-			case 1:
-				func = new CPPNParabolaFunction(pA, pB, pC);
-				break;
-			case 2:
-				func = new CPPNSigmoidFunction(pA, pB, pC);
-				break;
-			case 3:
-				func = new CPPNSinFunction(pA, pB, pC);
-				break;
-			default:
-				func = new CPPNSumFunction(pA, pB, pC);
-				break;
-		}
+		func = new CPPNFunction(pA, pB, pC, randInt);
 		
 		/* Create NeatNode. */
 		neatNode = new NeatNode(id, func);

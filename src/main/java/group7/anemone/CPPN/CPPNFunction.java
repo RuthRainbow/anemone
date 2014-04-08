@@ -1,9 +1,16 @@
 package group7.anemone.CPPN;
 
-public abstract class CPPNFunction {
+public class CPPNFunction {
 	protected double paramA, paramB, paramC;
 	
 	private int type;
+	
+	public CPPNFunction(CPPNFunction cppnFunction) {
+		this.paramA = cppnFunction.paramA;
+		this.paramB = cppnFunction.paramB;
+		this.paramC = cppnFunction.paramC;
+		this.type = cppnFunction.type;
+	}
 	
 	public CPPNFunction(double paramA, double paramB, double paramC, int newType) {
 		this.paramA = paramA;	
@@ -12,8 +19,6 @@ public abstract class CPPNFunction {
 		
 		this.type = newType;
 	}
-	
-	public abstract CPPNFunction copyInstance();
 
 	public double calculate(double input) {
 		double result=0;
