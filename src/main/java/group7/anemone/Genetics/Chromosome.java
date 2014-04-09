@@ -7,14 +7,11 @@ public class Chromosome {
 	private int speciesId;
 	private Parents parents;
 	private ArrayList<Genome> genome;
-	private ArrayList<Header> headers;
 	
-	public Chromosome(ArrayList<Header> header,
-					  ArrayList<Genome> genome,
+	public Chromosome(ArrayList<Genome> genome,
 					  int speciesId,
 					  Genome mother,
 					  Genome father) {
-		this.headers = header;
 		this.genome = genome;
 		this.speciesId = speciesId;
 		this.parents = new Parents(mother, father);
@@ -22,10 +19,6 @@ public class Chromosome {
 	
 	public void setSpecies(int speciesId) {
 		this.speciesId = speciesId;
-	}
-	
-	public ArrayList<Header> getHeaders() {
-		return this.headers;
 	}
 	
 	public ArrayList<Genome> getGenome() {
