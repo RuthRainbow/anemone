@@ -22,9 +22,8 @@ public abstract class God implements Serializable{
 	private double averageFitness;
 	//private int noImprovementCount = 0;
 
-	// ************* THIS DEPENDS ON MINIMAL NETWORK ****************
-	private int nextEdgeMarker;
-	private int nextNodeMarker;
+	private ArrayList<Integer> nextEdgeMarkers;
+	private ArrayList<Integer> nextNodeMarkers;
 	private ArrayList<Gene> newGenes;
 
 	// The ordered list of all species, with each represented by a member from the
@@ -62,9 +61,14 @@ public abstract class God implements Serializable{
 		
 		if (species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
-			//TODO count using headers?
-			//nextNodeMarker = agents.get(0).getStringRep().getNodes().size();
-			//nextEdgeMarker = agents.get(0).getStringRep().getGene().length;
+			//Calc. next historical markers for every Genome:
+			Chromosome chromo = agents.get(0).getChromosome();
+			int genomeSize = chromo.getGenomeSize();
+			for (int i = 0; i < genomeSize; i++) {
+				Genome thisGenome = chromo.getXthGenome(i);
+				nextNodeMarkers.add(thisGenome.getNodes().size());
+				nextEdgeMarkers.add(thisGenome.getGene().length);
+			}
 		}
 		
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
@@ -163,8 +167,7 @@ public abstract class God implements Serializable{
 			for (AgentFitness agent : specie.members) {
 				children.add(agent.stringRep);
 				children.add(new Chromosome(
-								mutate(agent.stringRep).getGene(),
-								agent.stringRep.getNodes(),
+								mutate(agent.stringRep).getGenome(),
 								agent.stringRep.getSpeciesId(),
 								agent.stringRep,
 								agent.stringRep));
@@ -248,12 +251,12 @@ public abstract class God implements Serializable{
 	protected double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		Pair<AgentFitness> agentPair = new Pair<AgentFitness>(thisAgent, speciesRep);
 
-		Chromosome a = thisAgent.stringRep;
-		Chromosome b = speciesRep.stringRep;
+		Chromosome agent = thisAgent.stringRep;
+		Chromosome rep = speciesRep.stringRep;
 		double distance = 0;
 		// Loop through each genome in chromosome and total distance of matched ones?
-		for (Genome genome : a.getGenome()) {
-			//...
+		for (int i = 0; i < agent.getGenomeSize(); i++) {
+			distance += calcGenomeDistance(agent.getGenome().get(i), rep.getGenome().get(i));
 		}
 		
 		// Save this distance so we don't need to recalculate:
@@ -261,7 +264,7 @@ public abstract class God implements Serializable{
 		return distance;
 	}
 	
-	private double CalcGenomeDistance(Genome a, Genome b) {
+	private double calcGenomeDistance(Genome a, Genome b) {
 		int numExcess = Math.abs(a.getLength() - b.getLength());
 		int numDisjoint = 0;
 		double weightDiff = 0.0;
@@ -362,17 +365,29 @@ public abstract class God implements Serializable{
 
 	protected Chromosome crossover(AgentFitness mother, AgentFitness father) {
 		// If an agent has no edges, it is definitely not dominant.
-		if (mother.stringRep.getGene().length > 0 && mother.fitness > father.fitness) {
+		if (mother.fitness > father.fitness) {
 			return crossover(mother.stringRep, father.stringRep);
 		} else {
 			return crossover(father.stringRep, mother.stringRep);
 		}
 	}
+	
+	protected Chromosome crossover(Chromosome dominant, Chromosome recessive) {
+		ArrayList<Genome> domGenome = dominant.getGenome();
+		ArrayList<Genome> recGenome = recessive.getGenome();
+		ArrayList<Genome> newGenome = new ArrayList<Genome>();
+		
+		for (int i = 0; i < domGenome.size(); i++) {
+			newGenome.add(crossover(domGenome.get(i), recGenome.get(i)));
+		}
+		
+		return new Chromosome(newGenome, -1, dominant, recessive);
+	}
 
 	// Method for crossover - return crossover method you want.
 	// The mother should always be the parent with the highest fitness.
 	// TODO may be a problem if they have equal fitness that one is always dominant
-	private Chromosome crossover(Chromosome dominant, Chromosome recessive) {
+	private Genome crossover(Genome dominant, Genome recessive) {
 		List<Gene> child = new ArrayList<Gene>();
 
 		// "Match" genes...
@@ -409,18 +424,29 @@ public abstract class God implements Serializable{
 		
 		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
 		nodeSet.addAll(recessive.getNodes());
-		return new Chromosome(childGene, new ArrayList<NeatNode>(nodeSet), -1, dominant, recessive);
+		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet));
+	}
+	
+	private Chromosome mutate(Chromosome child) {
+		ArrayList<Genome> mutatedGenomes = new ArrayList<Genome>();
+		for (int i = 0; i < child.getGenomeSize(); i++) {
+			mutatedGenomes.add(mutate(child.getXthGenome(i), i));
+		}
+		return new Chromosome(mutatedGenomes,
+							  child.getSpeciesId(),
+							  child.getMother(),
+							  child.getFather());
 	}
 
 	// Possibly mutate a child structurally or by changing edge weights.
-	private Chromosome mutate(Chromosome child) {
-		child = structuralMutation(child);
+	private Genome mutate(Genome child, int i) {
+		child = structuralMutation(child, i);
 		parameterMutation(child);
 		return weightMutation(child);
 	}
 
 	// Mutate the parameters of a gene.
-	private void parameterMutation(Chromosome child) {
+	private void parameterMutation(Genome child) {
 		if (getRandom() < getParameterMutationChance()) {
 			NeatNode toMutate = child.getNodes().get(
 					(int) Math.floor(getRandom()*child.getNodes().size()));
@@ -454,7 +480,7 @@ public abstract class God implements Serializable{
 	}
 
 	// Mutate a genome structurally
-	private Chromosome structuralMutation(Chromosome child) {
+	private Genome structuralMutation(Genome child, int index) {
 		List<Gene> edgeList = new ArrayList<Gene>();
 		int max = 0;
 		for (Gene gene : child.getGene()) {
@@ -469,28 +495,23 @@ public abstract class God implements Serializable{
 		if (getRandom() < getStructuralMutationChance()) {
 			// Add a new connection between any two nodes
 			if (getRandom() < getAddConnectionChance()) {
-				addConnection(nodeList, edgeList);
+				addConnection(nodeList, edgeList, index);
 			}
 
 			// Add a new node in the middle of an old connection/edge.
 			if (getRandom() < getAddNodeChance() && edgeList.size() > 0) {
-				max = addNodeBetweenEdges(edgeList, max, nodeList);
+				max = addNodeBetweenEdges(edgeList, max, nodeList, index);
 			}
 		}
 		Gene[] mutatedGeneArray = new Gene[edgeList.size()];
 		for (int i = 0; i < edgeList.size(); i++) {
 			mutatedGeneArray[i] = edgeList.get(i);
 		}
-		return new Chromosome(
-				mutatedGeneArray,
-				nodeList,
-				child.getSpeciesId(),
-				child.getMother(),
-				child.getFather());
+		return new Genome(mutatedGeneArray, nodeList);
 	}
 	
 	// Add a connection between two existing nodes
-	private void addConnection(List<NeatNode> nodeList, List<Gene> edgeList) {
+	private void addConnection(List<NeatNode> nodeList, List<Gene> edgeList, int index) {
 		// Connect two arbitrary nodes - we don't care if they are already connected.
 		// (Similar to growing multiple synapses).
 		NeatNode left = nodeList.get(
@@ -498,7 +519,7 @@ public abstract class God implements Serializable{
 		NeatNode right = nodeList.get(
 				(int) Math.floor(getRandom()*nodeList.size()));
 		Gene newGene = new Gene(
-				nextEdgeMarker, left, right, 30.0, 1);
+				nextEdgeMarkers.get(index), left, right, 30.0, 1);
 		// If this mutated gene has already been created this gen, don't create another
 		for (Gene gene : newGenes) {
 			if (newGene.equals(gene)) {
@@ -506,14 +527,16 @@ public abstract class God implements Serializable{
 			}
 		}
 		if (!newGenes.contains(newGene)) {
-			nextEdgeMarker++;
+			int nextMarker = nextEdgeMarkers.get(index) + 1;
+			nextEdgeMarkers.set(index, nextMarker);
 			newGenes.add(newGene);
 			edgeList.add(newGene);
 		}
 	}
 
 	// Add a node between two pre-existing edges
-	private int addNodeBetweenEdges(List<Gene> edgeList, int max, List<NeatNode> nodeList) {
+	private int addNodeBetweenEdges(
+			List<Gene> edgeList, int max, List<NeatNode> nodeList, int index) {
 		// Choose a gene to split: (ASSUMED IT DOESN'T MATTER IF ALREADY AN EDGE BETWEEN)
 		Gene toMutate = edgeList.get(
 				(int) Math.floor(getRandom() * edgeList.size()));
@@ -521,23 +544,31 @@ public abstract class God implements Serializable{
 		// Make a new intermediate node TODO can do this more randomly than default params.
 		// Increment max to keep track of max node id.
 		max += 1;
-		NeatNode newNode = NeatNode.createRandomNeatNode(nextNodeMarker);
+		NeatNode newNode = NeatNode.createRandomNeatNode(nextNodeMarkers.get(index));
 		nodeList.add(newNode);
-		nextNodeMarker++;
+		int nextMarker = nextNodeMarkers.get(index) + 1;
+		nextNodeMarkers.set(index, nextMarker);
 		
-		Gene newLeftGene = new Gene(nextEdgeMarker, toMutate.getIn(), newNode, 30.0, 1);
-		nextEdgeMarker++;
+		Gene newLeftGene = new Gene(
+				nextEdgeMarkers.get(index), toMutate.getIn(), newNode, 30.0, 1);
+		nextMarker = nextEdgeMarkers.get(index) + 1;
+		nextEdgeMarkers.set(index, nextMarker);
 		edgeList.add(newLeftGene);
 		// Weight should be the same as the current Gene between this two nodes:
 		Gene newRightGene = new Gene(
-				nextEdgeMarker, newNode, toMutate.getOut(), toMutate.getWeight(), 1);
-		nextEdgeMarker++;
+				nextEdgeMarkers.get(index),
+				newNode,
+				toMutate.getOut(),
+				toMutate.getWeight(),
+				1);
+		nextMarker = nextEdgeMarkers.get(index) + 1;
+		nextEdgeMarkers.set(index, nextMarker);
 		edgeList.add(newRightGene);
 		return max;
 	}
 
 	// Each weight is subject to random mutation.
-	private Chromosome weightMutation(Chromosome child) {
+	private Genome weightMutation(Genome child) {
 		for (Gene gene : child.getGene()) {
 			if (getRandom() < getWeightMutationChance()) {
 				if (getRandom() < getWeightIncreaseChance()) {

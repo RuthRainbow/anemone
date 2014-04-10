@@ -10,8 +10,8 @@ public class Chromosome {
 	
 	public Chromosome(ArrayList<Genome> genome,
 					  int speciesId,
-					  Genome mother,
-					  Genome father) {
+					  Chromosome mother,
+					  Chromosome father) {
 		this.genome = genome;
 		this.speciesId = speciesId;
 		this.parents = new Parents(mother, father);
@@ -29,23 +29,27 @@ public class Chromosome {
 		return this.genome.size();
 	}
 
+	public Genome getXthGenome(int i) {
+		return this.genome.get(i);
+	}
+
 	public int getSpeciesId() {
 		return this.speciesId;
 	}
 	
-	public Genome getMother() {
+	public Chromosome getMother() {
 		return this.parents.mother;
 	}
 	
-	public Genome getFather() {
+	public Chromosome getFather() {
 		return this.parents.father;
 	}
 	
 	private class Parents {
-		private Genome mother;
-		private Genome father;
+		private final Chromosome mother;
+		private final Chromosome father;
 		
-		public Parents(Genome mother, Genome father) {
+		public Parents(Chromosome mother, Chromosome father) {
 			this.mother = mother;
 			this.father = father;
 		}
