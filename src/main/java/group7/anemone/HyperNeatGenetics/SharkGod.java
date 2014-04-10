@@ -1,7 +1,8 @@
-package group7.anemone.Genetics;
+package group7.anemone.HyperNeatGenetics;
 
-public class FishGod extends God {
-	private static final long serialVersionUID = -6489249838484577534L;
+
+public class SharkGod extends HyperNeatGod{
+	private static final long serialVersionUID = 1226846014955083162L;
 	
 	/** Start of possible graphical vars **/
 	// Mutation chances:
@@ -16,10 +17,10 @@ public class FishGod extends God {
 	public double parameterIncreaseChance = 0.5f;
 
 	// Crossover chances:
-	public double twinChance = 0.05f;
+	public double twinChance = 0.01f;
 	public double matchedGeneChance = 0.5f;
 
-	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
+	public double offspringProportion = 0.1f; // ALSO COMPLETELY ARBITRARY
 	// Parameters for use in difference calculation (can be tweaked).
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
@@ -29,8 +30,8 @@ public class FishGod extends God {
 
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 1.3;
-	public double minReproduced = 5;
+	public double compatibilityThreshold = 2;
+	public double minReproduced = 3;
 	/** End of possible graphical vars **/
 	
 	/* Getter methods for variables that may differ between God types.*/

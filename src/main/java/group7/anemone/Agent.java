@@ -4,10 +4,10 @@ package group7.anemone;
 import group7.anemone.CPPN.CPPNNode;
 import group7.anemone.CPPN.CPPNSimulation;
 import group7.anemone.CPPN.CPPNFactory;
-import group7.anemone.Genetics.Chromosome;
-import group7.anemone.Genetics.Gene;
-import group7.anemone.Genetics.Genome;
-import group7.anemone.Genetics.NeatNode;
+import group7.anemone.Genetics.GeneticObject;
+import group7.anemone.Genetics.GenomeEdge;
+import group7.anemone.HyperNeatGenetics.HyperNeatGenome;
+import group7.anemone.HyperNeatGenetics.HyperNeatNode;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuron;
@@ -21,7 +21,6 @@ import group7.anemone.MNetwork.MVec3f;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -48,7 +47,7 @@ public class Agent extends SimulationObject implements Serializable {
 	//private final Genome genome;
 	
 	/*In hyper neat, this is the list of genomes to create the CPPN Networks to create the agents brain*/
-	private final Chromosome chromosome;
+	private final GeneticObject geneticObject;
 
 	/* Brain state. */
 	private MNetwork mnetwork;
@@ -84,12 +83,12 @@ public class Agent extends SimulationObject implements Serializable {
 	public Agent(Point2D.Double coords,
 			     double viewHeading,
 			     PApplet p,
-			     Chromosome chromo) {
+			     GeneticObject geneticObject) {
 		super(coords);
 		this.parent = p;
 		this.viewHeading = viewHeading;
 		thrust(1);
-		this.chromosome = chromo;
+		this.geneticObject = geneticObject;
 		//createNeuralNet();
 		createBrain();
 		calculateNetworkPositions();
@@ -126,7 +125,7 @@ public class Agent extends SimulationObject implements Serializable {
 		int layerSize=0;
 		
 		//First, loop through every chromosome that the agent contains
-		for (int g=0; g<chromosome.getGenomeSize(); g++) {
+		for (int g=0; g < geneticObject.getSize(); g++) {
 			//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
 			
 			/**
@@ -252,12 +251,12 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 	}
 
-	public ArrayList<Genome> getStringRep() {
-		return this.chromosome.getGenome();
+	public Object getGeneticRep() {
+		return this.geneticObject.getGeneticRep();
 	}
 	
-	public Chromosome getChromosome() {
-		return this.chromosome;
+	public GeneticObject getGeneticObject() {
+		return this.geneticObject;
 	}
 
 	public double getFitness() {
@@ -671,7 +670,7 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	public int getSpeciesId() {
-		return chromosome.getSpeciesId();
+		return geneticObject.getSpeciesId();
 	}
 
 	public int getAge() {

@@ -1,21 +1,23 @@
 package group7.anemone.Genetics;
 
+import group7.anemone.HyperNeatGenetics.HyperNeatNode;
+
 import java.io.Serializable;
 
 /*
  * Class to hold genes, which make up the representation of the neural network. Each is roughly an
  * edge/connector within the network, with a single input and output.
  */
-public class Gene implements Serializable{
+public class GenomeEdge implements Serializable{
 
 	private static final long serialVersionUID = -27536139896199028L;
 	private int historicalMarker;
-	private NeatNode in;
-	private NeatNode out;
+	private HyperNeatNode in;
+	private HyperNeatNode out;
 	private double weight;
 	private int delay;
 
-	public Gene(int hist, NeatNode in, NeatNode out, double weight, int delay) {
+	public GenomeEdge(int hist, HyperNeatNode in, HyperNeatNode out, double weight, int delay) {
 		this.historicalMarker = hist;
 		this.in = in;
 		this.out = out;
@@ -32,11 +34,11 @@ public class Gene implements Serializable{
 				" DELAY: " + delay;
 	}
 	
-	public NeatNode getIn() {
+	public HyperNeatNode getIn() {
 		return this.in;
 	}
 	
-	public NeatNode getOut() {
+	public HyperNeatNode getOut() {
 		return this.out;
 	}
 

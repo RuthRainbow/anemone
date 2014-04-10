@@ -1,23 +1,24 @@
-package group7.anemone.Genetics;
+package group7.anemone.HyperNeatGenetics;
 
 import group7.anemone.CPPN.CPPNFunction;
+import group7.anemone.Genetics.GenomeNode;
+
 import java.util.Random;
 
-public class NeatNode {
+public class HyperNeatNode extends GenomeNode {
 	CPPNFunction cppnFunction;
-	int id;
 
-	public NeatNode(int id, CPPNFunction cppnFunction) {
+	public HyperNeatNode(int id, CPPNFunction cppnFunction) {
+		super(id);
 		this.cppnFunction = new CPPNFunction(cppnFunction);
-		this.id = id;
 	}
 	
-	public static NeatNode createRandomNeatNode(int id) {
+	public static HyperNeatNode createRandomNeatNode(int id) {
 		Random rand;
 		int randInt;
 		double pA, pB, pC;
 		CPPNFunction func;
-		NeatNode neatNode;
+		HyperNeatNode neatNode;
 		
 		rand = new Random();
 		
@@ -33,21 +34,12 @@ public class NeatNode {
 		func = new CPPNFunction(pA, pB, pC, randInt);
 		
 		/* Create NeatNode. */
-		neatNode = new NeatNode(id, func);
+		neatNode = new HyperNeatNode(id, func);
 		
 		return neatNode;
 	}
 	
 	public CPPNFunction getCPPNFunction() {
 		return cppnFunction;
-	}
-	
-	public int getId() {
-		return id;
-	}
-	
-	@Override
-	public String toString() {
-		return ""+this.id;
 	}
 }

@@ -1,10 +1,10 @@
-import group7.anemone.Genetics.FishGod;
-import group7.anemone.Genetics.God;
+import group7.anemone.HyperNeatGenetics.FishGod;
+import group7.anemone.HyperNeatGenetics.HyperNeatGod;
 import junit.framework.TestCase;
 
 public class GodTest extends TestCase {
 
-	static God god = new FishGod();
+	static HyperNeatGod god = new FishGod();
 
 	// EXTREMELY LEGIT AND 100% COVERAGE TESTS.
 	public static void testSetup() {}

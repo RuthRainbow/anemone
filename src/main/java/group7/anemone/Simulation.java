@@ -1,6 +1,6 @@
 package group7.anemone;
 
-import group7.anemone.Genetics.God;
+import group7.anemone.HyperNeatGenetics.HyperNeatGod;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MSynapse;
@@ -63,7 +63,7 @@ public class Simulation extends PApplet {
 	UIVision agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed, lblSimTPS;
 	UIDropdown<Types> themeDrop;
-	UIDropdown<God> godDrop;
+	UIDropdown<HyperNeatGod> godDrop;
 	UIColorWheel themeColorWheel;
 	UITheme theme;
 	UIProgress progHealth;
