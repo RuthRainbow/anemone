@@ -23,6 +23,8 @@ public class FishGod extends God {
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
+	public double c4 = 0.5f; //weighting of excess Genomes
+	public double c5 = 0.5; //weight of disjoint Genomes
 
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
@@ -69,6 +71,12 @@ public class FishGod extends God {
 	}
 	public double getc3() {
 		return this.c3;
+	}
+	public double getc4() {
+		return this.c4;
+	}
+	public double getc5() {
+		return this.c5;
 	}
 	public double getCompatibilityThreshold() {
 		return this.compatibilityThreshold;

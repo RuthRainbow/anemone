@@ -14,15 +14,21 @@ public class Genome implements Serializable {
 	// Genes represent edges
 	private final Gene[] genome;
 	private final ArrayList<NeatNode> nodes;
+	private int historicalMarker;
 	
-	public Genome(Gene[] genome, Collection<NeatNode> nodes) {
+	public Genome(Gene[] genome, Collection<NeatNode> nodes, int historicalMarker) {
 		this.genome = genome;
 		this.nodes = new ArrayList<NeatNode>(nodes);
+		this.historicalMarker = historicalMarker;
 	}
 	
 	@Override
 	public String toString() {
 		return "Genome: " + Arrays.toString(this.genome);
+	}
+	
+	public int getHistoricalMarker() {
+		return this.historicalMarker;
 	}
 	
 	public int getLength() {

@@ -483,7 +483,8 @@ public class Environment implements Serializable{
 			}
 		}
 		
-		return new Genome(edges.toArray(new Gene[0]), nodes);
+		// Last parameter is historical marker - this needs to be unique per genome!!!
+		return new Genome(edges.toArray(new Gene[0]), nodes, 0);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){

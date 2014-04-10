@@ -24,6 +24,7 @@ public abstract class God implements Serializable{
 
 	private ArrayList<Integer> nextEdgeMarkers;
 	private ArrayList<Integer> nextNodeMarkers;
+	private int nextGenomeMarker;
 	private ArrayList<Gene> newGenes;
 
 	// The ordered list of all species, with each represented by a member from the
@@ -69,6 +70,7 @@ public abstract class God implements Serializable{
 				nextNodeMarkers.add(thisGenome.getNodes().size());
 				nextEdgeMarkers.add(thisGenome.getGene().length);
 			}
+			nextGenomeMarker = genomeSize;
 		}
 		
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
@@ -253,15 +255,30 @@ public abstract class God implements Serializable{
 
 		Chromosome agent = thisAgent.stringRep;
 		Chromosome rep = speciesRep.stringRep;
-		double distance = 0;
-		// Loop through each genome in chromosome and total distance of matched ones?
-		for (int i = 0; i < agent.getGenomeSize(); i++) {
-			distance += calcGenomeDistance(agent.getGenome().get(i), rep.getGenome().get(i));
+		double intraGenomeDistance = 0.0;
+		int minLength = Math.min(agent.getGenomeSize(), rep.getGenomeSize());
+		int maxLength = Math.max(agent.getGenomeSize(), rep.getGenomeSize());
+		int numDisjoint = 0;
+		int numExcess = maxLength - minLength;
+		// Loop through each genome in chromosome and total distance of matched ones.
+		for (int i = 0; i < minLength; i++) {
+			Genome a = agent.getXthGenome(i);
+			Genome b = rep.getXthGenome(i);
+			if (a.getHistoricalMarker() != b.getHistoricalMarker()) {
+				numDisjoint++;
+			} else {
+				intraGenomeDistance += calcGenomeDistance(a, b);
+			}
 		}
+		double averageLength = (maxLength + minLength) / 2;
+		if (averageLength == 0) averageLength = 1; // Avoid divide by zero.
+		double totalDistance = intraGenomeDistance +
+							   (getc4()*numExcess/averageLength) +
+							   (getc5()*numDisjoint/averageLength);
 		
 		// Save this distance so we don't need to recalculate:
-		distances.put(agentPair, distance);
-		return distance;
+		distances.put(agentPair, totalDistance);
+		return totalDistance;
 	}
 	
 	private double calcGenomeDistance(Genome a, Genome b) {
@@ -373,12 +390,31 @@ public abstract class God implements Serializable{
 	}
 	
 	protected Chromosome crossover(Chromosome dominant, Chromosome recessive) {
-		ArrayList<Genome> domGenome = dominant.getGenome();
-		ArrayList<Genome> recGenome = recessive.getGenome();
 		ArrayList<Genome> newGenome = new ArrayList<Genome>();
 		
-		for (int i = 0; i < domGenome.size(); i++) {
-			newGenome.add(crossover(domGenome.get(i), recGenome.get(i)));
+		// Match Genomes by historical marker
+		Map<Genome, Genome> matches = new HashMap<Genome, Genome>();
+		int marker = 0;
+		for (int i = 0; i < dominant.getGenomeSize(); i++) {
+			for (int j = marker; j < recessive.getGenomeSize(); j++) {
+				if (dominant.getXthGenome(i).getHistoricalMarker() == 
+					recessive.getXthGenome(i).getHistoricalMarker() ) {
+					marker = j + 1;
+					matches.put(dominant.getXthGenome(i), recessive.getXthGenome(j));
+				}
+			}
+		}
+		
+		// Perform crossover, taking disjoint Genomes from dominant Chromosome
+		for (int i = 0; i < dominant.getGenomeSize(); i++) {
+			Genome genome = dominant.getXthGenome(i);
+			if (matches.containsKey(genome)) {
+				// Perform crossover with the matched Genome
+				newGenome.add(crossover(genome, matches.get(genome)));
+			} else { //Else it didn't match, take it from the dominant
+				// TODO may break CPPN structure!!!!!!
+				newGenome.add(genome);
+			}
 		}
 		
 		return new Chromosome(newGenome, -1, dominant, recessive);
@@ -424,7 +460,10 @@ public abstract class God implements Serializable{
 		
 		Set<NeatNode> nodeSet = new HashSet<NeatNode>(dominant.getNodes());
 		nodeSet.addAll(recessive.getNodes());
-		return new Genome(childGene, new ArrayList<NeatNode>(nodeSet));
+		Genome newGenome = new Genome(
+				childGene, new ArrayList<NeatNode>(nodeSet), nextGenomeMarker);
+		nextGenomeMarker++;
+		return newGenome;
 	}
 	
 	private Chromosome mutate(Chromosome child) {
@@ -507,7 +546,9 @@ public abstract class God implements Serializable{
 		for (int i = 0; i < edgeList.size(); i++) {
 			mutatedGeneArray[i] = edgeList.get(i);
 		}
-		return new Genome(mutatedGeneArray, nodeList);
+		Genome newGenome = new Genome(mutatedGeneArray, nodeList, nextGenomeMarker);
+		nextGenomeMarker++;
+		return newGenome;
 	}
 	
 	// Add a connection between two existing nodes
@@ -747,6 +788,8 @@ public abstract class God implements Serializable{
 	public abstract double getc1();
 	public abstract double getc2();
 	public abstract double getc3();
+	public abstract double getc4();
+	public abstract double getc5();
 	public abstract double getCompatibilityThreshold();
 	public abstract double getMinReproduced();
 }
