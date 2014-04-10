@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -43,6 +44,11 @@ public abstract class God implements Serializable{
 	// This is inside it's own method to make unittesting easier.
 	public double getRandom() {
 		return Math.random();
+	}
+	
+	public int getRandom(int i) {
+		Random rand = new Random();
+		return rand.nextInt(i);
 	}
 
 	// Method to breed the entire population without species.
@@ -471,6 +477,16 @@ public abstract class God implements Serializable{
 		for (int i = 0; i < child.getGenomeSize(); i++) {
 			mutatedGenomes.add(mutate(child.getXthGenome(i), i));
 		}
+		
+		if (getRandom() < getAddGenomeChance()) {
+			int index = getRandom(child.getGenomeSize());
+			Genome toCopy = child.getXthGenome(index);
+			// TODO when adding edge CPPN, also add param. CPPN
+			Genome newGenome = new Genome(toCopy.getGene(), toCopy.getNodes(), nextGenomeMarker);
+			nextGenomeMarker++;
+			mutatedGenomes.add(index, newGenome);
+		}
+		
 		return new Chromosome(mutatedGenomes,
 							  child.getSpeciesId(),
 							  child.getMother(),
@@ -778,6 +794,7 @@ public abstract class God implements Serializable{
 	public abstract double getStructuralMutationChance();
 	public abstract double getAddConnectionChance();
 	public abstract double getAddNodeChance();
+	public abstract double getAddGenomeChance();
 	public abstract double getWeightMutationChance();
 	public abstract double getWeightIncreaseChance();
 	public abstract double getParameterMutationChance();
