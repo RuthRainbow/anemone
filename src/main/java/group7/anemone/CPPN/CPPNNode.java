@@ -37,13 +37,19 @@ public class CPPNNode {
 		totalInputs=0;
 	}
 	
+	public CPPNNode(boolean isInputNode, boolean isMutatable,
+		CPPNFunction function)
+	{
+		this(isInputNode, isMutatable, null, null, function);
+	}
+	
 	/**
 	 * Retrieves the presynaptic nodes in this node's adjacency list.
 	 * 
 	 * @return ArrayList of presynaptic nodes
 	 */
 	public ArrayList<CPPNNode> getPreNodes() {
-		return new ArrayList<CPPNNode>(preNodes);
+		return preNodes;
 	}
 	
 	/**
@@ -52,7 +58,7 @@ public class CPPNNode {
 	 * @return ArrayList of postsynaptic nodes
 	 */
 	public ArrayList<CPPNNode> getPostNodes() {
-		return new ArrayList<CPPNNode>(postNodes);
+		return postNodes;
 	}
 	
 	/**

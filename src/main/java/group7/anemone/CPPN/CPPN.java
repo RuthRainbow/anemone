@@ -16,7 +16,7 @@ public class CPPN {
 	 * @param nodes collection of CPPN nodes
 	 * @param edges collection of CPPN edges
 	 */
-	CPPN(Collection<CPPNNode> nodes) {
+	public CPPN(Collection<CPPNNode> nodes) {
 		this.nodes = new ArrayList<CPPNNode>(nodes);
 	}
 	
