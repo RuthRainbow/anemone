@@ -14,13 +14,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-
-
-
 
 import processing.core.PApplet;
 
@@ -290,7 +283,7 @@ public class Environment implements Serializable{
         		if (fitnessOnly) {
         			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
         			for (int i = 0; i < sharks.size(); i++) {
-        				Chromosome chromo = sharks.get(i).getChromosome();
+        				Chromosome chromo = (Chromosome) sharks.get(i).getGeneticObject();
     	    			if (nextSharks.contains(chromo)) {
     	    				nextSharks.remove(chromo);
     	    				nextAgents.add(sharks.get(i));
@@ -315,7 +308,7 @@ public class Environment implements Serializable{
     			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
 
     			for (int i = 0; i < fishes.size(); i++) {
-    				Chromosome chromo = fishes.get(i).getChromosome();
+    				Chromosome chromo = (Chromosome) fishes.get(i).getGeneticObject();
 	    			if (nextFish.contains(chromo)) {
 	    				nextFish.remove(chromo);
 	    				nextAgents.add(fishes.get(i));
@@ -444,7 +437,7 @@ public class Environment implements Serializable{
 		int numMotorNeurons = 3;
 		int visualFieldSize = Agent.configNumSegments;
 		int numVisualNeurons = visualFieldSize*3;
-		ArrayList<GenomeEdge> edges = new ArrayList<GenomeEdge>();
+		ArrayList<GenomeEdge<HyperNeatNode>> edges = new ArrayList<GenomeEdge<HyperNeatNode>>();
 		ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>();
 		ArrayList<HyperNeatNode> motorNodes = new ArrayList<HyperNeatNode>();
 		ArrayList<HyperNeatNode> visualNodes = new ArrayList<HyperNeatNode>();
@@ -482,14 +475,15 @@ public class Environment implements Serializable{
 				for (HyperNeatNode mn : motorNodes) {
 					int preID = vn.getId();
 					int postID = mn.getId();
-					GenomeEdge g = new GenomeEdge(total++, vn, mn, 30.0, 1);
+					GenomeEdge<HyperNeatNode> g = new GenomeEdge<HyperNeatNode>(total++, vn, mn, 30.0, 1);
 					edges.add(g);
 				}
 			}
 		}
-		
+
+		//TODO do we need another 0 GenomeEdge in here for some reason?
 		// Last parameter is historical marker - this needs to be unique per genome!!!
-		return new HyperNeatGenome(edges.toArray(new GenomeEdge[0]), nodes, 0);
+		return new HyperNeatGenome(edges, nodes, 0);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){

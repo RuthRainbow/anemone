@@ -110,14 +110,14 @@ public class Simulation extends PApplet {
 		for(int i = 0; i < numStartingAgents; i++){
 			//int x = (int) Math.floor(env.width*0.2 + Math.random() * env.width*0.2);
 			//int y = (int) Math.floor( env.width*0.2+ Math.random() * env.height*0.2);
-			int x = (int) Math.floor( Math.random() * env.width*0.2);
-			int y = (int) Math.floor( Math.random() * env.height*0.2);
+			int x = (int) Math.floor( Math.random() * Environment.width*0.2);
+			int y = (int) Math.floor( Math.random() * Environment.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
 		for (int i = 0; i < numStartingSharks; i++) {
-			int x = (int) Math.floor(env.width*0.8 + Math.random() * env.width*0.2);
-			int y = (int) Math.floor(env.height*0.8 + Math.random() * env.height*0.2);
+			int x = (int) Math.floor(Environment.width*0.8 + Math.random() * Environment.width*0.2);
+			int y = (int) Math.floor(Environment.height*0.8 + Math.random() * Environment.height*0.2);
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addShark(new Point2D.Double(x, y), heading);
 		}
@@ -125,26 +125,26 @@ public class Simulation extends PApplet {
 		selectedAgent = env.getAllAgents().get(0);
 
 		for(int i = 0; i < 10; i++){
-			int x = (int) Math.floor(Math.random() * env.width);
-			int y = (int) Math.floor(env.height*0.2 + Math.random() * env.height*0.6);
+			int x = (int) Math.floor(Math.random() * Environment.width);
+			int y = (int) Math.floor(Environment.height*0.2 + Math.random() * Environment.height*0.6);
 			env.addSeaweed(new Point2D.Double(x, y));
 		}
 
 		//Top wall
-		env.addWall(new Point2D.Double(0,0), new Point2D.Double(env.width, 0));
+		env.addWall(new Point2D.Double(0,0), new Point2D.Double(Environment.width, 0));
 		//Right wall
-		env.addWall(new Point2D.Double(env.width,0), new Point2D.Double(env.width, env.height));
+		env.addWall(new Point2D.Double(Environment.width,0), new Point2D.Double(Environment.width, Environment.height));
 		//Bottom wall
-		env.addWall(new Point2D.Double(0, env.height), new Point2D.Double(env.width, env.height));
+		env.addWall(new Point2D.Double(0, Environment.height), new Point2D.Double(Environment.width, Environment.height));
 		//Left wall
-		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, env.height));
+		env.addWall(new Point2D.Double(0,0), new Point2D.Double(0, Environment.height));
 		
 		//Spawn area walls
-		env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
-		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2), Collision.TYPE_AGENT);
+		env.addWall(new Point2D.Double(Environment.width*0.2,0),new Point2D.Double(Environment.width*0.2,Environment.height*0.2), Collision.TYPE_AGENT);
+		env.addWall(new Point2D.Double(0,Environment.height*0.2),new Point2D.Double(Environment.width*0.2,Environment.height*0.2), Collision.TYPE_AGENT);
 		
-		env.addWall(new Point2D.Double(env.width*0.8,env.height),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
-		env.addWall(new Point2D.Double(env.width,env.height*0.8),new Point2D.Double(env.width*0.8,env.height*0.8), Collision.TYPE_ENEMY);
+		env.addWall(new Point2D.Double(Environment.width*0.8,Environment.height),new Point2D.Double(Environment.width*0.8,Environment.height*0.8), Collision.TYPE_ENEMY);
+		env.addWall(new Point2D.Double(Environment.width,Environment.height*0.8),new Point2D.Double(Environment.width*0.8,Environment.height*0.8), Collision.TYPE_ENEMY);
 		
 		/*env.addWall(new Point2D.Double(env.width*0.2,0),new Point2D.Double(env.width*0.2,env.height*0.2));
 		env.addWall(new Point2D.Double(0,env.height*0.2),new Point2D.Double(env.width*0.2,env.height*0.2));
@@ -177,7 +177,7 @@ public class Simulation extends PApplet {
 		//coordinates of the mouse within the simulation environment
 		int simMouseX = (int) ((float) (mouseX - offsetX) / zoomLevel);
 		int simMouseY = (int) ((float) (mouseY - offsetY) / zoomLevel);
-		if(!Utilities.isPointInBox(simMouseX, simMouseY, 0, 0, env.width, env.height)) return;
+		if(!Utilities.isPointInBox(simMouseX, simMouseY, 0, 0, Environment.width, Environment.height)) return;
 		
 		if(PLACE_MODE){
 			PLACE_MODE = false;
@@ -305,7 +305,7 @@ public class Simulation extends PApplet {
 			env.updateCollisions(); //update the environment with the new collisions
 			env.updateAgentsSight(); //update all the agents to everything they can see in their field of view
 			handleCollisions();
-			env.killOutsideAgents(env.width, env.height);
+			env.killOutsideAgents(Environment.width, Environment.height);
 			if (!env.fitnessOnly) {
 				checkDeaths();
 			}
@@ -437,8 +437,8 @@ public class Simulation extends PApplet {
 				progHealth.setValue(selectedAgent.getHealth());
 				progHealth.setColor((int) (255 - 255 * selectedAgent.getHealth()), (int) (255 * selectedAgent.getHealth()), 0);
 			}
-			sliderX.setValue((double) selectedAgent.getX() / env.width);
-			sliderY.setValue((double) selectedAgent.getY() / env.height);
+			sliderX.setValue((double) selectedAgent.getX() / Environment.width);
+			sliderY.setValue((double) selectedAgent.getY() / Environment.height);
 
 			lblX.setText("x = " + selectedAgent.getX());
 			lblY.setText("y = " + selectedAgent.getY());
@@ -542,7 +542,7 @@ public class Simulation extends PApplet {
 		sliderX.setEventHandler(new UIAction(){
 			public void change(UISlider slider){
 				if(selectedAgent != null){
-					selectedAgent.setX((int) (slider.getValue() * env.width));
+					selectedAgent.setX((int) (slider.getValue() * Environment.width));
 				}
 			}
 		});
@@ -552,7 +552,7 @@ public class Simulation extends PApplet {
 		sliderY.setEventHandler(new UIAction(){
 			public void change(UISlider slider){
 				if(selectedAgent != null){
-					selectedAgent.setY((int) (slider.getValue() * env.height));
+					selectedAgent.setY((int) (slider.getValue() * Environment.height));
 				}
 			}
 		});
@@ -910,10 +910,10 @@ public class Simulation extends PApplet {
 		Wall wl = (Wall) cc.getCollidedObject();
 		double distanceToWall = wl.getLine().ptLineDist(ag.coords);
 		double thrustIncrease = (10-distanceToWall)/50 + 1;
-		boolean leftWall = wl.getLine().ptLineDist(new Point2D.Double(0,env.height/2)) == 0;
-		boolean rightWall = wl.getLine().ptLineDist(new Point2D.Double(env.width,env.height/2)) == 0;
-		boolean topWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,0)) == 0;
-		boolean bottomWall = wl.getLine().ptLineDist(new Point2D.Double(env.width/2,env.height)) == 0;
+		boolean leftWall = wl.getLine().ptLineDist(new Point2D.Double(0,Environment.height/2)) == 0;
+		boolean rightWall = wl.getLine().ptLineDist(new Point2D.Double(Environment.width,Environment.height/2)) == 0;
+		boolean topWall = wl.getLine().ptLineDist(new Point2D.Double(Environment.width/2,0)) == 0;
+		boolean bottomWall = wl.getLine().ptLineDist(new Point2D.Double(Environment.width/2,Environment.height)) == 0;
 		
 		//TODO make this work for artbitary walls
 		if(leftWall) ag.coords.x += (10 - distanceToWall);

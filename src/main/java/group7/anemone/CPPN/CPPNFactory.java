@@ -64,7 +64,7 @@ public class CPPNFactory {
 			MNeuronParams tempParam = new MNeuronParams(a,b,c,d,tau,ap,am,true,spatialCoords);
 
 			//Create a default state for the neuron to exist when created
-			MNeuronState tempState = mFactory.createInitialRSNeuronState();
+			MNeuronState tempState = MFactory.createInitialRSNeuronState();
 			
 			//Create the node, and then pass it into the arraylist at the end
 			neurons.add(new MNeuron(tempParam,tempState,neuronID));
@@ -102,10 +102,10 @@ public class CPPNFactory {
 	
 	public void addInputNode() {
 		//Create a default set of parameters for the brain.
-		MNeuronParams tempParam = mFactory.createRSNeuronParams();
+		MNeuronParams tempParam = MFactory.createRSNeuronParams();
 		
 		//Create a default state for the neuron to exist when created
-		MNeuronState tempState = mFactory.createInitialRSNeuronState();
+		MNeuronState tempState = MFactory.createInitialRSNeuronState();
 		
 		//Adds an input node to the start of the neuron list.
 		neurons.add(new MNeuron(tempParam, tempState, neuronID));
@@ -114,10 +114,10 @@ public class CPPNFactory {
 	
 	public void addOutputNode() {
 		//Create a default set of parameters for the brain.
-		MNeuronParams tempParam = mFactory.createRSNeuronParams();
+		MNeuronParams tempParam = MFactory.createRSNeuronParams();
 		
 		//Create a default state for the neuron to exist when created
-		MNeuronState tempState = mFactory.createInitialRSNeuronState();
+		MNeuronState tempState = MFactory.createInitialRSNeuronState();
 		
 		//Create the node, and then pass it into the arraylist at the end
 		neurons.add(new MNeuron(tempParam,tempState,neuronID));

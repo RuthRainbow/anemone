@@ -5,16 +5,9 @@ import group7.anemone.CPPN.CPPNNode;
 import group7.anemone.CPPN.CPPNSimulation;
 import group7.anemone.CPPN.CPPNFactory;
 import group7.anemone.Genetics.GeneticObject;
-import group7.anemone.Genetics.GenomeEdge;
-import group7.anemone.HyperNeatGenetics.HyperNeatGenome;
-import group7.anemone.HyperNeatGenetics.HyperNeatNode;
 import group7.anemone.MNetwork.MNetwork;
-import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuron;
-import group7.anemone.MNetwork.MNeuronParams;
-import group7.anemone.MNetwork.MNeuronState;
 import group7.anemone.MNetwork.MSimulation;
-import group7.anemone.MNetwork.MSimulationConfig;
 import group7.anemone.MNetwork.MSynapse;
 import group7.anemone.MNetwork.MVec3f;
 

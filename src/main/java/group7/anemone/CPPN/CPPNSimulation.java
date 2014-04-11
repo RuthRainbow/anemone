@@ -1,7 +1,5 @@
 package group7.anemone.CPPN;
 
-import group7.anemone.MNetwork.MNeuronParams;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;

@@ -3,14 +3,12 @@ package group7.anemone;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-public class Seaweed extends SimulationObject{
+public class Seaweed extends SimulationObject {
+	private static final long serialVersionUID = -3660831447912025931L;
 	private ArrayList<Branch> branches;
-	private Environment env;
 	
 	Seaweed(Point2D.Double coords, Environment env){
 		super(coords);
-		
-		this.env = env;
 		
 		this.branches = new ArrayList<Branch>();
 		branches.add(new Branch(coords,new double[]{-1*Math.random(),-1*Math.random()},coords, env));
