@@ -53,8 +53,8 @@ public class MNeuronParams implements Serializable {
 	 * @param spatialCoords
 	 */
 	public MNeuronParams(double a, double b, double c, double d, double tau,
-		double ap, double am, boolean isExcitatory,
-		MVec3f spatialCoords)
+			double ap, double am, boolean isExcitatory,
+			MVec3f spatialCoords)
 	{
 		this.a = a;
 		this.b = b;
@@ -65,5 +65,23 @@ public class MNeuronParams implements Serializable {
 		this.am = am;
 		this.isExcitatory = isExcitatory;
 		this.spatialCoords = new MVec3f(spatialCoords);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof MNeuronParams)) {
+			return false;
+		} else {
+			MNeuronParams otherparams = (MNeuronParams) other;
+			if (!this.spatialCoords.equals(otherparams.spatialCoords)) return false;
+			if (this.a != otherparams.a) return false;
+			if (this.b != otherparams.b) return false;
+			if (this.am != otherparams.am) return false;
+			if (this.ap != otherparams.ap) return false;
+			if (this.c != otherparams.c) return false;
+			if (this.d != otherparams.d) return false;
+			if (this.tau != otherparams.tau) return false;
+			return true;
+		}
 	}
 }
