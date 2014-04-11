@@ -15,8 +15,9 @@ public class Enemy extends Agent implements Serializable {
 	public Enemy(Double coords,
 			     double viewHeading,
 			     PApplet p,
-			     GeneticObject geneticObject) {
-		super(coords, viewHeading, p, geneticObject);	
+			     GeneticObject geneticObject,
+			     boolean neat) {
+		super(coords, viewHeading, p, geneticObject, neat);	
 	}
 	
 	public double getFOV() {

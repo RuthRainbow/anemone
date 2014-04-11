@@ -416,18 +416,18 @@ public class Environment implements Serializable{
 
 	protected void spawnFish(
 			Point2D.Double coords, int heading, GeneticObject genObj) {
-		fishes.add(new Agent(coords, heading, parent, genObj));
+		fishes.add(new Agent(coords, heading, parent, genObj, Neat));
 	}
 
 	protected void spawnShark(
 			Point2D.Double coords, int heading, GeneticObject genObj) {
-		sharks.add(new Enemy(coords, heading, parent, genObj));
+		sharks.add(new Enemy(coords, heading, parent, genObj, Neat));
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
 		Chromosome chromo = getDefaultChromosome();
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		fishes.add(new Agent(coords, heading, parent, chromo));
+		fishes.add(new Agent(coords, heading, parent, chromo, Neat));
 	}
 	
 	private Chromosome getDefaultChromosome() {
@@ -514,7 +514,7 @@ public class Environment implements Serializable{
 			genObj = getDefaultGenome();
 		}
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		sharks.add(new Enemy(coords, heading, parent, genObj));
+		sharks.add(new Enemy(coords, heading, parent, genObj, Neat));
 	}
 
 	void addFood(Point2D.Double coords) {
