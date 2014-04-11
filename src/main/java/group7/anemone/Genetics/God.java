@@ -23,7 +23,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	protected ArrayList<Species> species;
 	// The distances between all genes:
 	protected ConcurrentHashMap<Pair<AgentFitness>, Double> distances;
-	protected ArrayList<GenomeEdge> newGenes;
+	
 	protected List<t> children;
 	
 	// This is inside it's own method to make unittesting easier.
@@ -32,13 +32,22 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	}
 	
 	public God() {
+		initialiseDataStructures();
+	}
+	
+	public God(double compatabilityThreshold) {
+		setCompatabilityThreshold(compatabilityThreshold);
+		initialiseDataStructures();
+	}
+	
+	protected void initialiseDataStructures() {
 		this.species = new ArrayList<Species>();
 		this.distances = new ConcurrentHashMap<Pair<AgentFitness>, Double>();
 	}
 	
 	// Method to breed the entire population without species.
 	protected HashMap<t, Integer> BreedPopulation(ArrayList<Agent> agents) {
-		newGenes = new ArrayList<GenomeEdge>();
+		resetNewGenes();
 		ArrayList<AgentFitness> selectedAgents = Selection(agents);
 		ArrayList<t> children = GenerateChildren(selectedAgents);
 		HashMap<t, Integer> childrenSpecies = new HashMap<t, Integer>();
@@ -48,9 +57,11 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		return childrenSpecies;
 	}
 	
+	protected abstract void resetNewGenes();
+	
 	@SuppressWarnings("unchecked")
 	public ArrayList<t> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
-		this.newGenes = new ArrayList<GenomeEdge>();
+		resetNewGenes();
 		
 		if (this.species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
@@ -156,6 +167,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		}
 	}
 	
+
 	@SuppressWarnings("unchecked")
 	private ArrayList<t> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
 		children = Collections.synchronizedList(new ArrayList<t>());
@@ -172,10 +184,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
-		// Make sure all species enter the while loop, by duplicating if only species member.
-		if (specie.members.size() == 1) {
-			specie.addMember(specie.members.get(i));
-		}
+
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			final AgentFitness mother = specie.members.get(i);
 			final AgentFitness father = specie.members.get(i+1);
@@ -205,21 +214,21 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	protected void shareFitnesses() {
 		// For every species...
 		for (Species specie : species) {
-			// For every member of this species...
+			// Calculate the average fitness
+			double fitnessTotal = 0;
+			for (AgentFitness member : specie.members) {
+				fitnessTotal += sharingFunction(member.fitness);	
+			}
 			for (AgentFitness agent : specie.members) {
-				double fitnessTotal = 0;
-				// average fitness over all other members of this species...
-				for (AgentFitness member : specie.members) {
-					fitnessTotal += member.fitness;
-				}
 				// Check for 0 to avoid NaNs
-				agent.fitness = fitnessTotal == 0 ? 0 : (agent.fitness / Math.abs(fitnessTotal));
+				agent.fitness = fitnessTotal == 0 ? 0 :
+					(agent.fitness / Math.abs(fitnessTotal));
 			}
 		}
 	}
 
 	protected int sharingFunction(double distance) {
-		if (distance > getCompatibilityThreshold()) {
+		if (distance > getSharingThreshold()) {
 			return 0; // Seems pointless. Why not only compare with dudes from the same species,
 			// if all others will be made 0?!
 		} else {
@@ -264,7 +273,6 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		}*/
 		return selectedAgents;
 	}
-	
 
 	protected ArrayList<t> GenerateChildren(
 			ArrayList<AgentFitness> selectedAgents) {
@@ -276,13 +284,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 			selectedAgents.remove(mother);
 			AgentFitness father = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
 			selectedAgents.remove(father);
-			/*
-			// If mother and father are the same, just mutate.
-			if (mother.getStringRep().equals(father.getStringRep())) {
-				children.add(mutate(mother.getStringRep()));
-			} else {*/
 			children.add(crossover(father, mother));
-			//}
 		}
 
 		ArrayList<t> mutatedChildren = new ArrayList<t>();
@@ -297,11 +299,12 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	protected ArrayList<t> createOffspring(Agent mother, Agent father) {
 		AgentFitness motherFitness = new AgentFitness(mother);
 		AgentFitness fatherFitness = new AgentFitness(father);
-		ArrayList<t> children = CreateOffspring(motherFitness, fatherFitness);
+		resetNewGenes();
+		ArrayList<t> children = createOffspring(motherFitness, fatherFitness);
 		return children;
 	}
 	
-	protected abstract ArrayList<t> CreateOffspring(
+	protected abstract ArrayList<t> createOffspring(
 			AgentFitness mother, AgentFitness father);
 	
 	protected t crossover(AgentFitness mother, AgentFitness father) {
@@ -322,7 +325,8 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	protected abstract t mutate(t child);
 	
 	// Class used to hold an entire species.
-	public class Species {
+	public class Species implements Serializable {
+		private static final long serialVersionUID = 4956311681035778159L;
 		private ArrayList<AgentFitness> members;
 		public AgentFitness rep;
 		private int id;
@@ -344,11 +348,11 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 			members.add(rep);
 		}
 	}
-	
 
 	// This class is used so we can easily compare agents by fitness.
 	// Also used to be more lightweight than Agent class.
-	public class AgentFitness implements Comparable<AgentFitness> {
+	public class AgentFitness implements Comparable<AgentFitness>, Serializable {
+		private static final long serialVersionUID = -8299234421823218363L;
 		public GeneticObject geneticRep;
 		public double fitness;
 
@@ -420,11 +424,11 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		}
 
 		public void run() {
-			children.addAll(CreateOffspring(mother, father));
+			children.addAll(createOffspring(mother, father));
 		}
 	}
 	
-	/* Calculate distances whilst the simulation is running. */
+	/* Sort into species whilst the simulation is running. */
 	private class CalcAllDistances implements Runnable { 
 		private ArrayList<t> agents;
 
@@ -466,7 +470,6 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	public abstract double getStructuralMutationChance();
 	public abstract double getAddConnectionChance();
 	public abstract double getAddNodeChance();
-	public abstract double getAddGenomeChance();
 	public abstract double getWeightMutationChance();
 	public abstract double getWeightIncreaseChance();
 	public abstract double getParameterMutationChance();
@@ -477,8 +480,9 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	public abstract double getc1();
 	public abstract double getc2();
 	public abstract double getc3();
-	public abstract double getc4();
-	public abstract double getc5();
 	public abstract double getCompatibilityThreshold();
+	public abstract double getSharingThreshold();
 	public abstract double getMinReproduced();
+	
+	public abstract void setCompatabilityThreshold(double compatabilityThreshold);
 }

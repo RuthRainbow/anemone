@@ -2,11 +2,11 @@ package group7.anemone;
 
 import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.HyperNeatGenetics.Chromosome;
-import group7.anemone.HyperNeatGenetics.FishGod;
+import group7.anemone.HyperNeatGenetics.HyperNeatFishGod;
 import group7.anemone.HyperNeatGenetics.HyperNeatGenome;
 import group7.anemone.HyperNeatGenetics.HyperNeatGod;
 import group7.anemone.HyperNeatGenetics.HyperNeatNode;
-import group7.anemone.HyperNeatGenetics.SharkGod;
+import group7.anemone.HyperNeatGenetics.HyperNeatSharkGod;
 import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
@@ -53,8 +53,8 @@ public class Environment implements Serializable{
 	
 	public Environment(PApplet p){
 		this.parent = p;
-		this.fishGod = new FishGod();
-		this.sharkGod = new SharkGod();
+		this.fishGod = new HyperNeatFishGod();
+		this.sharkGod = new HyperNeatSharkGod();
 		this.fishes = new ArrayList<Agent>();
 		this.sharks = new ArrayList<Agent>();
 		Environment.food = new ArrayList<Food>();

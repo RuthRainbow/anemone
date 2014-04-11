@@ -1,15 +1,13 @@
-package group7.anemone.HyperNeatGenetics;
+package group7.anemone.NeatGenetics;
 
+public class NeatSharkGod extends NeatGod {
+	private static final long serialVersionUID = 1226846014955083162L;
 
-public class FishGod extends HyperNeatGod {
-	private static final long serialVersionUID = -6489249838484577534L;
-	
-	/** Start of possible graphical vars **/
+	/** Start of graphical vars **/
 	// Mutation chances:
 	public double structuralMutationChance = 0.9f;
 	public double addConnectionChance = 0.8f;
 	public double addNodeChance = 0.8f;
-	public double addGenomeChance = 0.05f;
 	public double weightMutationChance = 0.8f;
 	// (chance of decrease is 1 - the chance of increase)
 	public double weightIncreaseChance = 0.5f;
@@ -17,23 +15,24 @@ public class FishGod extends HyperNeatGod {
 	public double parameterIncreaseChance = 0.5f;
 
 	// Crossover chances:
-	public double twinChance = 0.05f;
+	public double twinChance = 0.01f;
 	public double matchedGeneChance = 0.5f;
 
-	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
+	public double offspringProportion = 0.1f; // ALSO COMPLETELY ARBITRARY
 	// Parameters for use in difference calculation (can be tweaked).
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
-	public double c4 = 0.5f; //weighting of excess Genomes
-	public double c5 = 0.5; //weight of disjoint Genomes
 
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 1.3;
-	public double minReproduced = 5;
-	/** End of possible graphical vars **/
-	
+	public double compatibilityThreshold = 2;
+	public double minReproduced = 3;
+
+	// Threshold over which an agent's fitness isn't counted in the sharing function.
+	public double sharingThreshold = 20;
+	/** End of graphical vars **/
+
 	/* Getter methods for variables that may differ between God types.*/
 	public double getStructuralMutationChance() {
 		return this.structuralMutationChance;
@@ -43,9 +42,6 @@ public class FishGod extends HyperNeatGod {
 	}
 	public double getAddNodeChance() {
 		return this.addNodeChance;
-	}
-	public double getAddGenomeChance() {
-		return this.addGenomeChance;
 	}
 	public double getWeightMutationChance() {
 		return this.weightMutationChance;
@@ -77,16 +73,21 @@ public class FishGod extends HyperNeatGod {
 	public double getc3() {
 		return this.c3;
 	}
-	public double getc4() {
-		return this.c4;
-	}
-	public double getc5() {
-		return this.c5;
-	}
 	public double getCompatibilityThreshold() {
 		return this.compatibilityThreshold;
 	}
 	public double getMinReproduced() {
 		return this.minReproduced;
+	}
+	public String toString(){
+		return "Shark God";
+	}
+	@Override
+	public void setCompatabilityThreshold(double threshold) {
+		this.compatibilityThreshold = threshold;
+	}
+	@Override
+	public double getSharingThreshold() {
+		return this.sharingThreshold;
 	}
 }

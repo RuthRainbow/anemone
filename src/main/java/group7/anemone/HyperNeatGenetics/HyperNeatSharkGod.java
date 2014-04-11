@@ -1,7 +1,7 @@
 package group7.anemone.HyperNeatGenetics;
 
 
-public class SharkGod extends HyperNeatGod{
+public class HyperNeatSharkGod extends HyperNeatGod{
 	private static final long serialVersionUID = 1226846014955083162L;
 	
 	/** Start of possible graphical vars **/
@@ -32,6 +32,9 @@ public class SharkGod extends HyperNeatGod{
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 2;
 	public double minReproduced = 3;
+
+	// Threshold over which an agent's fitness isn't counted in the sharing function.
+	public double sharingThreshold = 20;
 	/** End of possible graphical vars **/
 	
 	/* Getter methods for variables that may differ between God types.*/
@@ -88,5 +91,11 @@ public class SharkGod extends HyperNeatGod{
 	}
 	public double getMinReproduced() {
 		return this.minReproduced;
+	}
+	public double getSharingThreshold() {
+		return this.sharingThreshold;
+	}
+	public void setCompatabilityThreshold(double compatabilityThreshold) {
+		this.compatibilityThreshold = compatabilityThreshold;
 	}
 }
