@@ -1,12 +1,18 @@
 package group7.anemone;
 
+import group7.anemone.Genetics.GeneticObject;
 import group7.anemone.Genetics.GenomeEdge;
+import group7.anemone.Genetics.God;
 import group7.anemone.HyperNeatGenetics.Chromosome;
 import group7.anemone.HyperNeatGenetics.HyperNeatFishGod;
 import group7.anemone.HyperNeatGenetics.HyperNeatGenome;
 import group7.anemone.HyperNeatGenetics.HyperNeatGod;
 import group7.anemone.HyperNeatGenetics.HyperNeatNode;
 import group7.anemone.HyperNeatGenetics.HyperNeatSharkGod;
+import group7.anemone.NeatGenetics.NeatFishGod;
+import group7.anemone.NeatGenetics.NeatGenome;
+import group7.anemone.NeatGenetics.NeatNode;
+import group7.anemone.NeatGenetics.NeatSharkGod;
 import group7.anemone.UI.Utilities;
 
 import java.awt.geom.Line2D;
@@ -22,8 +28,11 @@ public class Environment implements Serializable{
 	private static final long serialVersionUID = 2740658645450395424L;
 	transient PApplet parent;
 	// God & clock needed for breeding every n generations
-	public HyperNeatGod fishGod;
-	private HyperNeatGod sharkGod;
+	// God types given on instantiation in constructor.
+	@SuppressWarnings("rawtypes")
+	public God fishGod;
+	@SuppressWarnings("rawtypes")
+	private God sharkGod;
 	private int tick = 0;
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
@@ -46,8 +55,13 @@ public class Environment implements Serializable{
 	
 	public Environment(PApplet p){
 		this.parent = p;
-		this.fishGod = new HyperNeatFishGod();
-		this.sharkGod = new HyperNeatSharkGod();
+		if (!Neat) {
+			this.fishGod = new HyperNeatFishGod();
+			this.sharkGod = new HyperNeatSharkGod();
+		} else {
+			this.fishGod = new NeatFishGod();
+			this.sharkGod = new NeatSharkGod();
+		}
 		this.fishes = new ArrayList<Agent>();
 		this.sharks = new ArrayList<Agent>();
 		Environment.food = new ArrayList<Food>();
@@ -374,11 +388,17 @@ public class Environment implements Serializable{
 
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
-    			Chromosome chromo = getChromosome();
+    			GeneticObject genObj;
+    			if (!Neat) {
+    				genObj = getDefaultChromosome();
+    			} else {
+    				genObj = getDefaultGenome();
+    			}
+    			
     			int x = (int) Math.floor(Math.random() * width*0.2);
     			int y = (int) Math.floor(Math.random() * height*0.2);
     			int heading = (int) Math.floor(Math.random() * 360);
-    			spawnFish(new Point2D.Double(x,y), heading, chromo);
+    			spawnFish(new Point2D.Double(x,y), heading, genObj);
     		}
     		//System.out.println("Fish population got to small, generating.");
     	}
@@ -395,22 +415,22 @@ public class Environment implements Serializable{
     }
 
 	protected void spawnFish(
-			Point2D.Double coords, int heading, Chromosome chromo) {
-		fishes.add(new Agent(coords, heading, parent, chromo));
+			Point2D.Double coords, int heading, GeneticObject genObj) {
+		fishes.add(new Agent(coords, heading, parent, genObj));
 	}
 
 	protected void spawnShark(
-			Point2D.Double coords, int heading, Chromosome chromo) {
-		sharks.add(new Enemy(coords, heading, parent, chromo));
+			Point2D.Double coords, int heading, GeneticObject genObj) {
+		sharks.add(new Enemy(coords, heading, parent, genObj));
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
-		Chromosome chromo = getChromosome();
+		Chromosome chromo = getDefaultChromosome();
 		//Creates an agent with a generic genome for a network that has no hidden nodes
 		fishes.add(new Agent(coords, heading, parent, chromo));
 	}
 	
-	private Chromosome getChromosome() {
+	private Chromosome getDefaultChromosome() {
 		if (this.Neat == false) {
 			Chromosome chromosome;
 			
@@ -422,7 +442,7 @@ public class Environment implements Serializable{
 		}
 	}
 
-	private HyperNeatGenome getGenome() {
+	private NeatGenome getDefaultGenome() {
 		/**
 		 * FULL GENOME FOR INITIAL AGENT
 		 * GENE PARAMETERS:
@@ -437,29 +457,29 @@ public class Environment implements Serializable{
 		int numMotorNeurons = 3;
 		int visualFieldSize = Agent.configNumSegments;
 		int numVisualNeurons = visualFieldSize*3;
-		ArrayList<GenomeEdge<HyperNeatNode>> edges = new ArrayList<GenomeEdge<HyperNeatNode>>();
-		ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>();
-		ArrayList<HyperNeatNode> motorNodes = new ArrayList<HyperNeatNode>();
-		ArrayList<HyperNeatNode> visualNodes = new ArrayList<HyperNeatNode>();
+		ArrayList<GenomeEdge<NeatNode>> edges = new ArrayList<GenomeEdge<NeatNode>>();
+		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
+		ArrayList<NeatNode> motorNodes = new ArrayList<NeatNode>();
+		ArrayList<NeatNode> visualNodes = new ArrayList<NeatNode>();
 		
 		/* Motor neurons. */
 		for (int i=0; i<3; i++) {
-			HyperNeatNode node = HyperNeatNode.createRandomNeatNode(total++);
+			NeatNode node = NeatNode.createRSNeatNode(total++);
 			motorNodes.add(node);
 		}
                 /* Food sensory neurons. */
 		for (int i = 0; i < Agent.configNumSegments; i++){//Food
-			HyperNeatNode node = HyperNeatNode.createRandomNeatNode(total++);
+			NeatNode node = NeatNode.createRSNeatNode(total++);
 			visualNodes.add(node);
 		}
                 /* Wall sensory neurons. */
 		for (int i = 0; i < Agent.configNumSegments; i++){//Wall
-			HyperNeatNode node = HyperNeatNode.createRandomNeatNode(total++);
+			NeatNode node = NeatNode.createRSNeatNode(total++);
 			visualNodes.add(node);
 		}
                 /* Enemy sensory neurons. */
 		for (int i = 0; i < Agent.configNumSegments; i++){//Enemy
-			HyperNeatNode node = HyperNeatNode.createRandomNeatNode(total++);
+			NeatNode node = NeatNode.createRSNeatNode(total++);
 			visualNodes.add(node);
 		}
 		
@@ -471,11 +491,11 @@ public class Environment implements Serializable{
 		motor neuron.
 		*/
 		if(FLAG_CONNECT_ALL){
-			for (HyperNeatNode vn : visualNodes) {
-				for (HyperNeatNode mn : motorNodes) {
+			for (NeatNode vn : visualNodes) {
+				for (NeatNode mn : motorNodes) {
 					int preID = vn.getId();
 					int postID = mn.getId();
-					GenomeEdge<HyperNeatNode> g = new GenomeEdge<HyperNeatNode>(total++, vn, mn, 30.0, 1);
+					GenomeEdge<NeatNode> g = new GenomeEdge<NeatNode>(total++, vn, mn, 30.0, 1);
 					edges.add(g);
 				}
 			}
@@ -483,13 +503,18 @@ public class Environment implements Serializable{
 
 		//TODO do we need another 0 GenomeEdge in here for some reason?
 		// Last parameter is historical marker - this needs to be unique per genome!!!
-		return new HyperNeatGenome(edges, nodes, 0);
+		return new NeatGenome(edges, nodes, 0, null, null);
 	}
 
 	protected void addShark(Point2D.Double coords, int heading){
-		Chromosome chromo = getChromosome();
+		GeneticObject genObj;
+		if (!Neat) {
+			genObj = getDefaultChromosome();
+		} else {
+			genObj = getDefaultGenome();
+		}
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		sharks.add(new Enemy(coords, heading, parent, chromo));
+		sharks.add(new Enemy(coords, heading, parent, genObj));
 	}
 
 	void addFood(Point2D.Double coords) {
@@ -556,8 +581,9 @@ public class Environment implements Serializable{
 	protected ArrayList<Wall> getAllWalls(){
 		return wall;
 	}
-	protected HyperNeatGod[] getAllGods(){
-		return new HyperNeatGod[]{
+	@SuppressWarnings("rawtypes")
+	protected God[] getAllGods(){
+		return new God[]{
 				fishGod, sharkGod
 		};
 	}

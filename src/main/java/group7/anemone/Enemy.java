@@ -1,6 +1,6 @@
 package group7.anemone;
 
-import group7.anemone.HyperNeatGenetics.Chromosome;
+import group7.anemone.Genetics.GeneticObject;
 
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
@@ -15,8 +15,8 @@ public class Enemy extends Agent implements Serializable {
 	public Enemy(Double coords,
 			     double viewHeading,
 			     PApplet p,
-			     Chromosome chromo) {
-		super(coords, viewHeading, p, chromo);	
+			     GeneticObject geneticObject) {
+		super(coords, viewHeading, p, geneticObject);	
 	}
 	
 	public double getFOV() {

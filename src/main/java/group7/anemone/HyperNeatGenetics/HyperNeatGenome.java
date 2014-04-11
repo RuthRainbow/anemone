@@ -9,7 +9,6 @@ import group7.anemone.CPPN.CPPNNode;
 import java.util.Collection;
 import java.util.List;
 import java.util.HashMap;
-import java.util.ArrayList;
 
 /*
  * Genome class to hold the Gene array along with a species id.
@@ -29,7 +28,6 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	
 	public CPPN generateCPPN() {
 		CPPN cppn;
-		ArrayList<CPPNNode> cppnNodes = new ArrayList<CPPNNode>();
 		HashMap<Integer, CPPNNode> nodeMap =
 			new HashMap<Integer, CPPNNode>();
 		
