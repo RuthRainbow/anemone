@@ -1,6 +1,5 @@
 package group7.anemone.HyperNeatGenetics;
 
-
 import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.CPPN.CPPN;
@@ -19,12 +18,37 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 
 	private int historicalMarker;
 	
-	public HyperNeatGenome(
-			List<GenomeEdge<HyperNeatNode>> genome,
-			Collection<HyperNeatNode> nodes,
-			int historicalMarker) {
+	public enum Type {
+		NEURON, SYNAPSE
+	};
+	
+	private Type type;
+	private int layer;
+	
+	public HyperNeatGenome(List<GenomeEdge<HyperNeatNode>> genome,
+		Collection<HyperNeatNode> nodes, int historicalMarker,
+		HyperNeatGenome.Type type, int layer)
+	{
 		super(genome, nodes);
 		this.historicalMarker = historicalMarker;
+		this.type = type;
+		this.layer = layer;
+	}
+	
+	public HyperNeatGenome(List<GenomeEdge<HyperNeatNode>> genome,
+		Collection<HyperNeatNode> nodes, int historicalMarker)
+	{
+		/*
+		For now, by default, a created genome will be a neuron cppn.
+		*/
+		this(genome, nodes, historicalMarker,
+			HyperNeatGenome.Type.NEURON, 0);
+	}
+	
+	public HyperNeatGenome(Collection<HyperNeatNode> nodes,
+		HyperNeatGenome.Type type, int layer)
+	{
+		this(null, nodes, 0, type, layer);
 	}
 	
 	public CPPN generateCPPN() {
@@ -63,5 +87,13 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	
 	public int getHistoricalMarker() {
 		return this.historicalMarker;
+	}
+	
+	public Type getType() {
+		return this.type;
+	}
+	
+	public int getLayerNum() {
+		return layer;
 	}
 }

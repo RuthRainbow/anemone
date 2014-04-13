@@ -1,5 +1,6 @@
 package group7.anemone;
 
+import group7.anemone.CPPN.CPPNFunction;
 import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.HyperNeatGenetics.Chromosome;
 import group7.anemone.HyperNeatGenetics.HyperNeatFishGod;
@@ -413,11 +414,48 @@ public class Environment implements Serializable{
 	private Chromosome getChromosome() {
 		if (this.Neat == false) {
 			Chromosome chromosome;
+			ArrayList<HyperNeatGenome> genomes;
+			HyperNeatNode basicNode;
+			CPPNFunction basicFunc;
+			int layer;
 			
-			//TODO:Create the chromosomes here, for the initial set of agents
+			genomes = new ArrayList<HyperNeatGenome>();
 			
+			/*
+			Create two neuron layer CPPNs.
+			*/
+			basicFunc = new CPPNFunction(0, 0, 0, 0);
+			layer = 0;
+			for (int i=0; i<2; i++) {
+				ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>();
+				basicNode = new HyperNeatNode(0, basicFunc);
+				
+				nodes.add(basicNode);
+				
+				HyperNeatGenome g = new HyperNeatGenome(nodes,
+					HyperNeatGenome.Type.NEURON, layer++);
+				
+				genomes.add(g);
+			}
+			
+			layer = 0;
+			for (int i=0; i<1; i++) {
+				ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>();
+				basicNode = new HyperNeatNode(0, basicFunc);
+				
+				nodes.add(basicNode);
+				
+				HyperNeatGenome g = new HyperNeatGenome(nodes,
+					HyperNeatGenome.Type.SYNAPSE, layer++);
+				
+				genomes.add(g);
+			}
+			
+			chromosome = new Chromosome(genomes, 0, null, null);
 			return chromosome;
-		} else {
+		}
+		
+		else {
 			return null;
 		}
 	}

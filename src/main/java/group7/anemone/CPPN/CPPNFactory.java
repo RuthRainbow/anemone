@@ -132,7 +132,7 @@ public class CPPNFactory {
 			MSynapse tempSynapse = new MSynapse(neurons.get(currentNeuronIndex),neurons.get(y),1, delay);
 			
 			//For the current neuron set the preSynapse to point to this new synapse
-			neurons.get(currentNeuronIndex).addPreSynapse(tempSynapse);;
+			neurons.get(currentNeuronIndex).addPreSynapse(tempSynapse);
 			
 			//For the previous neuron, set the postSynapse to point to this new synapse
 			neurons.get(y).addPostSynapse(tempSynapse);
