@@ -448,11 +448,11 @@ public class Environment implements Serializable{
 			for (int i=0; i<2; i++) {
 				ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>();
 				basicNode = new HyperNeatNode(0, basicFunc);
-				
+
 				nodes.add(basicNode);
-				
-				HyperNeatGenome g = new HyperNeatGenome(nodes,
-					HyperNeatGenome.Type.NEURON, layer++);
+
+				HyperNeatGenome g = new HyperNeatGenome(
+						nodes, HyperNeatGenome.Type.NEURON, layer++);
 				
 				genomes.add(g);
 			}

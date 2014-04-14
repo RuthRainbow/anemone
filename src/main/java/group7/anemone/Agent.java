@@ -106,8 +106,7 @@ public class Agent extends SimulationObject implements Serializable {
 	 */
 	private void createNeuralNet() {
 		MSimulationConfig simConfig;
-		HashMap<Integer, MNeuron> neuronMap
-		= new HashMap<Integer, MNeuron>();
+		HashMap<Integer, MNeuron> neuronMap = new HashMap<Integer, MNeuron>();
 		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
 		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
 
@@ -171,6 +170,7 @@ public class Agent extends SimulationObject implements Serializable {
 		simConfig = new MSimulationConfig(20);
 
 		/* Create the simulation instance with our network. */
+		this.msimulation = new MSimulation(this.mnetwork, simConfig);
 	}
 
 	private void createBrain() {

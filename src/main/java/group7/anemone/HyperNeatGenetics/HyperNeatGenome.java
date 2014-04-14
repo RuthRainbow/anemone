@@ -5,6 +5,7 @@ import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.CPPN.CPPN;
 import group7.anemone.CPPN.CPPNNode;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.HashMap;
@@ -26,8 +27,7 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	
 	public HyperNeatGenome(List<GenomeEdge<HyperNeatNode>> genome,
 		Collection<HyperNeatNode> nodes, int historicalMarker,
-		HyperNeatGenome.Type type, int layer)
-	{
+		HyperNeatGenome.Type type, int layer) {
 		super(genome, nodes);
 		this.historicalMarker = historicalMarker;
 		this.type = type;
@@ -35,8 +35,7 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	}
 	
 	public HyperNeatGenome(List<GenomeEdge<HyperNeatNode>> genome,
-		Collection<HyperNeatNode> nodes, int historicalMarker)
-	{
+		Collection<HyperNeatNode> nodes, int historicalMarker) {
 		/*
 		For now, by default, a created genome will be a neuron cppn.
 		*/
@@ -45,9 +44,8 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	}
 	
 	public HyperNeatGenome(Collection<HyperNeatNode> nodes,
-		HyperNeatGenome.Type type, int layer)
-	{
-		this(null, nodes, 0, type, layer);
+		HyperNeatGenome.Type type, int layer) {
+		this(new ArrayList<GenomeEdge<HyperNeatNode>>(), nodes, 0, type, layer);
 	}
 	
 	public CPPN generateCPPN() {
