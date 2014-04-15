@@ -43,8 +43,10 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 			HyperNeatGenome.Type.NEURON, 0);
 	}
 	
-	public HyperNeatGenome(Collection<HyperNeatNode> nodes,
-		HyperNeatGenome.Type type, int layer) {
+	public HyperNeatGenome(Collection<GenomeEdge<HyperNeatNode>> edges,
+		Collection<HyperNeatNode> nodes, HyperNeatGenome.Type type,
+		int layer)
+	{
 		this(new ArrayList<GenomeEdge<HyperNeatNode>>(), nodes, 0, type, layer);
 	}
 	

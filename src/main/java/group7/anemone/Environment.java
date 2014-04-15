@@ -51,7 +51,8 @@ public class Environment implements Serializable{
 	protected final boolean fitnessOnly = true;
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
-	protected final boolean Neat = true;
+	protected final boolean Neat = false;
+
 	static int width = 1000;
 	static int height = 1000;
 
@@ -378,7 +379,8 @@ public class Environment implements Serializable{
 		if (this.Neat == false) {
 			Chromosome chromosome;
 			ArrayList<HyperNeatGenome> genomes;
-			HyperNeatNode basicNode;
+			HyperNeatNode inputNode1, inputNode2, outputNode;
+			GenomeEdge<HyperNeatNode> edge1, edge2;
 			CPPNFunction basicFunc;
 			int layer;
 			
@@ -390,26 +392,61 @@ public class Environment implements Serializable{
 			basicFunc = new CPPNFunction(0, 0, 0, 0);
 			layer = 0;
 			for (int i=0; i<2; i++) {
-				ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>();
-				basicNode = new HyperNeatNode(0, basicFunc);
+				ArrayList<HyperNeatNode> nodes =
+					new ArrayList<HyperNeatNode>();
+				
+				ArrayList<GenomeEdge<HyperNeatNode>> edges =
+					new ArrayList<GenomeEdge<HyperNeatNode>>();
+				
+				/* Create CPPN nodes for use with genetic package. */
+				inputNode1 = new HyperNeatNode(0, basicFunc, HyperNeatNode.Type.INPUT);
+				inputNode2 = new HyperNeatNode(0, basicFunc, HyperNeatNode.Type.INPUT);
+				outputNode = new HyperNeatNode(0, basicFunc, HyperNeatNode.Type.OUTPUT);
+				
+				/* Create accompanying CPPN edges. */
+				edge1 = new GenomeEdge<HyperNeatNode>(0,
+					inputNode1, outputNode, 30.0, 1);
+				edge2 = new GenomeEdge<HyperNeatNode>(0,
+					inputNode2, outputNode, 30.0, 1);
 
-				nodes.add(basicNode);
+				nodes.add(inputNode1);
+				nodes.add(inputNode2);
+				nodes.add(outputNode);
 
-				HyperNeatGenome g = new HyperNeatGenome(
-						nodes, HyperNeatGenome.Type.NEURON, layer++);
+				HyperNeatGenome g = new HyperNeatGenome(edges,
+					nodes, HyperNeatGenome.Type.NEURON,
+					layer++);
 				
 				genomes.add(g);
 			}
 			
+			/* Create two synapse layer CPPNs. */
 			layer = 0;
-			for (int i=0; i<1; i++) {
-				ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>();
-				basicNode = new HyperNeatNode(0, basicFunc);
+			for (int i=0; i<2; i++) {
+				ArrayList<HyperNeatNode> nodes =
+					new ArrayList<HyperNeatNode>();
 				
-				nodes.add(basicNode);
+				ArrayList<GenomeEdge<HyperNeatNode>> edges =
+					new ArrayList<GenomeEdge<HyperNeatNode>>();
 				
-				HyperNeatGenome g = new HyperNeatGenome(nodes,
-					HyperNeatGenome.Type.SYNAPSE, layer++);
+				/* Create CPPN nodes for use with genetic package. */
+				inputNode1 = new HyperNeatNode(0, basicFunc, HyperNeatNode.Type.INPUT);
+				inputNode2 = new HyperNeatNode(0, basicFunc, HyperNeatNode.Type.INPUT);
+				outputNode = new HyperNeatNode(0, basicFunc, HyperNeatNode.Type.OUTPUT);
+				
+				/* Create accompanying CPPN edges. */
+				edge1 = new GenomeEdge<HyperNeatNode>(0,
+					inputNode1, outputNode, 30.0, 1);
+				edge2 = new GenomeEdge<HyperNeatNode>(0,
+					inputNode2, outputNode, 30.0, 1);
+
+				nodes.add(inputNode1);
+				nodes.add(inputNode2);
+				nodes.add(outputNode);
+
+				HyperNeatGenome g = new HyperNeatGenome(edges,
+					nodes, HyperNeatGenome.Type.SYNAPSE,
+					layer++);
 				
 				genomes.add(g);
 			}

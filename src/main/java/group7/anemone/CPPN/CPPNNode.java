@@ -40,7 +40,8 @@ public class CPPNNode {
 	public CPPNNode(boolean isInputNode, boolean isMutatable,
 		CPPNFunction function)
 	{
-		this(isInputNode, isMutatable, null, null, function);
+		this(isInputNode, isMutatable, new ArrayList<CPPNNode>(),
+			new ArrayList<CPPNNode>(), function);
 	}
 	
 	/**

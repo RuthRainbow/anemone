@@ -3,6 +3,7 @@ package group7.anemone;
 import group7.anemone.CPPN.CPPNNode;
 import group7.anemone.CPPN.CPPNSimulation;
 import group7.anemone.CPPN.CPPNFactory;
+import group7.anemone.HyperNeatGenetics.Chromosome;
 import group7.anemone.Genetics.GeneticObject;
 import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.MNetwork.MFactory;
@@ -236,17 +237,12 @@ public class Agent extends SimulationObject implements Serializable {
 		//Create a CPPNFactory. Feed the factory a series of CPPN and after all chromosomes have been read in, it can return a fully formed brain.
 		CPPNFactory cFactory = new CPPNFactory(inputNodes,outputNodes);
 
-		//An arraylist of CPPNNodes for the CPPN which will be queried to link neurons in the current layer of the brain
-		ArrayList<CPPNNode> synapseParameterNodes = new ArrayList<CPPNNode>();
-
-		//An arraylist of CPPNNodes for the CPPN which will be queries to get neuron parameters
-		ArrayList<CPPNNode> neuronParameterNodes = new ArrayList<CPPNNode>();
-
 		//The number of neurons that are currently being created in this layer of the brain
 		int layerSize=0;
 
 		//First, loop through every chromosome that the agent contains
-		for (int g=0; g < geneticObject.getSize(); g++) {
+		Chromosome chromosome = (Chromosome)geneticObject;
+		for (int g=0; g < chromosome.getGeneticRep().size()/2; g++) {
 			//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
 
 			/**
@@ -274,9 +270,11 @@ public class Agent extends SimulationObject implements Serializable {
 			 */
 
 			//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
-			CPPNSimulation buildSynapse = new CPPNSimulation(synapseParameterNodes);
+			CPPNSimulation buildSynapse = new CPPNSimulation(
+				chromosome.getSynapseCPPN(g).getNodes());
 
-			CPPNSimulation buildNeurons = new CPPNSimulation(neuronParameterNodes);
+			CPPNSimulation buildNeurons = new CPPNSimulation(
+				chromosome.getNeuronCPPN(g).getNodes());
 
 			//Call the factory to add the new CPPN's and generate more of the agents brain
 			cFactory.neuronCPPN(buildNeurons,layerSize);

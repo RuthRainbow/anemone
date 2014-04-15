@@ -7,10 +7,23 @@ import java.util.Random;
 
 public class HyperNeatNode extends GenomeNode {
 	CPPNFunction cppnFunction;
+	
+	public enum Type {
+		INPUT, HIDDEN, OUTPUT
+	};
+	
+	private Type type;
 
-	public HyperNeatNode(int id, CPPNFunction cppnFunction) {
+	public HyperNeatNode(int id, CPPNFunction cppnFunction,
+		Type type)
+	{
 		super(id);
 		this.cppnFunction = new CPPNFunction(cppnFunction);
+		this.type = type;
+	}
+	
+	public Type getType() {
+		return type;
 	}
 	
 	public static HyperNeatNode createRandomNeatNode(int id) {
@@ -34,7 +47,7 @@ public class HyperNeatNode extends GenomeNode {
 		func = new CPPNFunction(pA, pB, pC, randInt);
 		
 		/* Create NeatNode. */
-		neatNode = new HyperNeatNode(id, func);
+		neatNode = new HyperNeatNode(id, func, Type.HIDDEN);
 		
 		return neatNode;
 	}

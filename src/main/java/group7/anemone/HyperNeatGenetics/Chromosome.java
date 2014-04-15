@@ -52,6 +52,16 @@ public class Chromosome implements GeneticObject, Serializable {
 				return g1.getLayerNum() < g2.getLayerNum() ? -1 : 1;
 			}
 		});
+		
+		/* Sort each synapse genome on layer number. */
+		Collections.sort(synapseGenomes, new Comparator<HyperNeatGenome>() {
+			public int compare(HyperNeatGenome g1, HyperNeatGenome g2) {
+				if (g1.getLayerNum() == g2.getLayerNum())
+					return 0;
+				
+				return g1.getLayerNum() < g2.getLayerNum() ? -1 : 1;
+			}
+		});
 	}
 	
 	public CPPN getNeuronCPPN(int layer) {
