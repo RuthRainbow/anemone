@@ -6,16 +6,16 @@ import java.io.Serializable;
  * Class to hold genes, which make up the representation of the neural network. Each is roughly an
  * edge/connector within the network, with a single input and output.
  */
-public class NeatEdge implements Serializable{
+public class GenomeEdge<node extends GenomeNode> implements Serializable{
 
 	private static final long serialVersionUID = -27536139896199028L;
 	private int historicalMarker;
-	private NeatNode in;
-	private NeatNode out;
+	private node in;
+	private node out;
 	private double weight;
 	private int delay;
 
-	public NeatEdge(int hist, NeatNode in, NeatNode out, double weight, int delay) {
+	public GenomeEdge(int hist, node in, node out, double weight, int delay) {
 		this.historicalMarker = hist;
 		this.in = in;
 		this.out = out;
@@ -34,24 +34,25 @@ public class NeatEdge implements Serializable{
 	
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof NeatEdge)) {
-    		return false;
-    	} else {
-    		NeatEdge otherEdge = (NeatEdge) other;
+		if (!(other instanceof GenomeEdge)) {
+			return false;
+		} else {
+			@SuppressWarnings("unchecked")
+			GenomeEdge<node> otherEdge = (GenomeEdge<node>) other;
 			if (this.historicalMarker != otherEdge.historicalMarker) return false;
 			if (this.delay != otherEdge.delay) return false;
-			if (!this.in.equals(otherEdge.in)) return false; 
+			if (!this.in.equals(otherEdge.in)) return false;
 			if (!this.out.equals(otherEdge.out)) return false;
 			if (this.weight != otherEdge.weight) return false;
 			return true;
-    	}
+		}
 	}
 	
-	public NeatNode getIn() {
+	public node getIn() {
 		return this.in;
 	}
 	
-	public NeatNode getOut() {
+	public node getOut() {
 		return this.out;
 	}
 

@@ -1,13 +1,15 @@
-package group7.anemone.Genetics;
+package group7.anemone.HyperNeatGenetics;
 
-public class FishGod extends God {
+
+public class HyperNeatFishGod extends HyperNeatGod {
 	private static final long serialVersionUID = -6489249838484577534L;
-
-	/** Start of graphical vars **/
+	
+	/** Start of possible graphical vars **/
 	// Mutation chances:
 	public double structuralMutationChance = 0.9f;
 	public double addConnectionChance = 0.8f;
 	public double addNodeChance = 0.8f;
+	public double addGenomeChance = 0.00f;
 	public double weightMutationChance = 0.8f;
 	// (chance of decrease is 1 - the chance of increase)
 	public double weightIncreaseChance = 0.5f;
@@ -19,20 +21,22 @@ public class FishGod extends God {
 	public double matchedGeneChance = 0.5f;
 
 	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
-	// Parameters for use in difference calculation.
+	// Parameters for use in difference calculation (can be tweaked).
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
 	public double c3 = 0.5f; //weighting of weight differences
+	public double c4 = 0.5f; //weighting of excess Genomes
+	public double c5 = 0.5; //weight of disjoint Genomes
 
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 1.3;
 	public double minReproduced = 5;
-	
+
 	// Threshold over which an agent's fitness isn't counted in the sharing function.
 	public double sharingThreshold = 20;
-	/** End of graphical vars **/
-
+	/** End of possible graphical vars **/
+	
 	/* Getter methods for variables that may differ between God types.*/
 	public double getStructuralMutationChance() {
 		return this.structuralMutationChance;
@@ -42,6 +46,9 @@ public class FishGod extends God {
 	}
 	public double getAddNodeChance() {
 		return this.addNodeChance;
+	}
+	public double getAddGenomeChance() {
+		return this.addGenomeChance;
 	}
 	public double getWeightMutationChance() {
 		return this.weightMutationChance;
@@ -73,21 +80,22 @@ public class FishGod extends God {
 	public double getc3() {
 		return this.c3;
 	}
+	public double getc4() {
+		return this.c4;
+	}
+	public double getc5() {
+		return this.c5;
+	}
 	public double getCompatibilityThreshold() {
 		return this.compatibilityThreshold;
 	}
 	public double getMinReproduced() {
 		return this.minReproduced;
 	}
-	public String toString(){
-		return "Fish God";
-	}
-	@Override
-	public void setCompatabilityThreshold(double threshold) {
-		this.compatibilityThreshold = threshold;
-	}
-	@Override
 	public double getSharingThreshold() {
 		return this.sharingThreshold;
+	}
+	public void setCompatabilityThreshold(double compatabilityThreshold) {
+		this.compatibilityThreshold = compatabilityThreshold;
 	}
 }

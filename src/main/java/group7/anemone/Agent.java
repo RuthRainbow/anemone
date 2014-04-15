@@ -1,8 +1,10 @@
 package group7.anemone;
 
-import group7.anemone.Genetics.Genome;
-import group7.anemone.Genetics.NeatEdge;
-import group7.anemone.Genetics.NeatNode;
+import group7.anemone.CPPN.CPPNNode;
+import group7.anemone.CPPN.CPPNSimulation;
+import group7.anemone.CPPN.CPPNFactory;
+import group7.anemone.Genetics.GeneticObject;
+import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
@@ -12,6 +14,8 @@ import group7.anemone.MNetwork.MSimulation;
 import group7.anemone.MNetwork.MSimulationConfig;
 import group7.anemone.MNetwork.MSynapse;
 import group7.anemone.MNetwork.MVec3f;
+import group7.anemone.NeatGenetics.NeatGenome;
+import group7.anemone.NeatGenetics.NeatNode;
 
 import java.awt.geom.Point2D;
 import java.io.Serializable;
@@ -47,13 +51,19 @@ public class Agent extends SimulationObject implements Serializable {
 	private double viewHeading = 0; // in degrees 0-360
 
 	/* The agent's genome (from which the brain is generated). */
-	private final Genome genome;
+	//private final Genome genome;
+
+	/*In hyper neat, this is the list of genomes to create the CPPN Networks to create the agents brain*/
+	private final GeneticObject geneticObject;
 
 	/* Brain state. */
 	private MNetwork mnetwork;
 
 	/* Brain simulation instance. */
 	private MSimulation msimulation;
+
+	/* Whether we are using Neat or HyperNEAT */
+	private final boolean neat;
 
 	/* Interface between the world and the brain. */
 	private final NInterface ninterface = new NInterface(configNumSegments);
@@ -71,7 +81,7 @@ public class Agent extends SimulationObject implements Serializable {
 
 	/* Objects  of interest within the agent's visual field. */
 	private ArrayList<SightInformation> canSee
-		= new ArrayList<SightInformation>();
+	= new ArrayList<SightInformation>();
 
 	/**
 	 * Instanciates an agent at a given coordinate in the simulation, with a
@@ -86,12 +96,17 @@ public class Agent extends SimulationObject implements Serializable {
 	 * @param genome	the genome to be used to construct the brain
 	 */
 	public Agent(Point2D.Double coords, double viewHeading, PApplet p,
-		Genome genome, World world) {
+		GeneticObject genObj, boolean Neat, World world) {
 		super(coords);
 		this.parent = p;
 		this.viewHeading = viewHeading;
-		this.genome = genome;
-		createNeuralNet();
+		this.geneticObject = genObj;
+		this.neat = Neat;
+		if (this.neat) { 
+			createNeuralNet();
+		} else {
+			createBrain();
+		}
 		calculateNetworkPositions(false);
 		this.world = world;
 		setupBox2d();
@@ -100,8 +115,8 @@ public class Agent extends SimulationObject implements Serializable {
 
 	public Agent(Point2D.Double coords){
 		super(coords);
-
-		this.genome = null;
+		this.neat = false;
+		this.geneticObject = null;
 	}
 	
 	private void setupBox2d(){
@@ -133,17 +148,17 @@ public class Agent extends SimulationObject implements Serializable {
 	 */
 	private void createNeuralNet() {
 		MSimulationConfig simConfig;
-		HashMap<Integer, MNeuron> neuronMap
-			= new HashMap<Integer, MNeuron>();
+		HashMap<Integer, MNeuron> neuronMap = new HashMap<Integer, MNeuron>();
 		ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
 		ArrayList<MSynapse> synapses = new ArrayList<MSynapse>();
 
+		NeatGenome genome = (NeatGenome) geneticObject;
 		/* Create neurons. */
 		for (NeatNode nn : genome.getNodes()) {
 			int id = nn.getId();
 			MNeuronParams params = nn.getParams();
 			MNeuronState state =
-				MFactory.createInitialRSNeuronState();
+					MFactory.createInitialRSNeuronState();
 
 			/* Create a neuron. */
 			MNeuron neuron = new MNeuron(params, state, id);
@@ -156,7 +171,7 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 
 		/* Create synapses. */
-		for (NeatEdge g : genome.getGene()) {
+		for (GenomeEdge<NeatNode> g : genome.getGene()) {
 			/* Get the synapse information. */
 			NeatNode preNode = g.getIn();
 			NeatNode postNode = g.getOut();
@@ -171,14 +186,14 @@ public class Agent extends SimulationObject implements Serializable {
 
 			/* Create the synapse. */
 			MSynapse synapse = new MSynapse(preNeuron, postNeuron,
-				weight, delay);
+					weight, delay);
 			/*
-			 Add the synapse to the pre and post neuron synapse list
+			Add the synapse to the pre and post neuron synapse list
 			 */
 			ArrayList<MSynapse> postSynapses
-				= preNeuron.getPostSynapses();
+			= preNeuron.getPostSynapses();
 			ArrayList<MSynapse> preSynapses
-				= postNeuron.getPreSynapses();
+			= postNeuron.getPreSynapses();
 
 			postSynapses.add(synapse);
 			preSynapses.add(synapse);
@@ -198,6 +213,78 @@ public class Agent extends SimulationObject implements Serializable {
 
 		/* Create the simulation instance with our network. */
 		this.msimulation = new MSimulation(this.mnetwork, simConfig);
+	}
+
+	private void createBrain() {
+		/**
+		 * This method will create the agents brain.
+		 * 
+		 * The actual brain creation is handled by the CPPNFactory class, which will take as input the CPPNs that are 
+		 * made from the agents genomes, and generate parts of the brain as each CPPN is fed into it.
+		 * 
+		 * Once all CPPNs have been passed into the CPPNFactory, the method "linkFinalLayer" is run, which will link the 
+		 * latest CPPN layer with the final layer of output motory neurons.
+		 * 
+		 * The final brain will then be pulled from cFactory by calling "getBrain" and the returned MNetwork can be saved
+		 * into the mnetwork value already stored globally by this agent class.
+		 */
+
+		//How many input and output nodes to create in the agents brain
+		int inputNodes = 30;
+		int outputNodes = 3;
+
+		//Create a CPPNFactory. Feed the factory a series of CPPN and after all chromosomes have been read in, it can return a fully formed brain.
+		CPPNFactory cFactory = new CPPNFactory(inputNodes,outputNodes);
+
+		//An arraylist of CPPNNodes for the CPPN which will be queried to link neurons in the current layer of the brain
+		ArrayList<CPPNNode> synapseParameterNodes = new ArrayList<CPPNNode>();
+
+		//An arraylist of CPPNNodes for the CPPN which will be queries to get neuron parameters
+		ArrayList<CPPNNode> neuronParameterNodes = new ArrayList<CPPNNode>();
+
+		//The number of neurons that are currently being created in this layer of the brain
+		int layerSize=0;
+
+		//First, loop through every chromosome that the agent contains
+		for (int g=0; g < geneticObject.getSize(); g++) {
+			//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
+
+			/**
+			 * Each 'chromosome' the agent contains is an instance of the genome class.
+			 * 
+			 * Each chromosome contains multiple types of genes that can contain the following information to build the CPPN:
+			 * 1: A sort of 'header' gene that says how many neurons will be in this layer of the brain
+			 * 2: Add nodes to the buildSyanpse CPPN, so this will need to include a 'type' integer, to designate the kind of function
+			 * 		that this node will use. 3 Parameter integers, which will be used to augment the function so that
+			 * 		each node has a higher degree of possible diversity.
+			 * 		There are 4 different 'types' of nodes, which correspond to 0: Parabola, 1: Sigmoid, 2: Gauss, 3: Sin.
+			 * 3: Add nodes to the buildNeurons CPPN, this should be built just like the buildSynapseCPPN. There will probably need to
+			 * 		be some field in the gene that lets this part of the code distinguish between genes for the buildNeuronCPPN and the
+			 * 		buildSyanpse CPPNs.
+			 * 
+			 * Some additional notes:
+			 * 1: The first two nodes in any CPPN arrayList of nodes will always be the input nodes for that network.
+			 * 2: The last node in the CPPN arrayList of nodes will always be the output node for that network.
+			 */
+
+			/**
+			 * ##############
+			 * CREATE CPPN HERE ###############################
+			 * ##############
+			 */
+
+			//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
+			CPPNSimulation buildSynapse = new CPPNSimulation(synapseParameterNodes);
+
+			CPPNSimulation buildNeurons = new CPPNSimulation(neuronParameterNodes);
+
+			//Call the factory to add the new CPPN's and generate more of the agents brain
+			cFactory.neuronCPPN(buildNeurons,layerSize);
+			cFactory.synapseCPPN(buildSynapse, layerSize);
+		}
+
+		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
+		mnetwork = cFactory.getBrain();
 	}
 
 	/**
@@ -285,15 +372,17 @@ public class Agent extends SimulationObject implements Serializable {
 		}
 	}
 
-	public Genome getStringRep() {
-		return this.genome;
+	public Object getGeneticRep() {
+		return this.geneticObject.getGeneticRep();
+	}
+
+	public GeneticObject getGeneticObject() {
+		return this.geneticObject;
 	}
 
 	public double getFitness() {
 		return this.fitness;
 	}
-
-
 
 	void updatePosition() {
 		coords.x = body.getPosition().x;
@@ -311,27 +400,27 @@ public class Agent extends SimulationObject implements Serializable {
 		for (int i = 0; i < visionDim; i++) {
 			/* Food sensory neurons. */
 			distance = viewingObjectOfTypeInSegment(i,
-				Collision.TYPE_FOOD);
+					Collision.TYPE_FOOD);
 			ninterface.affectors.vFood[i]
-				= distance < 0.0 ? 1.0 : 1.0 - distance;
+					= distance < 0.0 ? 1.0 : 1.0 - distance;
 
 			/* Ally sensory neurons. */
 			distance = viewingObjectOfTypeInSegment(i,
-				Collision.TYPE_AGENT);
+					Collision.TYPE_AGENT);
 			ninterface.affectors.vAlly[i]
-				= distance < 0.0 ? 1.0 : 1.0 - distance;
+					= distance < 0.0 ? 1.0 : 1.0 - distance;
 
 			/* Enemy sensory neurons. */
 			distance = viewingObjectOfTypeInSegment(i,
-				Collision.TYPE_ENEMY);
+					Collision.TYPE_ENEMY);
 			ninterface.affectors.vEnemy[i]
-				= distance < 0.0 ? 1.0 : 1.0 - distance;
+					= distance < 0.0 ? 1.0 : 1.0 - distance;
 
 			/* Wall sensory neurons. */
 			distance = viewingObjectOfTypeInSegment(i,
-				Collision.TYPE_WALL);
+					Collision.TYPE_WALL);
 			ninterface.affectors.vWall[i]
-				= distance < 0.0 ? 1.0 : 1.0 - distance;
+					= distance < 0.0 ? 1.0 : 1.0 - distance;
 		}
 	}
 
@@ -382,7 +471,7 @@ public class Agent extends SimulationObject implements Serializable {
 		ArrayList<MNeuron> neurons = mnetwork.getNeurons();
 		ArrayList<MSynapse> synapses = mnetwork.getSynapses();
 
-        //TODO: place nodes in set position then spread out using algorithm below
+		//TODO: place nodes in set position then spread out using algorithm below
 		//TODO: normalise to -125 to 125
 		if(useLayered){
 			for(MSynapse s : mnetwork.getSynapses()){ //determine the x, y coordinates for each node based on links
@@ -497,7 +586,7 @@ public class Agent extends SimulationObject implements Serializable {
 
 			}
 
-		    //Limit maximum displacement by the temperature
+			//Limit maximum displacement by the temperature
 			//Also prevent the thing from being displaced outside the frame
 			for (MNeuron v : neurons) {
 				if (v.disp.x != 0) {
@@ -685,7 +774,7 @@ public class Agent extends SimulationObject implements Serializable {
 	}
 
 	public int getSpeciesId() {
-		return genome.getSpeciesId();
+		return geneticObject.getSpeciesId();
 	}
 
 	public int getAge() {

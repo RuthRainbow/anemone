@@ -33,6 +33,16 @@ public class MNetwork implements Serializable{
 		return tmpSynapses;
 	}
 	
+	public void addNeurons(ArrayList<MNeuron> newNeurons) {
+		//Append neurons to the neuron arraylist
+		neurons.addAll(newNeurons);
+	}
+	
+	public void addSynapse(ArrayList<MSynapse> newSynapse) {
+		//Append neurons to the neuron arraylist
+		synapses.addAll(newSynapse);
+	}
+	
 	public float getVertexNumber() {
 		return neurons.size();
 	}
