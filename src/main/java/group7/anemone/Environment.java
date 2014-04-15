@@ -47,7 +47,7 @@ public class Environment implements Serializable{
 	protected final boolean fitnessOnly = true;
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
-	protected final boolean Neat = false;
+	protected final boolean Neat = true;
 	
 	static int width = 1000;
 	static int height = 1000;
@@ -293,49 +293,49 @@ public class Environment implements Serializable{
     	System.out.println("Avg maxSize = "+avg+" No. seaweed = "+seaweed.size()+" Min maxSize = "+min+" Max maxSize = "+max);*/
     	if (tick % 1000 == 0) {
     		if (tick % 2000 == 0) {
-    			ArrayList<Chromosome> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
+    			ArrayList<GeneticObject> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
         		if (fitnessOnly) {
         			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
         			for (int i = 0; i < sharks.size(); i++) {
-        				Chromosome chromo = (Chromosome) sharks.get(i).getGeneticObject();
-    	    			if (nextSharks.contains(chromo)) {
-    	    				nextSharks.remove(chromo);
+        				GeneticObject genObj = sharks.get(i).getGeneticObject();
+    	    			if (nextSharks.contains(genObj)) {
+    	    				nextSharks.remove(genObj);
     	    				nextAgents.add(sharks.get(i));
     	    			}
     	    		}
         			sharks.clear();
         			sharks.addAll(nextAgents);
         		}
-    			for (Chromosome chromo : nextSharks) {
+    			for (GeneticObject genObj : nextSharks) {
     				int x = (int) Math.floor(width*0.8 + Math.random() * width*0.2);
     				int y = (int) Math.floor(height*0.8 + Math.random() * height*0.2);
     				int heading = (int) Math.floor(Math.random() * 360);
-    				spawnShark(new Point2D.Double(x,y), heading, chromo);
+    				spawnShark(new Point2D.Double(x,y), heading, genObj);
     				
     			}
     			// Reset tick until next generation
     			tick = 0;
     		}
-    		ArrayList<Chromosome> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
+    		ArrayList<GeneticObject> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
     		
     		if (fitnessOnly) {
     			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
 
     			for (int i = 0; i < fishes.size(); i++) {
-    				Chromosome chromo = (Chromosome) fishes.get(i).getGeneticObject();
-	    			if (nextFish.contains(chromo)) {
-	    				nextFish.remove(chromo);
+    				GeneticObject genObj = fishes.get(i).getGeneticObject();
+	    			if (nextFish.contains(genObj)) {
+	    				nextFish.remove(genObj);
 	    				nextAgents.add(fishes.get(i));
 	    			}
 	    		}
 	    		fishes.clear();
 	    		fishes.addAll(nextAgents);
     		}
-    		for (Chromosome chromo : nextFish) {
+    		for (GeneticObject genObj : nextFish) {
     			int x = (int) Math.floor(Math.random() * width*0.2);
     			int y = (int) Math.floor(Math.random() * height*0.2);
     			int heading = (int) Math.floor(Math.random() * 360);
-    			spawnFish(new Point2D.Double(x,y), heading, chromo);
+    			spawnFish(new Point2D.Double(x,y), heading, genObj);
     		}
 
     		/*for(int i = 0; i < fishes.size()/2; i++){
@@ -425,9 +425,14 @@ public class Environment implements Serializable{
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
-		Chromosome chromo = getDefaultChromosome();
+		GeneticObject genObj;
+		if (!Neat) {
+			genObj = getDefaultChromosome();
+		} else {
+			genObj = getDefaultGenome();
+		}
 		//Creates an agent with a generic genome for a network that has no hidden nodes
-		fishes.add(new Agent(coords, heading, parent, chromo, Neat));
+		fishes.add(new Agent(coords, heading, parent, genObj, Neat));
 	}
 	
 	private Chromosome getDefaultChromosome() {
