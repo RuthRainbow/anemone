@@ -184,10 +184,11 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
 		// Breed the top n! (Members is presorted :))
 		int i = 0;
+		int j = Math.min(numOffspring * 2, specie.members.size()) - 1;
 
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			final AgentFitness mother = specie.members.get(i);
-			final AgentFitness father = specie.members.get(i+1);
+			final AgentFitness father = specie.members.get(j);
 
 			Runnable r = new CreateOffspring(mother, father);
 			Thread thread = new Thread(r);
@@ -197,7 +198,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 				children.add((t) mother.geneticRep);
 				children.add((t) father.geneticRep);
 			}
-			i += 2;
+			i++; j--;
 		}
 		// If not enough children, repeat some random offspring:
 		i = 0;
