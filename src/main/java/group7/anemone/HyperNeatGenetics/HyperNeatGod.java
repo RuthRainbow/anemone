@@ -25,6 +25,8 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	protected void initialiseDataStructures() {
 		super.initialiseDataStructures();
 		resetNewGenes();
+		nextEdgeMarkers = new ArrayList<Integer>();
+		nextNodeMarkers = new ArrayList<Integer>();
 	}
 	
 	protected void resetNewGenes() {
