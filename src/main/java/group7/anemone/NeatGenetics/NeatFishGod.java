@@ -18,7 +18,7 @@ public class NeatFishGod extends NeatGod {
 	public double twinChance = 0.05f;
 	public double matchedGeneChance = 0.5f;
 
-	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
+	public double offspringProportion = 0.05f; // ALSO COMPLETELY ARBITRARY
 	// Parameters for use in difference calculation.
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
@@ -26,8 +26,8 @@ public class NeatFishGod extends NeatGod {
 
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 1.3;
-	public double minReproduced = 5;
+	public double compatibilityThreshold = 2.5;
+	public double minReproduced = 3;
 	// Threshold over which an agent's fitness isn't counted in the sharing function.
 	public double sharingThreshold = 20;
 	/** End of graphical vars **/

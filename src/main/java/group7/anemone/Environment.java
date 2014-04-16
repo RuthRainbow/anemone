@@ -1,6 +1,5 @@
 package group7.anemone;
 
-import group7.anemone.Genetics.Genome;
 import group7.anemone.Genetics.God;
 import group7.anemone.CPPN.CPPNFunction;
 import group7.anemone.Genetics.GeneticObject;
@@ -38,6 +37,8 @@ public class Environment implements Serializable{
 	@SuppressWarnings("rawtypes")
 	private God sharkGod;
 	private int tick = 0;
+	private int totalTick = 0;
+	private int sharkStart = 30000;
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
 	private static ArrayList<Food> food;
@@ -109,8 +110,6 @@ public class Environment implements Serializable{
 
     	return collisions;
     }
-
-
 
 	public void updateAgentsSight() {
     	//update what each agent can see
@@ -271,9 +270,22 @@ public class Environment implements Serializable{
     	}
     	tick++;
     	
+    	if (totalTick == sharkStart) {
+			for (int i = 0; i < Simulation.numStartingSharks; i++) {
+				int x = (int) Math.floor(Environment.width*0.8 + Math.random() * Environment.width*0.2);
+				int y = (int) Math.floor(Environment.height*0.8 + Math.random() * Environment.height*0.2);
+				int heading = (int) Math.floor(Math.random() * 360);
+				addShark(new Point2D.Double(x, y), heading);
+			}
+			totalTick++;
+    	} else {
+    		totalTick++;
+    	}
+    	
     	if (tick % 1000 == 0) {
-    		if (tick % 2000 == 0) {
-    			ArrayList<GeneticObject> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
+    		if (tick % 2000 == 0 && totalTick > sharkStart) {
+    			@SuppressWarnings("unchecked")
+				ArrayList<GeneticObject> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
    
         		if (fitnessOnly) {
         			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
@@ -296,7 +308,8 @@ public class Environment implements Serializable{
     			// Reset tick until next generation
     			tick = 0;
     		}
-    		ArrayList<GeneticObject> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
+    		@SuppressWarnings("unchecked")
+			ArrayList<GeneticObject> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
 
     		if (fitnessOnly) {
     			ArrayList<Agent> nextAgents = new ArrayList<Agent>();
@@ -339,12 +352,7 @@ public class Environment implements Serializable{
 
     	if(fishes.size() <= 7) {
     		for (int i = fishes.size(); i < 5; i++) {
-    			GeneticObject genObj;
-    			if (!Neat) {
-    				genObj = getDefaultChromosome();
-    			} else {
-    				genObj = getDefaultGenome();
-    			}
+    			GeneticObject genObj = Neat ? getDefaultGenome() : getDefaultChromosome();
     			
     			int x = (int) Math.floor(Math.random() * width*0.2);
     			int y = (int) Math.floor(Math.random() * height*0.2);
@@ -366,15 +374,16 @@ public class Environment implements Serializable{
 	}
 
 	protected void addFish(Point2D.Double coords, int heading){
-		GeneticObject genObj;
-		if (!Neat) {
-			genObj = getDefaultChromosome();
-		} else {
-			genObj = getDefaultGenome();
-		}
+		GeneticObject genObj = Neat ? getDefaultGenome() : getDefaultChromosome();
 		fishes.add(new Agent(coords, heading, parent, genObj, Neat, world));
 	}
-	
+
+	protected void addShark(Point2D.Double coords, int heading){
+		GeneticObject genObj = Neat ? getDefaultGenome() : getDefaultChromosome();
+		//Creates an agent with a generic genome for a network that has no hidden nodes
+		sharks.add(new Enemy(coords, heading, parent, genObj, Neat, world));
+	}
+
 	private Chromosome getDefaultChromosome() {
 		if (this.Neat == false) {
 			Chromosome chromosome;
@@ -519,17 +528,6 @@ public class Environment implements Serializable{
 		//TODO do we need another 0 GenomeEdge in here for some reason?
 		// Last parameter is historical marker - this needs to be unique per genome!!!
 		return new NeatGenome(edges, nodes, 0, null, null);
-	}
-
-	protected void addShark(Point2D.Double coords, int heading){
-		GeneticObject genObj;
-		if (!Neat) {
-			genObj = getDefaultChromosome();
-		} else {
-			genObj = getDefaultGenome();
-		}
-		//Creates an agent with a generic genome for a network that has no hidden nodes
-		sharks.add(new Enemy(coords, heading, parent, genObj, Neat, world));
 	}
 
 	void addFood(Point2D.Double coords) {

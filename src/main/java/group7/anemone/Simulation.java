@@ -1,7 +1,6 @@
 package group7.anemone;
 
 import group7.anemone.Genetics.God;
-import group7.anemone.HyperNeatGenetics.HyperNeatGod;
 import group7.anemone.MNetwork.MNetwork;
 import group7.anemone.MNetwork.MNeuron;
 import group7.anemone.MNetwork.MSynapse;
@@ -91,8 +90,8 @@ public class Simulation extends PApplet {
 	boolean agentFocused = false;
 	int trackingBounds = 100;
 	
-	int numStartingAgents = 10;
-	int numStartingSharks = 5;
+	static int numStartingAgents = 10;
+	static int numStartingSharks = 5;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -114,12 +113,7 @@ public class Simulation extends PApplet {
 			int heading = (int) Math.floor(Math.random() * 360);
 			env.addFish(new Point2D.Double(x, y), heading);
 		}
-		for (int i = 0; i < numStartingSharks; i++) {
-			int x = (int) Math.floor(Environment.width*0.8 + Math.random() * Environment.width*0.2);
-			int y = (int) Math.floor(Environment.height*0.8 + Math.random() * Environment.height*0.2);
-			int heading = (int) Math.floor(Math.random() * 360);
-			env.addShark(new Point2D.Double(x, y), heading);
-		}
+
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
 
