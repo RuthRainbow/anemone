@@ -55,4 +55,8 @@ public class HyperNeatNode extends GenomeNode {
 	public CPPNFunction getCPPNFunction() {
 		return cppnFunction;
 	}
+	
+	public HyperNeatNode clone() {
+		return new HyperNeatNode(this.id, this.cppnFunction, this.type);
+	}
 }

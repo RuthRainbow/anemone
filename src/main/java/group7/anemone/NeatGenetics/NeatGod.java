@@ -206,7 +206,7 @@ public abstract class NeatGod extends God<NeatGenome> {
 	}
 
 	// Add a connection between two existing nodes
-	private void addConnection(
+	private synchronized void addConnection(
 			List<NeatNode> nodeList, List<GenomeEdge<NeatNode>> edgeList) {
 		// Connect two arbitrary nodes - we don't care if they are already connected.
 		// (Similar to growing multiple synapses).

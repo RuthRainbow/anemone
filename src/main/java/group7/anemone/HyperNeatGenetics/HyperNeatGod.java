@@ -6,6 +6,7 @@ import group7.anemone.Genetics.God;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Set;
 public abstract class HyperNeatGod extends God<Chromosome> {
 	private static final long serialVersionUID = 619717007643693268L;
 
-	private ArrayList<GenomeEdge<HyperNeatNode>> newGenes;
+	private List<GenomeEdge<HyperNeatNode>> newGenes;
 	private ArrayList<Integer> nextEdgeMarkers;
 	private ArrayList<Integer> nextNodeMarkers;
 	private int nextGenomeMarker;
@@ -30,7 +31,8 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	}
 	
 	protected void resetNewGenes() {
-		this.newGenes = new ArrayList<GenomeEdge<HyperNeatNode>>();
+		this.newGenes = Collections.synchronizedList(
+				new ArrayList<GenomeEdge<HyperNeatNode>>());
 	}
 	
 	public int getRandom(int i) {
@@ -199,7 +201,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				(Collection<? extends HyperNeatNode>) dominant.getNodes());
 		nodeSet.addAll((Collection<? extends HyperNeatNode>) recessive.getNodes());
 		HyperNeatGenome newGenome = new HyperNeatGenome(
-				child,
+				new ArrayList<GenomeEdge<HyperNeatNode>>(child),
 				new ArrayList<HyperNeatNode>(nodeSet),
 				nextGenomeMarker,
 				dominant.getType(),
@@ -319,16 +321,16 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	}
 	
 	// Add a connection between two existing nodes
-	private void addConnection(
+	private synchronized void addConnection(
 			List<HyperNeatNode> nodeList,
 			List<GenomeEdge<HyperNeatNode>> edgeList,
 			int index) {
 		// Connect two arbitrary nodes - we don't care if they are already connected.
 		// (Similar to growing multiple synapses).
 		HyperNeatNode left = nodeList.get(
-				(int) Math.floor(getRandom()*nodeList.size()));
+				(int) Math.floor(getRandom()*nodeList.size())).clone();
 		HyperNeatNode right = nodeList.get(
-				(int) Math.floor(getRandom()*nodeList.size()));
+				(int) Math.floor(getRandom()*nodeList.size())).clone();
 		GenomeEdge<HyperNeatNode> newGene = new GenomeEdge<HyperNeatNode>(
 				nextEdgeMarkers.get(index), left, right, 30.0, 1);
 		// If this mutated gene has already been created this gen, don't create another

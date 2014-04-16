@@ -51,7 +51,7 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 			new HashMap<Integer, CPPNNode>();
 		
 		/* Create CPPN Nodes. */
-		for (HyperNeatNode hnn : super.nodes) {
+		for (HyperNeatNode hnn : this.nodes) {
 			Integer id = new Integer(hnn.getId());
 			CPPNNode cn = new CPPNNode(false, true,
 				hnn.cppnFunction);
@@ -60,7 +60,7 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 		}
 		
 		/* Create CPPN Edges. */
-		for (GenomeEdge<HyperNeatNode> ge : super.genome) {
+		for (GenomeEdge<HyperNeatNode> ge : this.genome) {
 			HyperNeatNode preHnn = ge.getIn();
 			HyperNeatNode postHnn = ge.getOut();
 			

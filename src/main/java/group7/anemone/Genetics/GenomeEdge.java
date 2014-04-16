@@ -71,22 +71,4 @@ public class GenomeEdge<node extends GenomeNode> implements Serializable{
 	public void addWeight(double change) {
 		this.weight = Math.abs(this.weight + change);
 	}
-
-	/*
-	@Override
-	public boolean equals(Object gene) {
-		 if (gene == null)
-	            return false;
-	     if (gene == this)
-	            return true;
-	     if (!(gene instanceof Gene))
-	            return false;
-
-	     Gene rhs = (Gene) gene;
-	     if (in == rhs.in && out == rhs.out) {
-	    	 return true;
-	     } else {
-	    	 return false;
-	     }
-	}*/
 }
