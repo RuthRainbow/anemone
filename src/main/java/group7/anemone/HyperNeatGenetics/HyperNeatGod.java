@@ -209,14 +209,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		}
 		
 		if (getRandom() < getAddGenomeChance()) {
-			int index = getRandom(child.getSize());
-			HyperNeatGenome toCopy = child.getXthGenome(index);
-			// TODO when adding edge CPPN, also add param. CPPN
-			Collection<HyperNeatNode> nodes = (Collection<HyperNeatNode>) toCopy.getNodes();
-			HyperNeatGenome newGenome = new HyperNeatGenome(
-					toCopy.getGene(), nodes, nextGenomeMarker);
-			nextGenomeMarker++;
-			mutatedGenomes.add(index, newGenome);
+			mutatedGenomes = addGenome(child, mutatedGenomes);
 		}
 		
 		return new Chromosome(mutatedGenomes,
@@ -224,16 +217,29 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 							  (Chromosome) child.getMother(),
 							  (Chromosome) child.getFather());
 	}
+	
+	private ArrayList<HyperNeatGenome> addGenome(
+			Chromosome child, ArrayList<HyperNeatGenome> mutatedGenomes) {
+		int index = getRandom(child.getSize());
+		HyperNeatGenome toCopy = child.getXthGenome(index);
+		// TODO when adding edge CPPN, also add param. CPPN
+		Collection<HyperNeatNode> nodes = (Collection<HyperNeatNode>) toCopy.getNodes();
+		HyperNeatGenome newGenome = new HyperNeatGenome(
+				toCopy.getGene(), nodes, nextGenomeMarker);
+		nextGenomeMarker++;
+		mutatedGenomes.add(index, newGenome);
+		return mutatedGenomes;
+	}
 
 	// Possibly mutate a child structurally or by changing edge weights.
 	private HyperNeatGenome mutate(HyperNeatGenome child, int i) {
 		child = structuralMutation(child, i);
-		parameterMutation(child);
+		child = parameterMutation(child);
 		return weightMutation(child);
 	}
 
 	// Mutate the parameters of a gene.
-	private void parameterMutation(HyperNeatGenome child) {
+	private HyperNeatGenome parameterMutation(HyperNeatGenome child) {
 		if (getRandom() < getParameterMutationChance()) {
 			ArrayList<HyperNeatNode> nodes = (ArrayList<HyperNeatNode>) child.getNodes();
 			HyperNeatNode toMutate = nodes.get(
@@ -247,6 +253,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				mutateParam(func, -1);
 			}
 		}
+		return child;
 	}
 	
 	// Method to mutate one of a b c d tau am or ap by the given amount
