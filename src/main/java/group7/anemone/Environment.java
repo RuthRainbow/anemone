@@ -421,6 +421,9 @@ public class Environment implements Serializable{
 				nodes.add(inputNode1);
 				nodes.add(inputNode2);
 				nodes.add(outputNode);
+				
+				edges.add(edge1);
+				edges.add(edge2);
 
 				HyperNeatGenome g = new HyperNeatGenome(edges,
 					nodes, HyperNeatGenome.Type.NEURON,
