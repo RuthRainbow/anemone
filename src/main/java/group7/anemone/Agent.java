@@ -229,6 +229,8 @@ public class Agent extends SimulationObject implements Serializable {
 		 * The final brain will then be pulled from cFactory by calling "getBrain" and the returned MNetwork can be saved
 		 * into the mnetwork value already stored globally by this agent class.
 		 */
+		
+		MSimulationConfig simConfig;
 
 		//How many input and output nodes to create in the agents brain
 		int inputNodes = 30;
@@ -283,6 +285,12 @@ public class Agent extends SimulationObject implements Serializable {
 
 		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
 		mnetwork = cFactory.getBrain();
+		
+		/* Create and set the simulation configuration parameters. */
+		simConfig = new MSimulationConfig(20);
+		
+		/* Create the simulation instance with our network. */
+		this.msimulation = new MSimulation(this.mnetwork, simConfig);
 	}
 
 	/**
