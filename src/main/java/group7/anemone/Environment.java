@@ -52,7 +52,8 @@ public class Environment implements Serializable{
 	protected final boolean fitnessOnly = true;
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
-	protected final boolean Neat = true;
+	// True -> use NEAT, false -> use HyperNEAT
+	protected final boolean Neat = false;
 
 	static int width = 1000;
 	static int height = 1000;

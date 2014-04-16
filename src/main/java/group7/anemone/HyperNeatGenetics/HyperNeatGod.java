@@ -199,7 +199,11 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				(Collection<? extends HyperNeatNode>) dominant.getNodes());
 		nodeSet.addAll((Collection<? extends HyperNeatNode>) recessive.getNodes());
 		HyperNeatGenome newGenome = new HyperNeatGenome(
-				child, new ArrayList<HyperNeatNode>(nodeSet), nextGenomeMarker);
+				child,
+				new ArrayList<HyperNeatNode>(nodeSet),
+				nextGenomeMarker,
+				dominant.getType(),
+				dominant.getLayerNum());
 		nextGenomeMarker++;
 		return newGenome;
 	}
@@ -226,10 +230,13 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		HyperNeatGenome toCopy = child.getXthGenome(index);
 		// TODO when adding edge CPPN, also add param. CPPN
 		Collection<HyperNeatNode> nodes = (Collection<HyperNeatNode>) toCopy.getNodes();
-		HyperNeatGenome newGenome = new HyperNeatGenome(
-				toCopy.getGene(), nodes, nextGenomeMarker);
+		/*HyperNeatGenome newGenome = new HyperNeatGenome(
+				toCopy.getGene(),
+				nodes,
+				nextGenomeMarker,
+				);
 		nextGenomeMarker++;
-		mutatedGenomes.add(index, newGenome);
+		mutatedGenomes.add(index, newGenome);*/
 		return mutatedGenomes;
 	}
 
@@ -301,7 +308,12 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				max = addNodeBetweenEdges(edgeList, max, nodeList, index);
 			}
 		}
-		HyperNeatGenome newGenome = new HyperNeatGenome(edgeList, nodeList, nextGenomeMarker);
+		HyperNeatGenome newGenome = new HyperNeatGenome(
+				edgeList,
+				nodeList,
+				nextGenomeMarker,
+				child.getType(),
+				child.getLayerNum());
 		nextGenomeMarker++;
 		return newGenome;
 	}

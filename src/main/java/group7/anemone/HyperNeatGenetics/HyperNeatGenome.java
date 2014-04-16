@@ -25,30 +25,23 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	private Type type;
 	private int layer;
 	
-	public HyperNeatGenome(List<GenomeEdge<HyperNeatNode>> genome,
-		Collection<HyperNeatNode> nodes, int historicalMarker,
-		HyperNeatGenome.Type type, int layer)
-	{
+	public HyperNeatGenome(
+			List<GenomeEdge<HyperNeatNode>> genome,
+			Collection<HyperNeatNode> nodes,
+			int historicalMarker,
+			HyperNeatGenome.Type type,
+			int layer) {
 		super(genome, nodes);
 		this.historicalMarker = historicalMarker;
 		this.type = type;
 		this.layer = layer;
 	}
 	
-	public HyperNeatGenome(List<GenomeEdge<HyperNeatNode>> genome,
-		Collection<HyperNeatNode> nodes, int historicalMarker)
-	{
-		/*
-		For now, by default, a created genome will be a neuron cppn.
-		*/
-		this(genome, nodes, historicalMarker,
-			HyperNeatGenome.Type.NEURON, 0);
-	}
-	
-	public HyperNeatGenome(List<GenomeEdge<HyperNeatNode>> edges,
-		Collection<HyperNeatNode> nodes, HyperNeatGenome.Type type,
-		int layer)
-	{
+	public HyperNeatGenome(
+			List<GenomeEdge<HyperNeatNode>> edges,
+			Collection<HyperNeatNode> nodes,
+			HyperNeatGenome.Type type,
+			int layer) {
 		this(edges, nodes, 0, type, layer);
 	}
 	
