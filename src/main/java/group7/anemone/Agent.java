@@ -277,8 +277,8 @@ public class Agent extends SimulationObject implements Serializable {
 				chromosome.getNeuronCPPN(g).getNodes());
 
 			//Call the factory to add the new CPPN's and generate more of the agents brain
-			cFactory.neuronCPPN(buildNeurons,layerSize);
-			cFactory.synapseCPPN(buildSynapse, layerSize);
+			cFactory.neuronCPPN(buildNeurons, 30);
+			cFactory.synapseCPPN(buildSynapse, 30);
 		}
 
 		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
