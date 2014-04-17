@@ -262,10 +262,10 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		mutatedGenomes.add(index, newSynapseGenome);
 		mutatedGenomes.add(index+1, newNeuronGenome);
 	
-		nextNodeMarkers.add(newSynapseGenome.getNodesSize());
-		nextEdgeMarkers.add(newSynapseGenome.getGene().size());
-		nextNodeMarkers.add(newNeuronGenome.getNodesSize());
-		nextEdgeMarkers.add(newNeuronGenome.getGene().size());
+		nextNodeMarkers.add(index, newSynapseGenome.getNodesSize());
+		nextEdgeMarkers.add(index, newSynapseGenome.getGene().size());
+		nextNodeMarkers.add(index+1, newNeuronGenome.getNodesSize());
+		nextEdgeMarkers.add(index+1, newNeuronGenome.getGene().size());
 
 		return mutatedGenomes;
 	}
