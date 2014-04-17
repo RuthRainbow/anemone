@@ -3,6 +3,7 @@ package group7.anemone.HyperNeatGenetics;
 import group7.anemone.CPPN.CPPNFunction;
 import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.Genetics.God;
+import group7.anemone.HyperNeatGenetics.HyperNeatGenome.Type;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -140,6 +141,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		int marker = 0;
 		for (int i = 0; i < dominant.getSize(); i++) {
 			for (int j = marker; j < recessive.getSize(); j++) {
+				if (i >= recessive.getSize()) break;
 				if (dominant.getXthGenome(i).getHistoricalMarker() == 
 					recessive.getXthGenome(i).getHistoricalMarker() ) {
 					marker = j + 1;
@@ -155,7 +157,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				// Perform crossover with the matched Genome
 				newGenome.add(crossover(genome, matches.get(genome)));
 			} else { //Else it didn't match, take it from the dominant
-				// TODO may break CPPN structure!!!!!!
+				// This shouldn't break CPPN structure as all should have same ordering of CPPN types.
 				newGenome.add(genome);
 			}
 		}
@@ -197,9 +199,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 			}
 		}
 		
-		Set<HyperNeatNode> nodeSet = new HashSet<HyperNeatNode>(
-				(Collection<? extends HyperNeatNode>) dominant.getNodes());
-		nodeSet.addAll((Collection<? extends HyperNeatNode>) recessive.getNodes());
+		Set<HyperNeatNode> nodeSet = getNodes(dominant, recessive);
 		HyperNeatGenome newGenome = new HyperNeatGenome(
 				new ArrayList<GenomeEdge<HyperNeatNode>>(child),
 				new ArrayList<HyperNeatNode>(nodeSet),
@@ -208,6 +208,13 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				dominant.getLayerNum());
 		nextGenomeMarker++;
 		return newGenome;
+	}
+	
+	private synchronized Set<HyperNeatNode> getNodes(HyperNeatGenome dominant, HyperNeatGenome recessive) {
+		Set<HyperNeatNode> nodeSet = new HashSet<HyperNeatNode>(
+				(Collection<? extends HyperNeatNode>) dominant.getNodes());
+		nodeSet.addAll((Collection<? extends HyperNeatNode>) recessive.getNodes());
+		return nodeSet;
 	}
 	
 	protected Chromosome mutate(Chromosome child) {
@@ -225,20 +232,42 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 							  (Chromosome) child.getMother(),
 							  (Chromosome) child.getFather());
 	}
-	
+
+	// Insert a new layer of CPPNs into the Chromosome.
 	private ArrayList<HyperNeatGenome> addGenome(
 			Chromosome child, ArrayList<HyperNeatGenome> mutatedGenomes) {
 		int index = getRandom(child.getSize());
 		HyperNeatGenome toCopy = child.getXthGenome(index);
-		// TODO when adding edge CPPN, also add param. CPPN
+		if (toCopy.getType() != Type.NEURON) {
+			index -= 1;
+			toCopy = child.getXthGenome(index);
+		}
+
 		Collection<HyperNeatNode> nodes = (Collection<HyperNeatNode>) toCopy.getNodes();
-		/*HyperNeatGenome newGenome = new HyperNeatGenome(
+		HyperNeatGenome newSynapseGenome = new HyperNeatGenome(
 				toCopy.getGene(),
 				nodes,
 				nextGenomeMarker,
-				);
+				Type.SYNAPSE,
+				toCopy.getLayerNum());
 		nextGenomeMarker++;
-		mutatedGenomes.add(index, newGenome);*/
+		toCopy = child.getXthGenome(index+1);
+		nodes = (Collection<HyperNeatNode>) toCopy.getNodes();
+		HyperNeatGenome newNeuronGenome = new HyperNeatGenome(
+				toCopy.getGene(),
+				nodes,
+				nextGenomeMarker,
+				Type.NEURON,
+				toCopy.getLayerNum());
+		nextGenomeMarker++;		
+		mutatedGenomes.add(index, newSynapseGenome);
+		mutatedGenomes.add(index+1, newNeuronGenome);
+	
+		nextNodeMarkers.add(newSynapseGenome.getNodes().size());
+		nextEdgeMarkers.add(newSynapseGenome.getGene().size());
+		nextNodeMarkers.add(newNeuronGenome.getNodes().size());
+		nextEdgeMarkers.add(newNeuronGenome.getGene().size());
+
 		return mutatedGenomes;
 	}
 
@@ -255,7 +284,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 			ArrayList<HyperNeatNode> nodes = (ArrayList<HyperNeatNode>) child.getNodes();
 			HyperNeatNode toMutate = nodes.get(
 					(int) Math.floor(getRandom()*child.getNodes().size()));
-			
+
 			CPPNFunction func = toMutate.getCPPNFunction();
 
 			if (getRandom() < getParameterIncreaseChance()) {
