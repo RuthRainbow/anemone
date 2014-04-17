@@ -9,7 +9,7 @@ public class HyperNeatFishGod extends HyperNeatGod {
 	public double structuralMutationChance = 0.9f;
 	public double addConnectionChance = 0.8f;
 	public double addNodeChance = 0.8f;
-	public double addGenomeChance = 0.55f;
+	public double addGenomeChance = 0.05f;
 	public double weightMutationChance = 0.8f;
 	// (chance of decrease is 1 - the chance of increase)
 	public double weightIncreaseChance = 0.5f;

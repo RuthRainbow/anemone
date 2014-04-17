@@ -50,10 +50,6 @@ public abstract class Genome<node extends GenomeNode> implements Serializable {
 	public ArrayList<GenomeEdge<node>> getGene() {
 		return this.genome;
 	}
-
-	/*public Collection<node> getNodes() {
-		return this.nodes;
-	}*/
 	
 	public int getNodesSize() {
 		return this.nodes.size();
