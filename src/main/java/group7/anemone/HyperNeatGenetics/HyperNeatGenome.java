@@ -5,7 +5,6 @@ import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.CPPN.CPPN;
 import group7.anemone.CPPN.CPPNNode;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.HashMap;
@@ -35,14 +34,6 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 		this.historicalMarker = historicalMarker;
 		this.type = type;
 		this.layer = layer;
-	}
-	
-	public HyperNeatGenome(
-			List<GenomeEdge<HyperNeatNode>> edges,
-			Collection<HyperNeatNode> nodes,
-			HyperNeatGenome.Type type,
-			int layer) {
-		this(edges, nodes, 0, type, layer);
 	}
 	
 	public CPPN generateCPPN() {

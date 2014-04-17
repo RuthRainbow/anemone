@@ -2,6 +2,7 @@ package group7.anemone.NeatGenetics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import group7.anemone.Genetics.GeneticObject;
 import group7.anemone.Genetics.Genome;
@@ -34,7 +35,7 @@ public class NeatGenome extends Genome<NeatNode> implements GeneticObject {
 	public NeatGenome clone() {
 		return new NeatGenome(
 				(ArrayList<GenomeEdge<NeatNode>>) this.genome.clone(),
-				(Collection<NeatNode>) this.nodes.clone(),
+				(Collection<NeatNode>) this.copyNodes(),
 				this.speciesId,
 				this.parents.getMother(),
 				this.parents.getFather());
@@ -105,7 +106,7 @@ public class NeatGenome extends Genome<NeatNode> implements GeneticObject {
 		return this.speciesId;
 	}
 
-	public ArrayList<NeatNode> getNodes() {
+	public List<NeatNode> getNodes() {
 		return this.nodes;
 	}
 

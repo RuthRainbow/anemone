@@ -392,7 +392,7 @@ public class Environment implements Serializable{
 			HyperNeatNode inputNode1, inputNode2, outputNode;
 			GenomeEdge<HyperNeatNode> edge1, edge2;
 			CPPNFunction basicFunc;
-			int layer, id;
+			int layer, nodeId, genomeId;
 			
 			genomes = new ArrayList<HyperNeatGenome>();
 			
@@ -401,8 +401,9 @@ public class Environment implements Serializable{
 			*/
 			basicFunc = new CPPNFunction(0, 0, 0, 0);
 			layer = 0;
-			id = 0;
+			genomeId = 0;
 			for (int i=0; i<2; i++) {
+				nodeId = 0;
 				ArrayList<HyperNeatNode> nodes =
 					new ArrayList<HyperNeatNode>();
 				
@@ -410,9 +411,9 @@ public class Environment implements Serializable{
 					new ArrayList<GenomeEdge<HyperNeatNode>>();
 				
 				/* Create CPPN nodes for use with genetic package. */
-				inputNode1 = new HyperNeatNode(id++, basicFunc, HyperNeatNode.Type.INPUT);
-				inputNode2 = new HyperNeatNode(id++, basicFunc, HyperNeatNode.Type.INPUT);
-				outputNode = new HyperNeatNode(id++, basicFunc, HyperNeatNode.Type.OUTPUT);
+				inputNode1 = new HyperNeatNode(nodeId++, basicFunc, HyperNeatNode.Type.INPUT);
+				inputNode2 = new HyperNeatNode(nodeId++, basicFunc, HyperNeatNode.Type.INPUT);
+				outputNode = new HyperNeatNode(nodeId++, basicFunc, HyperNeatNode.Type.OUTPUT);
 				
 				/* Create accompanying CPPN edges. */
 				edge1 = new GenomeEdge<HyperNeatNode>(0,
@@ -427,17 +428,17 @@ public class Environment implements Serializable{
 				edges.add(edge1);
 				edges.add(edge2);
 
-				HyperNeatGenome g = new HyperNeatGenome(edges,
-					nodes, HyperNeatGenome.Type.NEURON,
-					layer++);
+				HyperNeatGenome g = new HyperNeatGenome(
+						edges, nodes, genomeId, HyperNeatGenome.Type.NEURON, layer++);
+				genomeId++;
 				
 				genomes.add(g);
 			}
 			
 			/* Create two synapse layer CPPNs. */
 			layer = 0;
-			id = 0;
 			for (int i=0; i<2; i++) {
+				nodeId = 0;
 				ArrayList<HyperNeatNode> nodes =
 					new ArrayList<HyperNeatNode>();
 				
@@ -445,9 +446,9 @@ public class Environment implements Serializable{
 					new ArrayList<GenomeEdge<HyperNeatNode>>();
 				
 				/* Create CPPN nodes for use with genetic package. */
-				inputNode1 = new HyperNeatNode(id++, basicFunc, HyperNeatNode.Type.INPUT);
-				inputNode2 = new HyperNeatNode(id++, basicFunc, HyperNeatNode.Type.INPUT);
-				outputNode = new HyperNeatNode(id++, basicFunc, HyperNeatNode.Type.OUTPUT);
+				inputNode1 = new HyperNeatNode(nodeId++, basicFunc, HyperNeatNode.Type.INPUT);
+				inputNode2 = new HyperNeatNode(nodeId++, basicFunc, HyperNeatNode.Type.INPUT);
+				outputNode = new HyperNeatNode(nodeId++, basicFunc, HyperNeatNode.Type.OUTPUT);
 				
 				/* Create accompanying CPPN edges. */
 				edge1 = new GenomeEdge<HyperNeatNode>(0,
@@ -462,9 +463,9 @@ public class Environment implements Serializable{
 				edges.add(edge1);
 				edges.add(edge2);
 				
-				HyperNeatGenome g = new HyperNeatGenome(edges,
-					nodes, HyperNeatGenome.Type.SYNAPSE,
-					layer++);
+				HyperNeatGenome g = new HyperNeatGenome(
+						edges, nodes, genomeId, HyperNeatGenome.Type.SYNAPSE, layer++);
+				genomeId++;
 				
 				genomes.add(g);
 			}
@@ -527,15 +528,12 @@ public class Environment implements Serializable{
 		if(FLAG_CONNECT_ALL){
 			for (NeatNode vn : visualNodes) {
 				for (NeatNode mn : motorNodes) {
-					int preID = vn.getId();
-					int postID = mn.getId();
 					GenomeEdge<NeatNode> g = new GenomeEdge<NeatNode>(total++, vn, mn, 30.0, 1);
 					edges.add(g);
 				}
 			}
 		}
-		//TODO do we need another 0 GenomeEdge in here for some reason?
-		// Last parameter is historical marker - this needs to be unique per genome!!!
+
 		return new NeatGenome(edges, nodes, 0, null, null);
 	}
 

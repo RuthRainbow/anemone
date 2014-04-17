@@ -18,7 +18,8 @@ public class NeatFishGod extends NeatGod {
 	public double twinChance = 0.05f;
 	public double matchedGeneChance = 0.5f;
 
-	public double offspringProportion = 0.05f; // ALSO COMPLETELY ARBITRARY
+	// Change this if you think too many offspring are being generated.
+	public double offspringProportion = 0.05f;
 	// Parameters for use in difference calculation.
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes

@@ -9,7 +9,7 @@ public class HyperNeatFishGod extends HyperNeatGod {
 	public double structuralMutationChance = 0.9f;
 	public double addConnectionChance = 0.8f;
 	public double addNodeChance = 0.8f;
-	public double addGenomeChance = 0.05f;
+	public double addGenomeChance = 0.55f;
 	public double weightMutationChance = 0.8f;
 	// (chance of decrease is 1 - the chance of increase)
 	public double weightIncreaseChance = 0.5f;
@@ -20,7 +20,8 @@ public class HyperNeatFishGod extends HyperNeatGod {
 	public double twinChance = 0.05f;
 	public double matchedGeneChance = 0.5f;
 
-	public double offspringProportion = 0.3f; // ALSO COMPLETELY ARBITRARY
+	// Change this if you think too many offspring are being generated.
+	public double offspringProportion = 0.05f;
 	// Parameters for use in difference calculation (can be tweaked).
 	public double c1 = 0.45f; //weighting of excess genes
 	public double c2 = 0.5f; //weighting of disjoint genes
@@ -30,8 +31,8 @@ public class HyperNeatFishGod extends HyperNeatGod {
 
 	// Threshold for max distance between species member and representative.
 	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
-	public double compatibilityThreshold = 1.3;
-	public double minReproduced = 5;
+	public double compatibilityThreshold = 2.5;
+	public double minReproduced = 3;
 
 	// Threshold over which an agent's fitness isn't counted in the sharing function.
 	public double sharingThreshold = 20;

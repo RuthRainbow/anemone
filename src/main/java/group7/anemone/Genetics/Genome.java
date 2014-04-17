@@ -5,6 +5,7 @@ import group7.anemone.Genetics.GenomeEdge;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -14,11 +15,11 @@ public abstract class Genome<node extends GenomeNode> implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;
 	// Genes represent edges
 	protected final ArrayList<GenomeEdge<node>> genome;
-	protected final ArrayList<node> nodes;
+	protected final List<node> nodes;
 
 	public Genome(List<GenomeEdge<node>> genome, Collection<node> nodes) {
 		this.genome = new ArrayList<GenomeEdge<node>>(genome);
-		this.nodes = new ArrayList<node>(nodes);
+		this.nodes = Collections.synchronizedList(new ArrayList<node>(nodes));
 	}
 
 	@Override
@@ -50,8 +51,20 @@ public abstract class Genome<node extends GenomeNode> implements Serializable {
 		return this.genome;
 	}
 
-	public Collection<node> getNodes() {
+	/*public Collection<node> getNodes() {
 		return this.nodes;
+	}*/
+	
+	public int getNodesSize() {
+		return this.nodes.size();
+	}
+	
+	public synchronized ArrayList<node> copyNodes() {
+		ArrayList<node> toReturn = new ArrayList<node>();
+		for (node n : this.nodes) {
+			toReturn.add(n);
+		}
+		return toReturn;
 	}
 
 	public int getXthHistoricalMarker(int x) {

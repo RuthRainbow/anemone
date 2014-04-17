@@ -99,7 +99,6 @@ public abstract class NeatGod extends God<NeatGenome> {
 
 	// Method for crossover - return crossover method you want.
 	// The mother should always be the parent with the highest fitness.
-	// TODO may be a problem if they have equal fitness that one is always dominant
 	public NeatGenome crossover(NeatGenome dominant, NeatGenome recessive) {
 		ArrayList<GenomeEdge<NeatNode>> child = new ArrayList<GenomeEdge<NeatNode>>();
 
@@ -236,7 +235,7 @@ public abstract class NeatGod extends God<NeatGenome> {
 		GenomeEdge<NeatNode> toMutate = edgeList.get(
 				(int) Math.floor(getRandom() * edgeList.size()));
 		edgeList.remove(toMutate);
-		// Make a new intermediate node TODO can do this more randomly than default params.
+		// Make a new intermediate node
 		NeatNode newNode = NeatNode.createRSNeatNode(nextNodeMarker);
 		nodeList.add(newNode);
 		nextNodeMarker++;

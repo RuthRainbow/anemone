@@ -47,7 +47,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		int genomeSize = chromo.getSize();
 		for (int i = 0; i < genomeSize; i++) {
 			HyperNeatGenome thisGenome = chromo.getXthGenome(i);
-			nextNodeMarkers.add(thisGenome.getNodes().size());
+			nextNodeMarkers.add(thisGenome.getNodesSize());
 			nextEdgeMarkers.add(thisGenome.getGene().size());
 		}
 		nextGenomeMarker = genomeSize;
@@ -167,7 +167,6 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 
 	// Method for crossover - return crossover method you want.
 	// The mother should always be the parent with the highest fitness.
-	// TODO may be a problem if they have equal fitness that one is always dominant
 	private HyperNeatGenome crossover(HyperNeatGenome dominant, HyperNeatGenome recessive) {
 		List<GenomeEdge<HyperNeatNode>> child = new ArrayList<GenomeEdge<HyperNeatNode>>();
 
@@ -212,8 +211,8 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	
 	private synchronized Set<HyperNeatNode> getNodes(HyperNeatGenome dominant, HyperNeatGenome recessive) {
 		Set<HyperNeatNode> nodeSet = new HashSet<HyperNeatNode>(
-				(Collection<? extends HyperNeatNode>) dominant.getNodes());
-		nodeSet.addAll((Collection<? extends HyperNeatNode>) recessive.getNodes());
+				(Collection<? extends HyperNeatNode>) dominant.copyNodes());
+		nodeSet.addAll(recessive.copyNodes());
 		return nodeSet;
 	}
 	
@@ -243,7 +242,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 			toCopy = child.getXthGenome(index);
 		}
 
-		Collection<HyperNeatNode> nodes = (Collection<HyperNeatNode>) toCopy.getNodes();
+		List<HyperNeatNode> nodes = toCopy.copyNodes();
 		HyperNeatGenome newSynapseGenome = new HyperNeatGenome(
 				toCopy.getGene(),
 				nodes,
@@ -252,7 +251,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				toCopy.getLayerNum());
 		nextGenomeMarker++;
 		toCopy = child.getXthGenome(index+1);
-		nodes = (Collection<HyperNeatNode>) toCopy.getNodes();
+		nodes = toCopy.copyNodes();
 		HyperNeatGenome newNeuronGenome = new HyperNeatGenome(
 				toCopy.getGene(),
 				nodes,
@@ -263,9 +262,9 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		mutatedGenomes.add(index, newSynapseGenome);
 		mutatedGenomes.add(index+1, newNeuronGenome);
 	
-		nextNodeMarkers.add(newSynapseGenome.getNodes().size());
+		nextNodeMarkers.add(newSynapseGenome.getNodesSize());
 		nextEdgeMarkers.add(newSynapseGenome.getGene().size());
-		nextNodeMarkers.add(newNeuronGenome.getNodes().size());
+		nextNodeMarkers.add(newNeuronGenome.getNodesSize());
 		nextEdgeMarkers.add(newNeuronGenome.getGene().size());
 
 		return mutatedGenomes;
@@ -280,10 +279,10 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 
 	// Mutate the parameters of a gene.
 	private HyperNeatGenome parameterMutation(HyperNeatGenome child) {
+		List<HyperNeatNode> nodes = child.copyNodes();
 		if (getRandom() < getParameterMutationChance()) {
-			ArrayList<HyperNeatNode> nodes = (ArrayList<HyperNeatNode>) child.getNodes();
 			HyperNeatNode toMutate = nodes.get(
-					(int) Math.floor(getRandom()*child.getNodes().size()));
+					(int) Math.floor(getRandom()*child.getNodesSize()));
 
 			CPPNFunction func = toMutate.getCPPNFunction();
 
@@ -293,7 +292,12 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				mutateParam(func, -1);
 			}
 		}
-		return child;
+		return new HyperNeatGenome(
+				child.getGene(),
+				nodes,
+				child.getHistoricalMarker(),
+				child.getType(),
+				child.getLayerNum());
 	}
 	
 	// Method to mutate one of a b c d tau am or ap by the given amount
@@ -326,7 +330,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 			max = Math.max(gene.getOut().id, max);
 		}
 
-		List<HyperNeatNode> nodeList = (List<HyperNeatNode>) child.getNodes();
+		List<HyperNeatNode> nodeList = (List<HyperNeatNode>) child.copyNodes();
 
 		if (getRandom() < getStructuralMutationChance()) {
 			// Add a new connection between any two nodes
@@ -387,7 +391,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		GenomeEdge<HyperNeatNode> toMutate = edgeList.get(
 				(int) Math.floor(getRandom() * edgeList.size()));
 		edgeList.remove(toMutate);
-		// Make a new intermediate node TODO can do this more randomly than default params.
+		// Make a new intermediate node
 		// Increment max to keep track of max node id.
 		max += 1;
 		HyperNeatNode newNode = HyperNeatNode.createRandomNeatNode(nextNodeMarkers.get(index));

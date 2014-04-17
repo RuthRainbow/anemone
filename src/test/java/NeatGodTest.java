@@ -159,8 +159,7 @@ public class NeatGodTest extends TestCase {
 		NeatGenome child = createChild();
 
 		NeatNode newNode = NeatNode.createRSNeatNode(2);
-		@SuppressWarnings("unchecked")
-		ArrayList<NeatNode> newNodes = (ArrayList<NeatNode>) child.getNodes().clone();
+		ArrayList<NeatNode> newNodes = (ArrayList<NeatNode>) child.copyNodes();
 		newNodes.add(newNode);
 
 		@SuppressWarnings("unchecked")
