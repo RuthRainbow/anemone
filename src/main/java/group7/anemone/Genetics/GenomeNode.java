@@ -13,6 +13,6 @@ public abstract class GenomeNode {
 	
 	@Override
 	public String toString() {
-		return ""+this.id;
+		return "ID: "+this.id;
 	}
 }

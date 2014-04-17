@@ -21,7 +21,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	private List<GenomeEdge<HyperNeatNode>> newGenes;
 	private ArrayList<Integer> nextEdgeMarkers;
 	private ArrayList<Integer> nextNodeMarkers;
-	private int nextGenomeMarker;
+	public int nextGenomeMarker;
 	
 	@Override
 	protected void initialiseDataStructures() {
@@ -67,7 +67,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	}
 
 	// Compute distance between thisAgent and speciesRep (see NEAT specification).
-	protected double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
+	public double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		Pair<AgentFitness> agentPair = new Pair<AgentFitness>(thisAgent, speciesRep);
 
 		Chromosome agent = (Chromosome) thisAgent.geneticRep;
@@ -133,7 +133,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		return children;
 	}
 	
-	protected Chromosome crossover(Chromosome dominant, Chromosome recessive) {
+	public Chromosome crossover(Chromosome dominant, Chromosome recessive) {
 		ArrayList<HyperNeatGenome> newGenome = new ArrayList<HyperNeatGenome>();
 		
 		// Match Genomes by historical marker
@@ -143,13 +143,13 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 			for (int j = marker; j < recessive.getSize(); j++) {
 				if (i >= recessive.getSize()) break;
 				if (dominant.getXthGenome(i).getHistoricalMarker() == 
-					recessive.getXthGenome(i).getHistoricalMarker() ) {
+					recessive.getXthGenome(i).getHistoricalMarker()) {
 					marker = j + 1;
 					matches.put(dominant.getXthGenome(i), recessive.getXthGenome(j));
 				}
 			}
 		}
-		
+
 		// Perform crossover, taking disjoint Genomes from dominant Chromosome
 		for (int i = 0; i < dominant.getSize(); i++) {
 			HyperNeatGenome genome = dominant.getXthGenome(i);
@@ -167,6 +167,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 
 	// Method for crossover - return crossover method you want.
 	// The mother should always be the parent with the highest fitness.
+	@SuppressWarnings("unchecked")
 	private HyperNeatGenome crossover(HyperNeatGenome dominant, HyperNeatGenome recessive) {
 		List<GenomeEdge<HyperNeatNode>> child = new ArrayList<GenomeEdge<HyperNeatNode>>();
 
@@ -199,13 +200,15 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		}
 		
 		Set<HyperNeatNode> nodeSet = getNodes(dominant, recessive);
+		ArrayList<HyperNeatNode> nodes = new ArrayList<HyperNeatNode>(nodeSet);
+		Collections.sort(nodes);
+		// Copy the dominant's historical marker as most genes will be from there.
 		HyperNeatGenome newGenome = new HyperNeatGenome(
 				new ArrayList<GenomeEdge<HyperNeatNode>>(child),
-				new ArrayList<HyperNeatNode>(nodeSet),
-				nextGenomeMarker,
+				nodes,
+				dominant.getHistoricalMarker(),
 				dominant.getType(),
 				dominant.getLayerNum());
-		nextGenomeMarker++;
 		return newGenome;
 	}
 	
@@ -233,7 +236,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	}
 
 	// Insert a new layer of CPPNs into the Chromosome.
-	private ArrayList<HyperNeatGenome> addGenome(
+	public ArrayList<HyperNeatGenome> addGenome(
 			Chromosome child, ArrayList<HyperNeatGenome> mutatedGenomes) {
 		int index = getRandom(child.getSize());
 		HyperNeatGenome toCopy = child.getXthGenome(index);
@@ -243,29 +246,33 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		}
 
 		List<HyperNeatNode> nodes = toCopy.copyNodes();
-		HyperNeatGenome newSynapseGenome = new HyperNeatGenome(
-				toCopy.getGene(),
-				nodes,
-				nextGenomeMarker,
-				Type.SYNAPSE,
-				toCopy.getLayerNum());
-		nextGenomeMarker++;
-		toCopy = child.getXthGenome(index+1);
-		nodes = toCopy.copyNodes();
 		HyperNeatGenome newNeuronGenome = new HyperNeatGenome(
 				toCopy.getGene(),
 				nodes,
 				nextGenomeMarker,
 				Type.NEURON,
 				toCopy.getLayerNum());
+		nextGenomeMarker++;
+		toCopy = child.getXthGenome(index+1);
+		nodes = toCopy.copyNodes();
+		HyperNeatGenome newSynapseGenome = new HyperNeatGenome(
+				toCopy.getGene(),
+				nodes,
+				nextGenomeMarker,
+				Type.SYNAPSE,
+				toCopy.getLayerNum());
 		nextGenomeMarker++;		
-		mutatedGenomes.add(index, newSynapseGenome);
-		mutatedGenomes.add(index+1, newNeuronGenome);
+		mutatedGenomes.add(index, newNeuronGenome);
+		mutatedGenomes.add(index+1, newSynapseGenome);
 	
-		nextNodeMarkers.add(index, newSynapseGenome.getNodesSize());
-		nextEdgeMarkers.add(index, newSynapseGenome.getGene().size());
-		nextNodeMarkers.add(index+1, newNeuronGenome.getNodesSize());
-		nextEdgeMarkers.add(index+1, newNeuronGenome.getGene().size());
+		nextNodeMarkers.add(index, newNeuronGenome.getNodesSize());
+		nextEdgeMarkers.add(index, newNeuronGenome.getGene().size());
+		nextNodeMarkers.add(index+1, newSynapseGenome.getNodesSize());
+		nextEdgeMarkers.add(index+1, newSynapseGenome.getGene().size());
+		
+		for (int i = index+2; i < mutatedGenomes.size(); i++) {
+			mutatedGenomes.get(i).incLayerNum();
+		}
 
 		return mutatedGenomes;
 	}
@@ -278,7 +285,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	}
 
 	// Mutate the parameters of a gene.
-	private HyperNeatGenome parameterMutation(HyperNeatGenome child) {
+	public HyperNeatGenome parameterMutation(HyperNeatGenome child) {
 		List<HyperNeatNode> nodes = child.copyNodes();
 		if (getRandom() < getParameterMutationChance()) {
 			HyperNeatNode toMutate = nodes.get(
@@ -319,7 +326,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	}
 
 	// Mutate a genome structurally
-	private HyperNeatGenome structuralMutation(HyperNeatGenome child, int index) {
+	public HyperNeatGenome structuralMutation(HyperNeatGenome child, int index) {
 		List<GenomeEdge<HyperNeatNode>> edgeList = 
 				new ArrayList<GenomeEdge<HyperNeatNode>>();
 		int max = 0;

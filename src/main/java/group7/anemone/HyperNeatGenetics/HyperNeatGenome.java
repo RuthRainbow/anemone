@@ -80,4 +80,32 @@ public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	public int getLayerNum() {
 		return layer;
 	}
+
+	public void incLayerNum() {
+		this.layer++;
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof HyperNeatGenome)) {
+			return false;
+		} else {
+			HyperNeatGenome other = (HyperNeatGenome) o;
+			if (other.historicalMarker != this.historicalMarker) return false;
+			if (other.type != this.type) return false;
+			if (other.layer != this.layer) return false;
+			if (this.genome.size() != other.genome.size()) return false;
+			for (int i = 0; i < this.genome.size(); i++) {
+				if (!this.genome.get(i).equals(other.getXthGene(i))) return false;
+			}
+			if (this.nodes.size() != other.getNodesSize()) return false;
+			for (int i = 0; i < this.getNodesSize(); i++) {
+				if (!this.nodes.get(i).equals(other.nodes.get(i))) return false;
+			}
+			return true;
+		}
+	}
+	
+	public String toString() {
+		return "ID: " + this.historicalMarker + " type: " + this.type + " layer: " + this.layer;
+	}
 }

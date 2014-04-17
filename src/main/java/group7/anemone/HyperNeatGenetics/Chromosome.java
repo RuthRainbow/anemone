@@ -107,5 +107,32 @@ public class Chromosome implements GeneticObject, Serializable {
 	public GeneticObject getFather() {
 		return this.parents.getFather();
 	}
+	
+	public String toString() {
+		return "Species: " + this.speciesId + " Genome: " + this.genomes;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof Chromosome)) {
+			return false;
+		} else {
+			Chromosome otherChromo = (Chromosome) other;
+			if (otherChromo.speciesId != this.speciesId) return false;
+			if (otherChromo.genomes.size() != this.genomes.size()) return false;
+			for (int i = 0; i < this.genomes.size(); i++) {
+				if (!(this.genomes.get(i).equals(otherChromo.genomes.get(i)))) return false;
+			}
+			if (this.parents.getMother() == null && otherChromo.getMother() != null) return false;
+			if (this.parents.getMother() != null && otherChromo.getMother() == null) return false;
+			if (this.parents.getMother() != null && otherChromo.getMother() != null
+					&& !this.parents.getMother().equals(otherChromo.getMother())) return false;
+			if (this.parents.getFather() == null && otherChromo.getFather() != null) return false;
+			if (this.parents.getFather() != null && otherChromo.getFather() == null) return false;
+			if (this.parents.getFather() != null && otherChromo.getFather() != null
+					&& !this.parents.getFather().equals(otherChromo.getFather())) return false;
+			return true;
+		}
+	}
 
 }

@@ -67,4 +67,21 @@ public class CPPNFunction {
 	public void setParamC(double paramC) {
 		this.paramC = paramC;
 	}
+	
+	public String toString() {
+		return "Type: " + this.type + " A: " + this.paramA + " B: " + this.paramB + " C: " + this.paramC;
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof CPPNFunction)) {
+			return false;
+		} else {
+			CPPNFunction other = (CPPNFunction) o;
+			if (other.paramA != this.paramA) return false;
+			if (other.paramB != this.paramB) return false;
+			if (other.paramC != this.paramC) return false;
+			if (other.type != this.type) return false; 
+			return true;
+		}
+	}
 }
