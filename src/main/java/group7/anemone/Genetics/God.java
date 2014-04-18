@@ -384,7 +384,8 @@ noImprovementCount--;
 	}
 
 	// Class to hold two objects together so we can map to a distance.
-	public static class Pair<E> {
+	public static class Pair<E> implements Serializable{
+		private static final long serialVersionUID = 8227900710982106868L;
 		private E first;
 		private E second;
 

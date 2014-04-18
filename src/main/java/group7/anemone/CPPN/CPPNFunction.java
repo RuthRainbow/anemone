@@ -1,6 +1,10 @@
 package group7.anemone.CPPN;
 
-public class CPPNFunction {
+import java.io.Serializable;
+
+public class CPPNFunction implements Serializable{
+	private static final long serialVersionUID = 4880158090809704826L;
+
 	protected double paramA, paramB, paramC;
 	
 	private int type;

@@ -3,6 +3,10 @@ package group7.anemone.Genetics;
 public abstract class GenomeNode {
 	public final int id;
 	
+	public GenomeNode() {
+		this.id = -1;
+	}
+	
 	public GenomeNode(int id) {
 		this.id = id;
 	}

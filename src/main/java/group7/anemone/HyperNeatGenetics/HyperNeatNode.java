@@ -3,11 +3,13 @@ package group7.anemone.HyperNeatGenetics;
 import group7.anemone.CPPN.CPPNFunction;
 import group7.anemone.Genetics.GenomeNode;
 
+import java.io.Serializable;
 import java.util.Random;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-public class HyperNeatNode extends GenomeNode implements Comparable {
+public class HyperNeatNode extends GenomeNode implements Comparable, Serializable {
+	private static final long serialVersionUID = 803586439941995938L;
 	CPPNFunction cppnFunction;
 	
 	public enum Type {
@@ -93,7 +95,7 @@ public class HyperNeatNode extends GenomeNode implements Comparable {
         toHashCode();
 	}
 
-	@Override
+	//@Override
 	public int compareTo(Object o) {
 		HyperNeatNode other = (HyperNeatNode) o;
 		if (other.id < this.id) return 1;
