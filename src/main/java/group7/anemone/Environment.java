@@ -42,8 +42,10 @@ public class Environment implements Serializable{
 	@SuppressWarnings("rawtypes")
 	private God sharkGod;
 	private int tick = 0;
+	private int fishGeneration = 0;
+	private int sharkGeneration = 0;
 	private int totalTick = 0;
-	private int sharkStart = 30000;
+	private int sharkStart = 10000;
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
 	private static ArrayList<Food> food;
@@ -59,7 +61,9 @@ public class Environment implements Serializable{
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
 	// True -> use NEAT, false -> use HyperNEAT
-	protected final boolean Neat = false;
+	protected final boolean Neat = true;
+	//True => sharks on, false => sharks off
+	protected final boolean SharksOn = false;
 
 	static int width = 1000;
 	static int height = 1000;
@@ -334,7 +338,7 @@ public class Environment implements Serializable{
     	}
     	tick++;
     	
-    	if (totalTick == sharkStart) {
+    	if (SharksOn && (totalTick == sharkStart)) {
 			for (int i = 0; i < Simulation.numStartingSharks; i++) {
 				int x = (int) Math.floor(Environment.width*0.8 + Math.random() * Environment.width*0.2);
 				int y = (int) Math.floor(Environment.height*0.8 + Math.random() * Environment.height*0.2);
@@ -347,7 +351,8 @@ public class Environment implements Serializable{
     	}
     	
     	if (tick % 1000 == 0) {
-    		if (tick % 2000 == 0 && totalTick > sharkStart) {
+    		if (SharksOn && tick % 2000 == 0 && totalTick > sharkStart) {
+    			sharkGeneration++;
     			@SuppressWarnings("unchecked")
 				ArrayList<GeneticObject> nextSharks = sharkGod.BreedWithSpecies(sharks, fitnessOnly);
    
@@ -372,6 +377,7 @@ public class Environment implements Serializable{
     			// Reset tick until next generation
     			tick = 0;
     		}
+    		fishGeneration++;
     		@SuppressWarnings("unchecked")
 			ArrayList<GeneticObject> nextFish = fishGod.BreedWithSpecies(fishes, fitnessOnly);
 
@@ -638,6 +644,19 @@ public class Environment implements Serializable{
 	protected void removeFood(Food fd) {
 		food.remove(fd);
 		foodPos.remove(fd.coords);
+	}
+	
+	public int getFishGeneration() {
+		return fishGeneration;
+	}
+	
+	public int getSharkGeneration() {
+		return sharkGeneration;
+	}
+	
+	
+	public int getTick() {
+		return tick;
 	}
 
 	protected ArrayList<Agent> getAllFishes(){

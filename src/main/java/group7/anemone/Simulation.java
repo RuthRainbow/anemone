@@ -322,7 +322,8 @@ public class Simulation extends PApplet {
 		fill(255);
 		text("FrameRate: " + frameRate, 10, 10);	//Displays framerate in the top left hand corner
 		text("Mouse X: " + mouseX + "Mouse Y: " + mouseY, 10, 30);
-    	
+		text("Fish Generation: " + env.getFishGeneration(), 10, 50);
+		text("Ticks to next fish generation: " + (1000 - (env.getTick() % 1000)), 10, 70);
 	}
 
 	private void drawSimulation(PApplet canvas){

@@ -719,10 +719,19 @@ public class Agent extends SimulationObject implements Serializable {
 	public double getHealth() {
 		return health;
 	}
+	
+	public int getNumWallsHit() {
+		return numWallsHit;
+	}
+	
+	public int getNumFoodsEaten() {
+		return numFoodsEaten;
+	}
 
 	public double getViewHeading() {
 		return viewHeading;
 	}
+
 
 	public double getVisionRange() {
 		return visionRange;

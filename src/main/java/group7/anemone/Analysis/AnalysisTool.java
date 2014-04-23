@@ -67,6 +67,10 @@ public class AnalysisTool extends PApplet {
 	private double distanceFromMouse = 0;
 	private double distanceFromFOV = 0;
 	private int mouseMode = 0;
+	private double bestFishFitness = 0;
+	private double averageFishFitness = 0;
+	private double bestSharkFitness = 0;
+	private double averageSharkFitness = 0;
 	
 	private boolean DEV_MODE = false;
 	
@@ -93,6 +97,8 @@ public class AnalysisTool extends PApplet {
 		}else{
 			restoreEnvironment();
 		}
+		
+		
 	}
 	public void mousePressed(){
 		if(win.mousePressed()) return;
@@ -202,8 +208,16 @@ public class AnalysisTool extends PApplet {
 		}
 		
 		updateAgentBrains();
-		
 		win.draw();
+		
+		fill(255);
+		text("Fish Generation: " + env.getFishGeneration(), screen.width-240, 500);
+		text("Fish Best Fitness: " + bestFishFitness, screen.width-240, 520);
+		text("Fish Average Fitness: " + averageFishFitness, screen.width-240, 540);
+		
+		text("Shark Generation: " + env.getSharkGeneration(), screen.width-240, 570);
+		text("Shark Best Fitness: " + bestSharkFitness, screen.width-240, 590);
+		text("Shark Average Fitness: " + averageSharkFitness, screen.width-240, 610);
 	}
 	
 	private void updateAgentBrains(){
@@ -222,14 +236,36 @@ public class AnalysisTool extends PApplet {
 	private void loadEnvironment(){
 		Agent.configNumSegments = env.agentNumSegments;
 		selectedAgent = env.getAllAgents().get(0);
-		
 		listOfAgents.clear();
+		int numOfFish = 0;
+		
 		for(Agent ag : env.getAllAgents()){
 			listOfAgents.addItem((ag.getType() == Collision.TYPE_ENEMY ? "Enemy" : "Agent"), 
 					"Fitness: " + (Math.round(ag.getFitness() * 100) / 100.0) + 
-					"\nAge: " + (ag.getAge()), ag);
+					"  Age: " + (ag.getAge()) +
+					"\nWalls Hit: "+ (ag.getNumWallsHit()) +
+					"  Food Eaten: " + (ag.getNumFoodsEaten()) , ag);
 			ag.updateCanSee(new ArrayList<SightInformation>());
+			
+			
+			if (ag.getType() == Collision.TYPE_AGENT) {
+				if( ag.getFitness() > bestFishFitness){
+					bestFishFitness = ag.getFitness();
+				}
+				averageFishFitness += ag.getFitness();	
+				numOfFish++;
+			} else {
+				if( ag.getFitness() > bestSharkFitness){
+					bestSharkFitness = ag.getFitness();
+				}
+				bestFishFitness = ag.getFitness();
+			}			
 		}
+		averageFishFitness = ((numOfFish==0) ? 0 : averageFishFitness/numOfFish);
+		averageSharkFitness = ((numOfFish==env.getAllAgents().size()) 
+				? 0:averageSharkFitness/(env.getAllAgents().size() - numOfFish));
+
+
 	}
 	private void setupUI(){
 		//Set colors of each element of simulation

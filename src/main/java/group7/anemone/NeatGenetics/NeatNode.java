@@ -1,10 +1,13 @@
 package group7.anemone.NeatGenetics;
 
+import java.io.Serializable;
+
 import group7.anemone.Genetics.GenomeNode;
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuronParams;
 
-public class NeatNode extends GenomeNode {
+public class NeatNode extends GenomeNode implements Serializable {
+	private static final long serialVersionUID = 803586439941995938L;
 	private MNeuronParams params;
 
 	public NeatNode(int id, MNeuronParams params) {

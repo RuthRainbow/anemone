@@ -324,6 +324,18 @@ noImprovementCount--;
 	protected abstract t crossover(t dominant, t recessive);
 
 	protected abstract t mutate(t child);
+	
+	public double getBestFitness() {
+		return bestFitness;
+	}
+	
+	public double getWorstFitness() {
+		return worstFitness;
+	}
+	
+	public double getAverageFitness() {
+		return averageFitness;
+	}
 
 	// Class used to hold an entire species.
 	public class Species implements Serializable {
