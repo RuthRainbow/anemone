@@ -574,6 +574,7 @@ public class Simulation extends PApplet {
 		btnSelectThrust.setEventHandler(new UIAction(){
 			public void click(UIButton btn){
 				if(selectedAgent != null){
+					selectedAgent.thrust(5);
 				}
 			}
 		});
@@ -901,7 +902,12 @@ public class Simulation extends PApplet {
 		if(diag.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
 		try{
-			File file = new File(diag.getSelectedFile().getAbsoluteFile() + ".env");
+			String filename = diag.getSelectedFile().getAbsoluteFile().getAbsolutePath();
+			if(!filename.endsWith(".env")){
+				filename = filename + ".env";
+			}
+			
+			File file = new File(filename);
 			FileOutputStream output = new FileOutputStream(file);
 			ObjectOutputStream out = new ObjectOutputStream(output);
 			out.writeObject(env);

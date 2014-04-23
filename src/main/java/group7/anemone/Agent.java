@@ -1,6 +1,5 @@
 package group7.anemone;
 
-import group7.anemone.CPPN.CPPNNode;
 import group7.anemone.CPPN.CPPNSimulation;
 import group7.anemone.CPPN.CPPNFactory;
 import group7.anemone.HyperNeatGenetics.Chromosome;
@@ -40,7 +39,7 @@ public class Agent extends SimulationObject implements Serializable {
 	transient PApplet parent;
 
 	/* Anatomical parameters. */
-	public static int configNumSegments = 7;
+	public static int configNumSegments = 2;
 	final double visionRange = 100;
 	final double fov = 90;
 
@@ -710,10 +709,19 @@ public class Agent extends SimulationObject implements Serializable {
 
 	public void setX(int x) {
 		coords.x = x;
+		moveAgent();
 	}
 
 	public void setY(int y) {
 		coords.y = y;
+		moveAgent();
+	}
+	
+	private void moveAgent(){
+		float box2Dx = (float) (coords.x/Simulation.meterToPixel);
+		float box2Dy = (float) (coords.y/Simulation.meterToPixel);
+		
+		body.setTransform(new Vec2(box2Dx, box2Dy), body.getAngle());
 	}
 
 	public double getHealth() {

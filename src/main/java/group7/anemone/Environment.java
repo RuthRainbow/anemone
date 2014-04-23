@@ -101,19 +101,19 @@ public class Environment implements Serializable{
 		world.setContactListener(new ContactListener() {
 
 
-			@Override
+			//@Override
 			public void beginContact(Contact contact) {
 
 
 			}
 
-			@Override
+			//@Override
 			public void endContact(Contact arg0) {
 				
 				
 			}
 
-			@Override
+			//@Override
 			public void postSolve(Contact contact, ContactImpulse arg1) {
 				Fixture ob1 = contact.getFixtureA();
 				Fixture ob2 = contact.getFixtureB();
@@ -145,7 +145,7 @@ public class Environment implements Serializable{
 				
 			}
 
-			@Override
+			//@Override
 			public void preSolve(Contact arg0, Manifold arg1) {
 				
 				
@@ -712,6 +712,7 @@ public class Environment implements Serializable{
 	public void eatFood(Collision cc) {
 		Object obj = cc.getCollidedObject();
 
+		
 		if(obj instanceof Food){
 			Food fd = (Food) obj;
 			removeFood(fd);
@@ -719,6 +720,7 @@ public class Environment implements Serializable{
 		} else {
 			Agent ag = (Agent) cc.getCollidedObject();
 			killAgent(ag);
+			cc.getAgent().ateFood();
 		}
 	}
 	

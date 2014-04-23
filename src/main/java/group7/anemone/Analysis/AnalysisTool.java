@@ -117,6 +117,8 @@ public class AnalysisTool extends PApplet {
 		
 	}
 	public void mouseMoved(){
+		if(selectedAgent == null) return;
+		
 		double posX = screen.width - 230;
 		double posY = 200 + 80;
 		double dist = new Point2D.Double(posX, posY).distance(mouseX, mouseY);
@@ -191,6 +193,8 @@ public class AnalysisTool extends PApplet {
 	
 	public void draw(){
 		background(theme.getColor(Types.BACKGROUND));
+		
+		if(selectedAgent == null) return;
 		
 		if(selectedSegment > -1){ //Send to the neuron
 			ArrayList<SightInformation> visual = selectedAgent.getCanSee();
@@ -543,6 +547,9 @@ public class AnalysisTool extends PApplet {
 		if(diag.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
 		File file = diag.getSelectedFile();
+		System.out.println(file);
+		if(file == null) System.exit(0);
+		
 		loadEnvironmentFile(file);
 	}
 	
