@@ -45,7 +45,7 @@ public class Environment implements Serializable{
 	private int fishGeneration = 0;
 	private int sharkGeneration = 0;
 	private int totalTick = 0;
-	private int sharkStart = 10000;
+	private int sharkStart = 20000;
 	private ArrayList<Agent> fishes;
 	private ArrayList<Agent> sharks;
 	private static ArrayList<Food> food;
@@ -63,7 +63,7 @@ public class Environment implements Serializable{
 	// True -> use NEAT, false -> use HyperNEAT
 	protected final boolean Neat = false;
 	//True => sharks on, false => sharks off
-	protected final boolean SharksOn = false;
+	protected final boolean SharksOn = true;
 
 	static int width = 1000;
 	static int height = 1000;
