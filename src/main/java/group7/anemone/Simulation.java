@@ -84,6 +84,7 @@ public class Simulation extends PApplet {
 	int SIM_TICKS = 1;
 	int SIM_TPS_MAX = 51;
 	boolean PLACE_MODE = false;
+	boolean useLayeredView = false;
 	
 	//Scale ratio of pixels to meters for Box2D
 	public static float meterToPixel = 50.0f;
@@ -264,6 +265,7 @@ public class Simulation extends PApplet {
 					sliderTPS.setValue(SIM_TICKS / SIM_TPS_MAX);
 					lblSimTPS.setText("Ticks: " + SIM_TICKS);
 					break;
+		case('a'): 	changeNeuralLayout(); break;
 		}
 
 		switch(keyCode) {
@@ -853,6 +855,13 @@ public class Simulation extends PApplet {
 		UILabel lbl = new UILabel(this, 10, pos, value);
 		winStats.addObject(lbl);
 		return lbl;
+	}
+	
+	private void changeNeuralLayout(){
+		useLayeredView = !useLayeredView;
+		for(Agent ag : env.getAllAgents()){
+			ag.calculateNetworkPositions(useLayeredView);
+		}
 	}
 
 
