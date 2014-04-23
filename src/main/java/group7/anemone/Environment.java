@@ -65,6 +65,8 @@ public class Environment implements Serializable{
 	//True => sharks on, false => sharks off
 	protected final boolean SharksOn = true;
 
+	protected final int numHyperNeatLayers = 2;
+
 	static int width = 1000;
 	static int height = 1000;
 	
@@ -466,12 +468,12 @@ public class Environment implements Serializable{
 			genomes = new ArrayList<HyperNeatGenome>();
 			
 			/*
-			Create two neuron layer CPPNs.
+			Create neuron layer CPPNs.
 			*/
-			basicFunc = new CPPNFunction(0, 0, 0, 0);
+			basicFunc = new CPPNFunction(0, 0, 0, 4);
 			layer = 0;
 			genomeId = 0;
-			for (int i=0; i<2; i++) {
+			for (int i=0; i<numHyperNeatLayers; i++) {
 				nodeId = 0;
 				ArrayList<HyperNeatNode> nodes =
 					new ArrayList<HyperNeatNode>();
@@ -504,9 +506,9 @@ public class Environment implements Serializable{
 				genomes.add(g);
 			}
 			
-			/* Create two synapse layer CPPNs. */
+			/* Create synapse layer CPPNs. */
 			layer = 0;
-			for (int i=0; i<2; i++) {
+			for (int i=0; i<numHyperNeatLayers; i++) {
 				nodeId = 0;
 				ArrayList<HyperNeatNode> nodes =
 					new ArrayList<HyperNeatNode>();

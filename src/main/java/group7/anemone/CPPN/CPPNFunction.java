@@ -43,6 +43,9 @@ public class CPPNFunction implements Serializable{
 		case(3): //Sin
 			result = Math.sin(input*paramA + paramB) + paramC;
 			break;
+		case(4): // Linear
+			result = input;
+			break;
 		}
 		
 		return result;

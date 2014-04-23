@@ -232,58 +232,61 @@ public class Agent extends SimulationObject implements Serializable {
 		MSimulationConfig simConfig;
 
 		//How many input and output nodes to create in the agents brain
-		int inputNodes = 30;
+		int inputNodes = configNumSegments*3;
 		int outputNodes = 3;
 
 		//Create a CPPNFactory. Feed the factory a series of CPPN and after all chromosomes have been read in, it can return a fully formed brain.
 		CPPNFactory cFactory = new CPPNFactory(inputNodes,outputNodes);
 
 		//The number of neurons that are currently being created in this layer of the brain
-		int layerSize=0;
+		int layerSize=0;/*
 
-		//First, loop through every chromosome that the agent contains
+		/* Get a reference to the agent's chromosome. */
 		Chromosome chromosome = (Chromosome)geneticObject;
-		for (int g=0; g < chromosome.getGeneticRep().size()/2; g++) {
-			//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
 
-			/**
-			 * Each 'chromosome' the agent contains is an instance of the genome class.
-			 * 
-			 * Each chromosome contains multiple types of genes that can contain the following information to build the CPPN:
-			 * 1: A sort of 'header' gene that says how many neurons will be in this layer of the brain
-			 * 2: Add nodes to the buildSyanpse CPPN, so this will need to include a 'type' integer, to designate the kind of function
-			 * 		that this node will use. 3 Parameter integers, which will be used to augment the function so that
-			 * 		each node has a higher degree of possible diversity.
-			 * 		There are 4 different 'types' of nodes, which correspond to 0: Parabola, 1: Sigmoid, 2: Gauss, 3: Sin.
-			 * 3: Add nodes to the buildNeurons CPPN, this should be built just like the buildSynapseCPPN. There will probably need to
-			 * 		be some field in the gene that lets this part of the code distinguish between genes for the buildNeuronCPPN and the
-			 * 		buildSyanpse CPPNs.
-			 * 
-			 * Some additional notes:
-			 * 1: The first two nodes in any CPPN arrayList of nodes will always be the input nodes for that network.
-			 * 2: The last node in the CPPN arrayList of nodes will always be the output node for that network.
-			 */
+		// //First, loop through every chromosome that the agent contains
+		// for (int g=0; g < chromosome.getGeneticRep().size()/2; g++) {
+		// 	//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
 
-			/**
-			 * ##############
-			 * CREATE CPPN HERE ###############################
-			 * ##############
-			 */
+		// 	/**
+		// 	 * Each 'chromosome' the agent contains is an instance of the genome class.
+		// 	 * 
+		// 	 * Each chromosome contains multiple types of genes that can contain the following information to build the CPPN:
+		// 	 * 1: A sort of 'header' gene that says how many neurons will be in this layer of the brain
+		// 	 * 2: Add nodes to the buildSyanpse CPPN, so this will need to include a 'type' integer, to designate the kind of function
+		// 	 * 		that this node will use. 3 Parameter integers, which will be used to augment the function so that
+		// 	 * 		each node has a higher degree of possible diversity.
+		// 	 * 		There are 4 different 'types' of nodes, which correspond to 0: Parabola, 1: Sigmoid, 2: Gauss, 3: Sin.
+		// 	 * 3: Add nodes to the buildNeurons CPPN, this should be built just like the buildSynapseCPPN. There will probably need to
+		// 	 * 		be some field in the gene that lets this part of the code distinguish between genes for the buildNeuronCPPN and the
+		// 	 * 		buildSyanpse CPPNs.
+		// 	 * 
+		// 	 * Some additional notes:
+		// 	 * 1: The first two nodes in any CPPN arrayList of nodes will always be the input nodes for that network.
+		// 	 * 2: The last node in the CPPN arrayList of nodes will always be the output node for that network.
+		// 	 */
 
-			//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
-			CPPNSimulation buildSynapse = new CPPNSimulation(
-				chromosome.getSynapseCPPN(g).getNodes());
+		// 	/**
+		// 	 * ##############
+		// 	 * CREATE CPPN HERE ###############################
+		// 	 * ##############
+		// 	 */
 
-			CPPNSimulation buildNeurons = new CPPNSimulation(
-				chromosome.getNeuronCPPN(g).getNodes());
+		// 	//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
+		// 	CPPNSimulation buildSynapse = new CPPNSimulation(
+		// 		chromosome.getSynapseCPPN(g).getNodes());
 
-			//Call the factory to add the new CPPN's and generate more of the agents brain
-			cFactory.neuronCPPN(buildNeurons, 30);
-			cFactory.synapseCPPN(buildSynapse, 30);
-		}
+		// 	CPPNSimulation buildNeurons = new CPPNSimulation(
+		// 		chromosome.getNeuronCPPN(g+1).getNodes());
+
+		// 	//Call the factory to add the new CPPN's and generate more of the agents brain
+		// 	cFactory.synapseCPPN(buildSynapse, 5);
+		// 	cFactory.neuronCPPN(buildNeurons, 5);
+		// }
 
 		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
-		mnetwork = cFactory.getBrain();
+		// mnetwork = cFactory.getBrain();
+		mnetwork = cFactory.createNetworkFromChromosome(chromosome, 5);
 		
 		/* Create and set the simulation configuration parameters. */
 		simConfig = new MSimulationConfig(20);
