@@ -262,7 +262,7 @@ public class AnalysisTool extends PApplet {
 				if( ag.getFitness() > bestSharkFitness){
 					bestSharkFitness = ag.getFitness();
 				}
-				bestFishFitness = ag.getFitness();
+				averageSharkFitness += ag.getFitness();
 			}			
 		}
 		averageFishFitness = ((numOfFish==0) ? 0 : averageFishFitness/numOfFish);
