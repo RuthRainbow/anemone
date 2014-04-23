@@ -22,7 +22,7 @@ public class CPPNSimulation {
 		this.network = new CPPN(nodes);
 	}
 	
-	public double query(int one, int two) {
+	public double query(double one, double two) {
 		/**
 		 * Query will take two inputs, one and two. These numbers represent the post and pre 
 		 * nodes to work out the synaptic connection for. This isn't important to know for this method though.

@@ -86,13 +86,13 @@ public class CPPNFactory {
 				buildNeuron = new CPPNSimulation(cppn.getNodes());
 
 				//Create a set of parameters for the brain.
-				double a = stdParams.a;// + buildNeuron.query(neuronID, 1);
-				double b = stdParams.b;// + buildNeuron.query(neuronID, 2);
-				double c = stdParams.c;// + buildNeuron.query(neuronID, 3);
-				double d = stdParams.d;// + buildNeuron.query(neuronID, 4);
-				double tau = stdParams.tau;// + buildNeuron.query(neuronID, 5);
-				double ap = stdParams.ap;// + buildNeuron.query(neuronID, 6);
-				double am = stdParams.am;// + buildNeuron.query(neuronID, 7);
+				double a = stdParams.a + 0.01*buildNeuron.query(n/(double)layerSize-0.5*layerSize, 1.0/7.0-0.5*0.7);
+				double b = stdParams.b + 0.01*buildNeuron.query(n/(double)layerSize-0.5*layerSize, 2.0/7.0-0.5*0.7);
+				double c = stdParams.c + 0.01*buildNeuron.query(n/(double)layerSize-0.5*layerSize, 3.0/7.0-0.5*0.7);
+				double d = stdParams.d + 0.01*buildNeuron.query(n/(double)layerSize-0.5*layerSize, 4.0/7.0-0.5*0.7);
+				double tau = stdParams.tau + 0.01*buildNeuron.query(n/(double)layerSize-0.5*layerSize, 5.0/7.0-0.5*0.7);
+				double ap = stdParams.ap + 0.01*buildNeuron.query(n/(double)layerSize-0.5*layerSize, 6.0/7.0-0.5*0.7);
+				double am = stdParams.am + 0.01*buildNeuron.query(n/(double)layerSize-0.5*layerSize, 7.0/7.0-0.5*0.7);
 				
 				/* Set default neuron coordinates. */
 				MVec3f spatialCoords = new MVec3f(0, 0, 0);
@@ -103,7 +103,7 @@ public class CPPNFactory {
 				MNeuronState tempState = MFactory.createInitialRSNeuronState();
 				
 				//Create the node, and then pass it into the arraylist at the end
-				neurons.add(new MNeuron(stdParams,tempState,neuronID));
+				neurons.add(new MNeuron(tempParam,tempState,neuronID));
 				
 				neuronID++;
 			}
@@ -114,29 +114,6 @@ public class CPPNFactory {
 			for (int postNid=0; postNid<layerSize; postNid++) {
 				MNeuron pre = neurons.get(outputNodes+preNid);
 				MNeuron post = neurons.get(inputNodes+outputNodes+postNid);
-
-				MSynapse s = new MSynapse(pre, post, 30.0, 1);
-				
-				ArrayList<MSynapse> postSyns = pre.getPostSynapses();
-				postSyns.add(s);
-				pre.setPostSynapses(postSyns);
-
-				ArrayList<MSynapse> preSyns = post.getPreSynapses();
-				preSyns.add(s);
-				post.setPreSynapses(preSyns);
-
-				synapse.add(s);
-			}
-		}
-
-		/* Wire the last layer to the output neurons. */
-		cppn = chromosome.getSynapseCPPN(numLayers-1);
-		buildSynapse = new CPPNSimulation(cppn.getNodes());
-
-		for (int preNid=0; preNid<layerSize; preNid++) {
-			for (int postNid=0; postNid<outputNodes; postNid++) {
-				MNeuron pre = neurons.get(neurons.size()-preNid-1);
-				MNeuron post = neurons.get(postNid);
 
 				MSynapse s = new MSynapse(pre, post, 20.0, 1);
 				
@@ -162,7 +139,9 @@ public class CPPNFactory {
 					MNeuron pre = neurons.get(inputNodes+outputNodes+layerSize*i+preNid);
 					MNeuron post = neurons.get(inputNodes+outputNodes+layerSize*(i+1)+postNid);
 
-					MSynapse s = new MSynapse(pre, post, 20.0, 1);
+					MSynapse s = new MSynapse(pre, post, 20.0 +
+						buildSynapse.query(preNid/(double)layerSize-0.5*layerSize,
+							postNid/(double)layerSize-0.5*layerSize), 1);
 
 					ArrayList<MSynapse> postSyns = pre.getPostSynapses();
 					postSyns.add(s);
@@ -174,6 +153,31 @@ public class CPPNFactory {
 
 					synapse.add(s);
 				}
+			}
+		}
+
+		/* Wire the last layer to the output neurons. */
+		cppn = chromosome.getSynapseCPPN(numLayers-1);
+		buildSynapse = new CPPNSimulation(cppn.getNodes());
+
+		for (int preNid=0; preNid<layerSize; preNid++) {
+			for (int postNid=0; postNid<outputNodes; postNid++) {
+				MNeuron pre = neurons.get(neurons.size()-preNid-1);
+				MNeuron post = neurons.get(postNid);
+
+				MSynapse s = new MSynapse(pre, post, 20.0 +
+					buildSynapse.query(preNid/(double)layerSize-0.5*layerSize,
+						postNid/(double)outputNodes-0.5*outputNodes), 1);
+				
+				ArrayList<MSynapse> postSyns = pre.getPostSynapses();
+				postSyns.add(s);
+				pre.setPostSynapses(postSyns);
+
+				ArrayList<MSynapse> preSyns = post.getPreSynapses();
+				preSyns.add(s);
+				post.setPreSynapses(preSyns);
+
+				synapse.add(s);
 			}
 		}
 

@@ -39,7 +39,7 @@ public class Agent extends SimulationObject implements Serializable {
 	transient PApplet parent;
 
 	/* Anatomical parameters. */
-	public static int configNumSegments = 2;
+	public static int configNumSegments = 7;
 	final double visionRange = 100;
 	final double fov = 90;
 
@@ -286,7 +286,7 @@ public class Agent extends SimulationObject implements Serializable {
 
 		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
 		// mnetwork = cFactory.getBrain();
-		mnetwork = cFactory.createNetworkFromChromosome(chromosome, 5);
+		mnetwork = cFactory.createNetworkFromChromosome(chromosome, 8);
 		
 		/* Create and set the simulation configuration parameters. */
 		simConfig = new MSimulationConfig(20);

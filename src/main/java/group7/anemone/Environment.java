@@ -65,7 +65,7 @@ public class Environment implements Serializable{
 	//True => sharks on, false => sharks off
 	protected final boolean SharksOn = true;
 
-	protected final int numHyperNeatLayers = 2;
+	protected final int numHyperNeatLayers = 4;
 
 	static int width = 1000;
 	static int height = 1000;
@@ -470,7 +470,7 @@ public class Environment implements Serializable{
 			/*
 			Create neuron layer CPPNs.
 			*/
-			basicFunc = new CPPNFunction(0, 0, 0, 4);
+			basicFunc = new CPPNFunction(0, 0, 0, 3);
 			layer = 0;
 			genomeId = 0;
 			for (int i=0; i<numHyperNeatLayers; i++) {
