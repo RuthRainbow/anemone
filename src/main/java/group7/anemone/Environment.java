@@ -61,7 +61,7 @@ public class Environment implements Serializable{
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
 	// True -> use NEAT, false -> use HyperNEAT
-	protected final boolean Neat = true;
+	protected final boolean Neat = false;
 	//True => sharks on, false => sharks off
 	protected final boolean SharksOn = false;
 

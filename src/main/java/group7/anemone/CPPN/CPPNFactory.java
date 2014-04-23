@@ -48,15 +48,17 @@ public class CPPNFactory {
 	}
 	
 	public void neuronCPPN(CPPNSimulation buildNeuron, int layerSize) {
+		MNeuronParams stdParams = MFactory.createRSNeuronParams();
+
 		for (int x=0; x<layerSize; x++) {
 			//Create a set of parameters for the brain.
-			double a = buildNeuron.query(neuronID, 1);
-			double b = buildNeuron.query(neuronID, 2);
-			double c = buildNeuron.query(neuronID, 3);
-			double d = buildNeuron.query(neuronID, 4);
-			double tau = buildNeuron.query(neuronID, 5);
-			double ap = buildNeuron.query(neuronID, 6);
-			double am = buildNeuron.query(neuronID, 7);
+			double a = stdParams.a + buildNeuron.query(neuronID, 1);
+			double b = stdParams.b + buildNeuron.query(neuronID, 2);
+			double c = stdParams.c + buildNeuron.query(neuronID, 3);
+			double d = stdParams.d + buildNeuron.query(neuronID, 4);
+			double tau = stdParams.tau + buildNeuron.query(neuronID, 5);
+			double ap = stdParams.ap + buildNeuron.query(neuronID, 6);
+			double am = stdParams.am + buildNeuron.query(neuronID, 7);
 			
 			/* Set default neuron coordinates. */
 			MVec3f spatialCoords = new MVec3f(0, 0, 0);
