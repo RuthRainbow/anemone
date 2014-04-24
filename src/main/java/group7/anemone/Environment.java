@@ -93,7 +93,6 @@ public class Environment implements Serializable{
 		Environment.food = new ArrayList<Food>();
 		this.wall = new ArrayList<Wall>();
 		this.seaweed = new ArrayList<Seaweed>();
-		this.foodPos = new ArrayList<Point2D.Double>();
 		this.agentNumSegments = Agent.configNumSegments;
 		this.scheduledRemove = new ArrayList<Agent>();
 		
@@ -560,9 +559,6 @@ public class Environment implements Serializable{
 		 *
 		 * */
 		int total = 0;
-		int numMotorNeurons = 3;
-		int visualFieldSize = Agent.configNumSegments;
-		int numVisualNeurons = visualFieldSize*3;
 		ArrayList<GenomeEdge<NeatNode>> edges = new ArrayList<GenomeEdge<NeatNode>>();
 		ArrayList<NeatNode> nodes = new ArrayList<NeatNode>();
 		ArrayList<NeatNode> motorNodes = new ArrayList<NeatNode>();

@@ -6,6 +6,9 @@ import group7.anemone.Genetics.GenomeNode;
 import group7.anemone.MNetwork.MFactory;
 import group7.anemone.MNetwork.MNeuronParams;
 
+/**
+ * Method to represent a node in a NEAT network, including its parameters.
+ */
 public class NeatNode extends GenomeNode implements Serializable {
 	private static final long serialVersionUID = 803586439941995938L;
 	private MNeuronParams params;
@@ -35,7 +38,7 @@ public class NeatNode extends GenomeNode implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ID: " + this.id ;//+ " Params: " + this.params;
+		return "ID: " + this.id;
 	}
 	
 	@Override

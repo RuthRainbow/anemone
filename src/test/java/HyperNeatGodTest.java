@@ -13,6 +13,9 @@ import group7.anemone.HyperNeatGenetics.HyperNeatGenome.Type;
 import group7.anemone.HyperNeatGenetics.HyperNeatNode;
 import junit.framework.TestCase;
 
+/**
+ * Tests for functionality specific to the HyperNeatGod class.
+ */
 public class HyperNeatGodTest extends TestCase {
 	static HyperNeatFishGod god = new HyperNeatFishGod();
 

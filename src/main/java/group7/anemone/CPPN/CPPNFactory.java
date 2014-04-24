@@ -10,7 +10,6 @@ import group7.anemone.MNetwork.MNeuronState;
 import group7.anemone.MNetwork.MSynapse;
 import group7.anemone.MNetwork.MVec3f;
 import group7.anemone.HyperNeatGenetics.Chromosome;
-import group7.anemone.HyperNeatGenetics.HyperNeatGenome;
 import group7.anemone.CPPN.CPPN;
 
 /**
@@ -25,8 +24,6 @@ public class CPPNFactory {
 	//These arrayLists will hold the nodes and synapse of an agents brain as it is gradually built up
 	private ArrayList<MNeuron> neurons = new ArrayList<MNeuron>();
 	private ArrayList<MSynapse> synapse = new ArrayList<MSynapse>();
-	
-	private MNetwork brain = new MNetwork(neurons, synapse);
 	
 	//Designates how many output nodes need to be appended to the end of the neuron list and linked up before the brain is returned to the agent
 	private int outputNodes=0;
@@ -44,7 +41,6 @@ public class CPPNFactory {
 	int neuronID = 0;
 
 	public MNetwork createNetworkFromChromosome(Chromosome chromosome, int layerSize) {
-		ArrayList<HyperNeatGenome> hngenomes = chromosome.getGeneticRep();
 		MNeuronParams stdParams = MFactory.createRSNeuronParams();
 		int numLayers = chromosome.getSize()/2;
 		CPPNSimulation buildSynapse, buildNeuron;

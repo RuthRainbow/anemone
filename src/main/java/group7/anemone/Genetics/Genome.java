@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/*
- * Genome class to hold the Gene array along with a species id.
+/**
+ * Genome class to hold the nodes and edges needed to create a network.
  */
 public abstract class Genome<node extends GenomeNode> implements Serializable {
 	private static final long serialVersionUID = -9023930914349095877L;

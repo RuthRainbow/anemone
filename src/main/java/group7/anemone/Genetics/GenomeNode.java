@@ -1,5 +1,8 @@
 package group7.anemone.Genetics;
 
+/**
+ * Class to represent a node in the neural network.
+ */
 public abstract class GenomeNode {
 	public final int id;
 	

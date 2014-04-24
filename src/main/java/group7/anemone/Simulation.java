@@ -62,6 +62,8 @@ public class Simulation extends PApplet {
 	UIVision agentHeading;
 	UILabel lblStatTitle, lblX, lblY, lblHeading, lblHealth, lblAngle, lblSpeed, lblSimTPS;
 	UIDropdown<Types> themeDrop;
+	// We are unsure whether the God will be a NeatGod or a HyperNeatGod.
+	@SuppressWarnings("rawtypes")
 	UIDropdown<God> godDrop;
 	UIColorWheel themeColorWheel;
 	UITheme theme;
@@ -785,6 +787,8 @@ public class Simulation extends PApplet {
 			"compatibilityThreshold", "minReproduced"
 	};
 	private ArrayList<UITextField> neatParamInputs;
+	// We are unsure whether the God will be a NeatGod or a HyperNeatGod.
+	@SuppressWarnings("rawtypes")
 	private void setupNEATParams(){
 		neatParamInputs = new ArrayList<UITextField>();
 		godDrop = new UIDropdown<God>(this, 10, 10, 230, env.getAllGods());
@@ -820,6 +824,7 @@ public class Simulation extends PApplet {
 		neatParamInputs.add(input);
 	}
 	private String getNEATParam(String name){
+		@SuppressWarnings("rawtypes")
 		God selectedGod = godDrop.getSelected();
 		
 		try{
@@ -830,6 +835,7 @@ public class Simulation extends PApplet {
 		return null;
 	}
 	private void setNEATParam(String name, String val){
+		@SuppressWarnings("rawtypes")
 		God selectedGod = godDrop.getSelected();
 		
 		try{

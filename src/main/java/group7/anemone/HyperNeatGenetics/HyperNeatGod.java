@@ -15,10 +15,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * This class contains the main implementation of the HyperNEAT genetic algorithm.
+ */
 public abstract class HyperNeatGod extends God<Chromosome> {
 	private static final long serialVersionUID = 619717007643693268L;
 
 	private List<GenomeEdge<HyperNeatNode>> newGenes;
+	// Store the historical markers to use next during mutation.
 	private ArrayList<Integer> nextEdgeMarkers;
 	private ArrayList<Integer> nextNodeMarkers;
 	public int nextGenomeMarker;
@@ -42,7 +46,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 	}
 	
 	protected void setUpInitialMarkers(Chromosome first) {
-		//Calc. next historical markers for every Genome:
+		//Calculate next historical markers for every Genome:
 		Chromosome chromo = (Chromosome) first;
 		int genomeSize = chromo.getSize();
 		for (int i = 0; i < genomeSize; i++) {
@@ -52,7 +56,8 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		}
 		nextGenomeMarker = genomeSize;
 	}
-	
+
+	// If only one specie member remaining, add the member and itself mutated.
 	protected ArrayList<Chromosome> breedOneRemaining(ArrayList<AgentFitness> members) {
 		for (AgentFitness agent : members) {
 			Chromosome chromo = (Chromosome) agent.geneticRep;
@@ -97,7 +102,8 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		distances.put(agentPair, totalDistance);
 		return totalDistance;
 	}
-	
+
+	// Calculate the distance between two CPPNs or genomes (see NEAT specification).
 	private double calcGenomeDistance(HyperNeatGenome a, HyperNeatGenome b) {
 		int numExcess = Math.abs(a.getLength() - b.getLength());
 		int numDisjoint = 0;
@@ -132,10 +138,11 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		}
 		return children;
 	}
-	
+
+	// Crossover a dominant and recessive chromosome to create a new chromosome offspring.
 	public Chromosome crossover(Chromosome dominant, Chromosome recessive) {
 		ArrayList<HyperNeatGenome> newGenome = new ArrayList<HyperNeatGenome>();
-		
+
 		// Match Genomes by historical marker
 		Map<HyperNeatGenome, HyperNeatGenome> matches = new HashMap<HyperNeatGenome, HyperNeatGenome>();
 		int marker = 0;
@@ -165,9 +172,7 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 		return new Chromosome(newGenome, -1, dominant, recessive);
 	}
 
-	// Method for crossover - return crossover method you want.
-	// The mother should always be the parent with the highest fitness.
-	@SuppressWarnings("unchecked")
+	// Crossover two CPPNs or Genome objects to create a new Genome.
 	private HyperNeatGenome crossover(HyperNeatGenome dominant, HyperNeatGenome recessive) {
 		List<GenomeEdge<HyperNeatNode>> child = new ArrayList<GenomeEdge<HyperNeatNode>>();
 
@@ -211,14 +216,16 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				dominant.getLayerNum());
 		return newGenome;
 	}
-	
+
+	// Return the nodes of both parents avoiding concurrent errors.
 	private synchronized Set<HyperNeatNode> getNodes(HyperNeatGenome dominant, HyperNeatGenome recessive) {
 		Set<HyperNeatNode> nodeSet = new HashSet<HyperNeatNode>(
 				(Collection<? extends HyperNeatNode>) dominant.copyNodes());
 		nodeSet.addAll(recessive.copyNodes());
 		return nodeSet;
 	}
-	
+
+	// Apply mutation to a child chromosome.
 	protected Chromosome mutate(Chromosome child) {
 		ArrayList<HyperNeatGenome> mutatedGenomes = new ArrayList<HyperNeatGenome>();
 		for (int i = 0; i < child.getSize(); i++) {
@@ -235,9 +242,10 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 							  (Chromosome) child.getFather());
 	}
 
-	// Insert a new layer of CPPNs into the Chromosome.
+	// Insert a new layer of CPPNs into the Chromosome (requires both types of CPPN).
 	public ArrayList<HyperNeatGenome> addGenome(
 			Chromosome child, ArrayList<HyperNeatGenome> mutatedGenomes) {
+		// Insert the new layer into a random position.
 		int index = getRandom(child.getSize());
 		HyperNeatGenome toCopy = child.getXthGenome(index);
 		if (toCopy.getType() != Type.NEURON) {
@@ -373,8 +381,8 @@ public abstract class HyperNeatGod extends God<Chromosome> {
 				(int) Math.floor(getRandom()*nodeList.size())).clone();
 		GenomeEdge<HyperNeatNode> newGene = new GenomeEdge<HyperNeatNode>(
 				nextEdgeMarkers.get(index), left, right, 30.0, 1);
+
 		// If this mutated gene has already been created this gen, don't create another
-		
 		for (GenomeEdge<HyperNeatNode> gene : newGenes) {
 			if (newGene.equals(gene)) {
 				newGene = gene;

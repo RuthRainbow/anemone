@@ -1,10 +1,13 @@
 package group7.anemone.HyperNeatGenetics;
 
-
+/**
+ * This class provides the parameter values for the genetic algorithm breeding
+ * enemies/sharks for HyperNEAT.
+ */
 public class HyperNeatSharkGod extends HyperNeatGod{
 	private static final long serialVersionUID = 1226846014955083162L;
 	
-	/** Start of possible graphical vars **/
+	/** Start of graphical vars **/
 	// Mutation chances:
 	public double structuralMutationChance = 0.9f;
 	public double addConnectionChance = 0.8f;
@@ -22,21 +25,20 @@ public class HyperNeatSharkGod extends HyperNeatGod{
 
 	// Change this if you think too many offspring are being generated.
 	public double offspringProportion = 0.05f;
-	// Parameters for use in difference calculation (can be tweaked).
-	public double c1 = 0.45f; //weighting of excess genes
-	public double c2 = 0.5f; //weighting of disjoint genes
-	public double c3 = 0.5f; //weighting of weight differences
-	public double c4 = 0.5f; //weighting of excess Genomes
-	public double c5 = 0.5; //weight of disjoint Genomes
+	// Parameters for use in difference calculation.
+	public double c1 = 0.45f; // weighting of excess genes
+	public double c2 = 0.5f; // weighting of disjoint genes
+	public double c3 = 0.5f; // weighting of weight differences
+	public double c4 = 0.5f; // weighting of excess Genomes
+	public double c5 = 0.5; // weight of disjoint Genomes
 
 	// Threshold for max distance between species member and representative.
-	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 3;
 	public double minReproduced = 2;
 
 	// Threshold over which an agent's fitness isn't counted in the sharing function.
 	public double sharingThreshold = 20;
-	/** End of possible graphical vars **/
+	/** End of graphical vars **/
 	
 	/* Getter methods for variables that may differ between God types.*/
 	public double getStructuralMutationChance() {

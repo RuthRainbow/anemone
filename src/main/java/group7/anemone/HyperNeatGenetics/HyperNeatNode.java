@@ -8,7 +8,10 @@ import java.util.Random;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-public class HyperNeatNode extends GenomeNode implements Comparable, Serializable {
+/**
+ * Method to represent a node in a CPPN, including the CPPN function and node type.
+ */
+public class HyperNeatNode extends GenomeNode implements Comparable<HyperNeatNode>, Serializable {
 	private static final long serialVersionUID = 803586439941995938L;
 	CPPNFunction cppnFunction;
 	
@@ -95,9 +98,7 @@ public class HyperNeatNode extends GenomeNode implements Comparable, Serializabl
         toHashCode();
 	}
 
-	//@Override
-	public int compareTo(Object o) {
-		HyperNeatNode other = (HyperNeatNode) o;
+	public int compareTo(HyperNeatNode other) {
 		if (other.id < this.id) return 1;
 		else if (other.id > this.id) return -1;
 		else return 0;
