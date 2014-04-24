@@ -49,7 +49,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>group7.anemone.Simulation</mainClass>
+          <mainClass>group7.anemone.Analysis.AnalysisTool</mainClass>
           <arguments>
           </arguments>
         </configuration>
