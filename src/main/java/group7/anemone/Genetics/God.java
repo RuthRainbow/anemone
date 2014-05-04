@@ -244,20 +244,28 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		int i = 0;
 		int j = Math.min(numOffspring * 2, specie.members.size()) - 1;
 
+		int numCrossovers = Math.min(specie.members.size()/2, numOffspring);
+		CountDownLatch latch = new CountDownLatch(numCrossovers);
 		// Breed the best agent remaining with a worst agent remaining selected until the required number of offspring reached.
-		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
+		while (i < specie.members.size() &&
+			   children.size() < specie.members.size()/2 &&
+			   children.size() < numOffspring) {
 			final AgentFitness mother = specie.members.get(i);
 			final AgentFitness father = specie.members.get(j);
 
-			Runnable r = new CreateOffspring(mother, father);
+			Runnable r = new CreateOffspring(mother, father, latch);
 			Thread thread = new Thread(r);
 			thread.start();
-
 			if (fitnessOnly) {
 				children.add((t) mother.geneticRep);
 				children.add((t) father.geneticRep);
 			}
 			i++; j--;
+		}
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		// If not enough children, repeat some random offspring:
 		i = 0;
@@ -448,14 +456,19 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 	private class CreateOffspring implements Runnable {
 		private AgentFitness mother;
 		private AgentFitness father;
+		private CountDownLatch latch;
 
-		public CreateOffspring(AgentFitness mother, AgentFitness father) {
+		public CreateOffspring(AgentFitness mother,
+							   AgentFitness father,
+							   CountDownLatch latch) {
 			this.mother = mother;
 			this.father = father;
+			this.latch = latch;
 		}
 
 		public void run() {
 			children.addAll(createOffspring(mother, father));
+			latch.countDown();
 		}
 	}
 
