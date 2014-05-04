@@ -498,10 +498,13 @@ public class Agent extends SimulationObject implements Serializable {
 
 			//offset nodes centrally
 			int offsetX = -maxLevel * 10;
-			int offsetY = -maxHeight * 10;
+			//int offsetY = -maxHeight * 10;
 
 			for(MNeuron n : mnetwork.getNeurons()){
+				int level = (int) (n.params.spatialCoords.x / 20);
 				n.params.spatialCoords.x += offsetX;
+				
+				int offsetY = -maxValue(level) / 2;
 				n.params.spatialCoords.y += offsetY;
 			}
 
