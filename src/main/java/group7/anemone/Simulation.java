@@ -97,6 +97,8 @@ public class Simulation extends PApplet {
 	
 	static int numStartingAgents = 10;
 	static int numStartingSharks = 5;
+	
+	public static final int maxSeaweed = 10;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -122,7 +124,7 @@ public class Simulation extends PApplet {
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < maxSeaweed; i++){
 			int x = (int) Math.floor(Math.random() * Environment.width);
 			int y = (int) Math.floor(Environment.height*0.2 + Math.random() * Environment.height*0.6);
 			env.addSeaweed(new Point2D.Double(x, y));

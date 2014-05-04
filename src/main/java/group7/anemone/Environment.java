@@ -408,7 +408,7 @@ public class Environment implements Serializable{
     		food.remove(0);
     	}
 
-    	while(seaweed.size() > 10){
+    	while(seaweed.size() > Simulation.maxSeaweed){
     		seaweed.remove(0);
     	}
     	if(tick % 1000 == 0){
