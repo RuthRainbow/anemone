@@ -94,6 +94,7 @@ public class Environment implements Serializable{
 		this.wall = new ArrayList<Wall>();
 		this.seaweed = new ArrayList<Seaweed>();
 		this.agentNumSegments = Agent.configNumSegments;
+		this.foodPos = new ArrayList<Point2D.Double>(); 
 		this.scheduledRemove = new ArrayList<Agent>();
 		
 		//JBox2D
