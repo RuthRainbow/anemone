@@ -61,14 +61,14 @@ public class Environment implements Serializable{
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
 	// True -> use NEAT, false -> use HyperNEAT
-	protected final boolean Neat = false;
+	protected final boolean Neat = true;
 	//True => sharks on, false => sharks off
 	protected final boolean SharksOn = true;
 
 	protected final int numHyperNeatLayers = 4;
 
-	static int width = 1000;
-	static int height = 1000;
+	static int width = 2500;
+	static int height = 2500;
 	
 	static float box2Dwidth = width/Simulation.meterToPixel;
 	static float box2Dheight = height/Simulation.meterToPixel;
@@ -94,8 +94,13 @@ public class Environment implements Serializable{
 		this.wall = new ArrayList<Wall>();
 		this.seaweed = new ArrayList<Seaweed>();
 		this.agentNumSegments = Agent.configNumSegments;
+		this.foodPos = new ArrayList<Point2D.Double>(); 
 		this.scheduledRemove = new ArrayList<Agent>();
 		
+		buildBox2DWorld();
+	}
+	
+	public void buildBox2DWorld(){
 		//JBox2D
 		Vec2 gravity = new Vec2(0.0f, 0.0f);
 		this.world = new World(gravity);
@@ -154,8 +159,6 @@ public class Environment implements Serializable{
 
 
         });
-
-		
 	}
 
     // Method to get all collisions that occurred in the environment
@@ -407,7 +410,7 @@ public class Environment implements Serializable{
     		food.remove(0);
     	}
 
-    	while(seaweed.size() > 10){
+    	while(seaweed.size() > Simulation.maxSeaweed){
     		seaweed.remove(0);
     	}
     	if(tick % 1000 == 0){

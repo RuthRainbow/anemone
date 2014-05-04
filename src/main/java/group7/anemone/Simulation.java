@@ -82,11 +82,16 @@ public class Simulation extends PApplet {
 	float zoomLevel = 0.75f;
 	boolean arrowsPressed[] = new boolean[4];
 	int moveSpeed = 50;
-	float minZoom = 0.15f;
+	float minZoom = 0.05f;
 	int SIM_TICKS = 1;
 	int SIM_TPS_MAX = 51;
 	boolean PLACE_MODE = false;
-	boolean useLayeredView = false;
+	boolean useLayeredView = true;
+	
+	//Set at what generation frequency to create an automatic snapshot
+	//-1 = no auto snapshot
+	private int AUTO_SNAPSHOT = -1;
+	private String AUTO_SNAPSHOT_NAME = "neat_pred";
 	
 	//Scale ratio of pixels to meters for Box2D
 	public static float meterToPixel = 50.0f;
@@ -97,6 +102,8 @@ public class Simulation extends PApplet {
 	
 	static int numStartingAgents = 10;
 	static int numStartingSharks = 5;
+	
+	public static final int maxSeaweed = 10;
 
 	public static void main(String args[]){
 		// Run the applet when the Java application is run
@@ -122,7 +129,7 @@ public class Simulation extends PApplet {
 		env.getAllAgents().get(0).thrust(2);
 		selectedAgent = env.getAllAgents().get(0);
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < maxSeaweed; i++){
 			int x = (int) Math.floor(Math.random() * Environment.width);
 			int y = (int) Math.floor(Environment.height*0.2 + Math.random() * Environment.height*0.6);
 			env.addSeaweed(new Point2D.Double(x, y));
@@ -147,9 +154,9 @@ public class Simulation extends PApplet {
 
 		
 		//internal walls
-		env.addWall(new Point2D.Double(Environment.width/3,Environment.height/5),new Point2D.Double(Environment.width/2,Environment.height/5));
-		env.addWall(new Point2D.Double(Environment.width/2,Environment.height/2),new Point2D.Double(Environment.width/2,3*Environment.height/4));
-		env.addWall(new Point2D.Double(Environment.width/4, Environment.height / 4),new Point2D.Double(3 * Environment.width/4, 3 * Environment.height / 4));
+		//env.addWall(new Point2D.Double(Environment.width/3,Environment.height/5),new Point2D.Double(Environment.width/2,Environment.height/5));
+		//env.addWall(new Point2D.Double(Environment.width/2,Environment.height/2),new Point2D.Double(Environment.width/2,3*Environment.height/4));
+		//env.addWall(new Point2D.Double(Environment.width/4, Environment.height / 4),new Point2D.Double(3 * Environment.width/4, 3 * Environment.height / 4));
 
 	}
 	public void mousePressed(){
@@ -312,7 +319,8 @@ public class Simulation extends PApplet {
 				checkDeaths();
 			}
 			updateUI();
-
+			
+			autoSnapshot();
 		}
 
 		//move drawn region
@@ -368,14 +376,14 @@ public class Simulation extends PApplet {
 			//if(selectedAgent == null || !agentFocused || (agentFocused && ag == selectedAgent)) fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)));
 			//else fill(theme.getColor((ag instanceof Enemy ? Types.SHARK : Types.FISH)), 100); //, (float) ag.getHealth()*200 +55); // Alpha was severly impacting performance of simulation
 			if (ag instanceof Enemy) {
-				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256);
+				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256, (agentFocused && ag == selectedAgent ? 100 : 256));
 				pushMatrix();
 				translate(ag.getX(), ag.getY());
 				rotate((float) Utilities.toRadians(ag.getViewHeading()));
 				rect(-10, -10, 20, 20);
 				popMatrix();
 			} else {
-				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256);
+				fill(((ag.getSpeciesId()+1)*25) % 256, ((ag.getSpeciesId()+1)*47) % 256, ((ag.getSpeciesId()+1)*69) % 256, (agentFocused && ag == selectedAgent ? 100 : 256));
 				ellipse(ag.getX(), ag.getY(), 20, 20);
 			}
 			
@@ -894,11 +902,7 @@ public class Simulation extends PApplet {
 		}
 
 	}
-
-
-
-
-
+	
 	private Agent getClickedAgent(ArrayList<Agent> agents, int mx, int my){
 		Agent agent_clicked = null;
 		for(int i = 0; i < agents.size(); i++){ //loop through each agent and find one clicked
@@ -911,17 +915,32 @@ public class Simulation extends PApplet {
 		return agent_clicked;
 	}
 
+	private void autoSnapshot(){
+		int generation = env.getFishGeneration();
+		
+		if(AUTO_SNAPSHOT == -1 || 
+				generation == 0 || generation % AUTO_SNAPSHOT != 0 ||
+				(1000 - (env.getTick() % 1000)) != 1000) return;
+		
+		new File(System.getProperty("user.home") + "/anemone/auto_snapshot/").mkdirs();
+		String filename = System.getProperty("user.home") + "/anemone/auto_snapshot/" + AUTO_SNAPSHOT_NAME + "_" + generation + ".env";
+		saveSnapshot(filename);
+	}
+	
 	//Serialises the environment class to chosen location
 	private void saveEnvironment(){
 		JFileChooser diag = getFileChooser(true);
 		if(diag.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
-
-		try{
-			String filename = diag.getSelectedFile().getAbsoluteFile().getAbsolutePath();
-			if(!filename.endsWith(".env")){
-				filename = filename + ".env";
-			}
-			
+		
+		String filename = diag.getSelectedFile().getAbsoluteFile().getAbsolutePath();
+		if(!filename.endsWith(".env")){
+			filename = filename + ".env";
+		}
+		saveSnapshot(filename);
+	}
+	
+	private void saveSnapshot(String filename){
+		try{			
 			File file = new File(filename);
 			FileOutputStream output = new FileOutputStream(file);
 			ObjectOutputStream out = new ObjectOutputStream(output);
@@ -955,10 +974,20 @@ public class Simulation extends PApplet {
 			if(en != null){ //set all parent variables in environment to this class
 				env = en;
 				env.parent = this;
+				env.buildBox2DWorld();
+				
 				for(Agent ag : env.getAllAgents()){
 					ag.parent = this;
+					ag.world = env.world;
+					ag.setupBox2d();
+				}
+				
+				for(Wall wall : env.getAllWalls()){
+					wall.world = env.world;
+					wall.setupBox2d();
 				}
 			}
+			
 			System.out.println("Environment loaded");
 		}catch(Exception e){
 			e.printStackTrace();

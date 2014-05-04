@@ -75,7 +75,7 @@ public class Agent extends SimulationObject implements Serializable {
 	private int age = 0; // Age of agent in number of updates.
 	
 	//JBox2D variables
-	private transient World world;
+	protected transient World world;
 	protected transient Body body;
 
 	/* Objects  of interest within the agent's visual field. */
@@ -118,7 +118,7 @@ public class Agent extends SimulationObject implements Serializable {
 		this.geneticObject = null;
 	}
 	
-	private void setupBox2d(){
+	protected void setupBox2d(){
 		float box2Dx = (float) (coords.x/Simulation.meterToPixel);
 		float box2Dy = (float) (coords.y/Simulation.meterToPixel);
         BodyDef bd = new BodyDef();
