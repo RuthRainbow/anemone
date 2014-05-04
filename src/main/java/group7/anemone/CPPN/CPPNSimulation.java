@@ -1,8 +1,6 @@
 package group7.anemone.CPPN;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.HashSet;
 
 /**
@@ -11,8 +9,6 @@ import java.util.HashSet;
  */
 
 public class CPPNSimulation {
-	private Queue<CPPNNode> functionQueue = new LinkedList<CPPNNode>();
-	
 	//The network that will be getting run by this simulation
 	private CPPN network;
 
@@ -40,43 +36,6 @@ public class CPPNSimulation {
 		
 		//The first two nodes in the array are always the inputs, so we can run those first, to get the functionQueue populated to start
 		ArrayList<CPPNNode> nodes = network.getNodes();
-		
-		//For the first input Node
-//		for (int x=0; x<nodes.get(0).getPostNodes().size(); x++) {
-//			//Add the input one to the first network node
-//			nodes.get(0).addNodeInput(one);
-//			
-//			//Add this total to all of the post nodes
-//			nodes.get(0).getPostNodes().get(x).addNodeInput(nodes.get(0).calculate());
-//			
-//			//Add all of these post nodes to the functionsQueue
-//			functionQueue.add(nodes.get(0).getPostNodes().get(x));
-//		}
-//		
-//		//For the second input node
-//		for (int x=0; x<nodes.get(1).getPostNodes().size(); x++) {
-//			//Add the input two to the second network node
-//			nodes.get(1).addNodeInput(two);
-//			
-//			//Add this total to all of the post nodes
-//			nodes.get(1).getPostNodes().get(x).addNodeInput(nodes.get(1).calculate());
-//			
-//			//Add all of these post nodes to the functionsQueue
-//			functionQueue.add(nodes.get(1).getPostNodes().get(x));
-//		}
-//		
-//		//TODO: This could be more efficient, I think. Still trying to come up with exactly how the better method could work.
-//		//Run through the network, have to step it at least n-3 times. Where n is the total number of nodes in the network.
-//		for (int n=0; n<nodes.size();n++) {
-//			//For the current node, get its calculation result:
-//			double result = nodes.get(n).calculate();
-//			
-//			//For each of the post nodes
-//			for (int y=0; y<nodes.get(n).getPostNodes().size(); y++) {
-//				//Add the result to its total input
-//				nodes.get(n).getPostNodes().get(y).addNodeInput(result);
-//			}
-//		}
 		
 		nodes.get(0).addNodeInput(one);
 		nodes.get(1).addNodeInput(two);

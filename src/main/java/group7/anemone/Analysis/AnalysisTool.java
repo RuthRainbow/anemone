@@ -40,7 +40,6 @@ import processing.core.PFont;
 @SuppressWarnings("serial")
 public class AnalysisTool extends PApplet {
 	private PFont f = createFont("Arial",12,true);
-	private boolean arrowsPressed[] = new boolean[4];
 	
 	//UI Window Panel
 	private UIWindow win;
@@ -134,7 +133,7 @@ public class AnalysisTool extends PApplet {
 		}
 		
 		double fov = selectedAgent.getFOV();
-		int numSegments = selectedAgent.configNumSegments;
+		int numSegments = Agent.configNumSegments;
 		if(dist <= selectedAgent.getVisionRange() && angleBetween < fov){
 			selectedSegment = (int) Math.floor(numSegments * ((angleBetween + fov) / (fov * 2)));
 		}else if(dist <= selectedAgent.getVisionRange() && angleBetween > 360 - fov){

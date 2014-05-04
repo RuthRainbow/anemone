@@ -10,6 +10,9 @@ import group7.anemone.NeatGenetics.NeatGenome;
 import group7.anemone.NeatGenetics.NeatNode;
 import junit.framework.TestCase;
 
+/**
+ * Tests for functionality specific to the NeatGod class.
+ */
 public class NeatGodTest extends TestCase {
 	static NeatFishGod god = new NeatFishGod();
 

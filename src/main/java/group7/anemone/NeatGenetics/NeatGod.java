@@ -9,19 +9,22 @@ import group7.anemone.Genetics.GenomeEdge;
 import group7.anemone.Genetics.God;
 import group7.anemone.MNetwork.MNeuronParams;
 
+/**
+ * This class contains the main functionality for the NEAT genetic algorithm.
+ */
 public abstract class NeatGod extends God<NeatGenome> {
 	private static final long serialVersionUID = 2301852261915045927L;
 	// Next historical marker / id for newly created edges / nodes.
 	private int nextEdgeMarker;
 	private int nextNodeMarker;
 	private ArrayList<GenomeEdge<NeatNode>> newGenes;
-	
+
 	@Override
 	protected void initialiseDataStructures() {
 		super.initialiseDataStructures();
 		resetNewGenes();
 	}
-	
+
 	protected void resetNewGenes() {
 		this.newGenes = new ArrayList<GenomeEdge<NeatNode>>();
 	}
@@ -33,12 +36,13 @@ public abstract class NeatGod extends God<NeatGenome> {
 	public void setNextNodeMarker(int i) {
 		this.nextNodeMarker = i;
 	}
-	
+
 	public void setUpInitialMarkers(NeatGenome first) {
 		nextNodeMarker = first.getNodes().size();
 		nextEdgeMarker = first.getSize();
 	}
-	
+
+	// If only one species member remaining, add the Genome and a mutation of itself.
 	protected ArrayList<NeatGenome> breedOneRemaining(ArrayList<AgentFitness> members) {
 		for (AgentFitness agent : members) {
 			NeatGenome genome = (NeatGenome) agent.geneticRep;
@@ -52,7 +56,7 @@ public abstract class NeatGod extends God<NeatGenome> {
 		}
 		return new ArrayList<NeatGenome>(children);
 	}
-	
+
 	// Compute distance between thisAgent and speciesRep (see NEAT specification).
 	public double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep) {
 		Pair<AgentFitness> agentPair = new Pair<AgentFitness>(thisAgent, speciesRep);
@@ -97,8 +101,7 @@ public abstract class NeatGod extends God<NeatGenome> {
 		return children;
 	}
 
-	// Method for crossover - return crossover method you want.
-	// The mother should always be the parent with the highest fitness.
+	// Crossover dominant and recessive Genomes to create a new Genome offspring.
 	public NeatGenome crossover(NeatGenome dominant, NeatGenome recessive) {
 		ArrayList<GenomeEdge<NeatNode>> child = new ArrayList<GenomeEdge<NeatNode>>();
 
@@ -215,7 +218,8 @@ public abstract class NeatGod extends God<NeatGenome> {
 				(int) Math.floor(getRandom()*nodeList.size()));
 		GenomeEdge<NeatNode> newGene = new GenomeEdge<NeatNode>(
 				nextEdgeMarker, left, right, 30.0, 1);
-		// If this mutated gene has already been created this gen, don't create another
+
+		// If this mutated gene has already been created this generation, don't create another
 		for (GenomeEdge<NeatNode> gene : newGenes) {
 			if (newGene.equals(gene)) {
 				newGene = gene;

@@ -1,6 +1,5 @@
 package group7.anemone.HyperNeatGenetics;
 
-
 import group7.anemone.Genetics.GeneticObject;
 import group7.anemone.Genetics.Parents;
 import group7.anemone.CPPN.CPPN;
@@ -10,6 +9,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 
+/**
+ * Class to hold a "Chromosome", the genetic representation for HyperNEAT.
+ * This includes a list of CPPNs and information about the agent, including its species id
+ * and parents.
+ */
 public class Chromosome implements GeneticObject, Serializable {
 	private static final long serialVersionUID = 4284948709046079202L;
 	

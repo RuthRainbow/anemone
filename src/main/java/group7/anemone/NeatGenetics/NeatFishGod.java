@@ -1,5 +1,9 @@
 package group7.anemone.NeatGenetics;
 
+/**
+ * This class provides the parameter values for the genetic algorithm breeding
+ * agents/fish for NEAT.
+ */
 public class NeatFishGod extends NeatGod {
 	private static final long serialVersionUID = -6489249838484577534L;
 
@@ -26,7 +30,6 @@ public class NeatFishGod extends NeatGod {
 	public double c3 = 0.5f; //weighting of weight differences
 
 	// Threshold for max distance between species member and representative.
-	// INCREASE THIS IF YOU THINK THERE ARE TOO MANY SPECIES!
 	public double compatibilityThreshold = 2.5;
 	public double minReproduced = 3;
 	// Threshold over which an agent's fitness isn't counted in the sharing function.

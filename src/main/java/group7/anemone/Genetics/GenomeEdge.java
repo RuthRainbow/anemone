@@ -2,9 +2,8 @@ package group7.anemone.Genetics;
 
 import java.io.Serializable;
 
-/*
- * Class to hold genes, which make up the representation of the neural network. Each is roughly an
- * edge/connector within the network, with a single input and output.
+/**
+ * Class to hold edges as a representation of the neural network.
  */
 public class GenomeEdge<node extends GenomeNode> implements Serializable{
 

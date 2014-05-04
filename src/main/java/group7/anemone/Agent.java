@@ -1,6 +1,5 @@
 package group7.anemone;
 
-import group7.anemone.CPPN.CPPNSimulation;
 import group7.anemone.CPPN.CPPNFactory;
 import group7.anemone.HyperNeatGenetics.Chromosome;
 import group7.anemone.Genetics.GeneticObject;
@@ -33,6 +32,9 @@ import org.jbox2d.dynamics.World;
 
 import processing.core.PApplet;
 
+/**
+ * Main class representing any type of Agent within the simulation environment.
+ */
 public class Agent extends SimulationObject implements Serializable {
 
 	private static final long serialVersionUID = -6755516656827008579L;
@@ -238,15 +240,8 @@ public class Agent extends SimulationObject implements Serializable {
 		//Create a CPPNFactory. Feed the factory a series of CPPN and after all chromosomes have been read in, it can return a fully formed brain.
 		CPPNFactory cFactory = new CPPNFactory(inputNodes,outputNodes);
 
-		//The number of neurons that are currently being created in this layer of the brain
-		int layerSize=0;/*
-
 		/* Get a reference to the agent's chromosome. */
 		Chromosome chromosome = (Chromosome)geneticObject;
-
-		// //First, loop through every chromosome that the agent contains
-		// for (int g=0; g < chromosome.getGeneticRep().size()/2; g++) {
-		// 	//TODO: Dan, this is where each chromosome is read and a CPPN needs to get created so it can be passed off
 
 		// 	/**
 		// 	 * Each 'chromosome' the agent contains is an instance of the genome class.
@@ -271,18 +266,6 @@ public class Agent extends SimulationObject implements Serializable {
 		// 	 * CREATE CPPN HERE ###############################
 		// 	 * ##############
 		// 	 */
-
-		// 	//Once all genes are read in, build the CPPNSimulation so that the current layer can be built for real by querying the CPPN
-		// 	CPPNSimulation buildSynapse = new CPPNSimulation(
-		// 		chromosome.getSynapseCPPN(g).getNodes());
-
-		// 	CPPNSimulation buildNeurons = new CPPNSimulation(
-		// 		chromosome.getNeuronCPPN(g+1).getNodes());
-
-		// 	//Call the factory to add the new CPPN's and generate more of the agents brain
-		// 	cFactory.synapseCPPN(buildSynapse, 5);
-		// 	cFactory.neuronCPPN(buildNeurons, 5);
-		// }
 
 		//Once all the CPPN's have been input to the cFactory, the brain will be finished and it can be pulled out.
 		// mnetwork = cFactory.getBrain();
@@ -485,8 +468,8 @@ public class Agent extends SimulationObject implements Serializable {
 
 		//TODO: place nodes in set position then spread out using algorithm below
 		//TODO: normalise to -125 to 125
-		if(useLayered){
-			for(MSynapse s : mnetwork.getSynapses()){ //determine the x, y coordinates for each node based on links
+		if (useLayered) {
+			for (MSynapse s : mnetwork.getSynapses()) { //determine the x, y coordinates for each node based on links
 				MNeuron pre = s.getPreNeuron();
 				MNeuron post = s.getPostNeuron();
 				int level = 0;

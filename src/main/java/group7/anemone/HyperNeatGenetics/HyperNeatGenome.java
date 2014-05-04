@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.HashMap;
 
-/*
- * Genome class to hold the Gene array along with a species id.
+/**
+ * Genome class to hold the Gene array along with a species id, and CPPN type.
  */
 public class HyperNeatGenome extends Genome<HyperNeatNode> {
 	private static final long serialVersionUID = -9023930914349095877L;

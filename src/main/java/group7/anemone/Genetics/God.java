@@ -10,23 +10,25 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * This class defines the main functionality for the NEAT algorithm, and should be extended given a
+ * type of genetic object to breed.
+ */
 public abstract class God<t extends GeneticObject> implements Serializable{
 	private static final long serialVersionUID = 4056200256851797548L;
 
 	private double bestFitness;
 	private double worstFitness;
 	private double averageFitness;
-	//private int noImprovementCount = 0;
 
-	// The ordered list of all species, with each represented by a member from the
-	// previous generation.
+	// The ordered list of all species, with each represented by a member from the previous generation.
 	protected ArrayList<Species> species;
 	// The distances between all genes:
 	protected ConcurrentHashMap<Pair<AgentFitness>, Double> distances;
 
 	protected List<t> children;
 
-	// This is inside it's own method to make unittesting easier.
+	// This is inside it's own method so it can be overridden easily for unit testing.
 	public double getRandom() {
 		return Math.random();
 	}
@@ -57,19 +59,67 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		return childrenSpecies;
 	}
 
+	// Return a list of agents selected for reproduction (without species).
+	private ArrayList<AgentFitness> Selection(ArrayList<Agent> agents) {
+		ArrayList<AgentFitness> selectedAgents = new ArrayList<AgentFitness>();
+		double last_average = averageFitness;
+		averageFitness = 0;
+		for (Agent agent : agents) {
+			double fitness = agent.getFitness();
+			averageFitness += fitness;
+			if (fitness * getRandom() > last_average) {
+				selectedAgents.add(new AgentFitness(agent));
+			}
+			if (agent.getFitness() > bestFitness) {
+				bestFitness = agent.getFitness();
+			} else if (agent.getFitness() < worstFitness) {
+				worstFitness = agent.getFitness();
+			}
+		}
+		averageFitness = averageFitness / agents.size();
+		return selectedAgents;
+	}
+
+	// Generate children from a list of selected agents (without species).
+	private ArrayList<t> GenerateChildren(
+			ArrayList<AgentFitness> selectedAgents) {
+		ArrayList<t> children = new ArrayList<t>();
+		// Crossover two random members of the selected agents.
+		while (selectedAgents.size() > 1) {
+			AgentFitness mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
+			selectedAgents.remove(mother);
+			AgentFitness father = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
+			selectedAgents.remove(father);
+			children.add(crossover(father, mother));
+		}
+
+		ArrayList<t> mutatedChildren = new ArrayList<t>();
+		// Put every child through mutation process
+		for (t child : children) {
+			mutatedChildren.add(mutate(child));
+		}
+
+		return mutatedChildren;
+	}
+
+	// Reset the data structure of new genetic objects for the next generation.
 	protected abstract void resetNewGenes();
 
+	// Breed the entire population with species.
 	@SuppressWarnings("unchecked")
 	public ArrayList<t> BreedWithSpecies(ArrayList<Agent> agents, boolean fitnessOnly) {
 		resetNewGenes();
 
+		// If this is the first generation, set up the historical markers for creating new genetic objects.
 		if (this.species.size() == 0) {
 			species.add(new Species(new AgentFitness(agents.get(0)),0));
 			setUpInitialMarkers((t) agents.get(0).getGeneticObject());
 		}
 
+		// Calculate remaining distances between all agents and species reps.
 		countDownDistances(agents);
 
+		// Propagate fitnesses between species.
 		propagateFitnesses(agents);
 
 		shareFitnesses();
@@ -89,16 +139,20 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		return children;
 	}
 
+	// Set up the "next" historical markers needed for the first generation.
 	protected abstract void setUpInitialMarkers(t first);
 
+	// Using a CountDownLatch calculate distances between all agents and species reps.
 	protected void countDownDistances(ArrayList<Agent> agents) {
 		CountDownLatch latch = new CountDownLatch(agents.size() * species.size());
 		// Set up threads for each distance calculation to speed this up.
 		for (Agent agent : agents) {
+			// Only calculate for agents which don't already have a species.
 			if (agent.getSpeciesId() == -1) {
 				AgentFitness thisAgent = new AgentFitness(agent);
 				for (Species specie : species) {
 					AgentFitness speciesRep = specie.rep;
+					// Only calculate distances which haven't already been calculated.
 					if (!distances.containsKey(new Pair<AgentFitness>(thisAgent, speciesRep))) {
 						Runnable r = new CalcDistance(thisAgent, speciesRep, latch);
 						Thread thread = new Thread(r);
@@ -122,6 +176,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		}
 	}
 
+	// Calculate the distance between two agents.
 	protected abstract double calcDistance(AgentFitness thisAgent, AgentFitness speciesRep);
 
 	// Copy across agent's fitness from simulation to specie members.
@@ -160,6 +215,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 				break;
 			}
 		}
+		// If a species wasn't found, create a new one.
 		if (!foundSpecies) {
 			int newSpeciesId = species.size();
 			species.add(new Species(thisAgent, newSpeciesId));
@@ -167,13 +223,15 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		}
 	}
 
-
+	// Breed a given species and return a list of offspring.
 	@SuppressWarnings("unchecked")
 	private ArrayList<t> breedSpecies(Species specie, int popSize, boolean fitnessOnly) {
 		children = Collections.synchronizedList(new ArrayList<t>());
+		// Special case: only 1 member left in species so crossover is not possible.
 		if (specie.members.size() < 2) {
 			return new ArrayList<t>(breedOneRemaining(specie.members));
 		}
+		// Use the summed total fitness to calculate how many offspring should be generated.
 		double summedFitness = 0;
 		for (AgentFitness agent : specie.members) {
 			summedFitness += agent.fitness;
@@ -182,10 +240,11 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 				(int) getMinReproduced(),
 				(int) Math.ceil(summedFitness * getOffspringProportion()));
 		System.out.println("Generating " + numOffspring + " children for species " + specie.id + " summed fitness is " + summedFitness);
-		// Breed the top n! (Members is presorted :))
+		// Breed the top n members! (Members is presorted)
 		int i = 0;
 		int j = Math.min(numOffspring * 2, specie.members.size()) - 1;
 
+		// Breed the best agent remaining with a worst agent remaining selected until the required number of offspring reached.
 		while (children.size() < specie.members.size()/2 && children.size() < numOffspring) {
 			final AgentFitness mother = specie.members.get(i);
 			final AgentFitness father = specie.members.get(j);
@@ -209,6 +268,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		return new ArrayList<t>(children);
 	}
 
+	// Method to create a list of offspring if only one species member remaining.
 	protected abstract ArrayList<t> breedOneRemaining(ArrayList<AgentFitness> members);
 
 	// Share fitnesses over species by updating AgentFitness objects (see NEAT paper)
@@ -228,10 +288,10 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		}
 	}
 
+	// Sharing function, as defined in NEAT paper.
 	protected int sharingFunction(double distance) {
 		if (distance > getSharingThreshold()) {
-			return 0; // Seems pointless. Why not only compare with dudes from the same species,
-			// if all others will be made 0?!
+			return 0;
 		} else {
 			return 1;
 		}
@@ -247,56 +307,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 		}
 	}
 
-	protected ArrayList<AgentFitness> Selection(ArrayList<Agent> agents) {
-		ArrayList<AgentFitness> selectedAgents = new ArrayList<AgentFitness>();
-		//double last_best = bestFitness;
-		double last_average = averageFitness;
-		averageFitness = 0;
-		for (Agent agent : agents) {
-			double fitness = agent.getFitness();
-			averageFitness += fitness;
-			// This number is completely arbitrary, depends on fitness function
-			if (fitness * getRandom() > last_average) {
-				selectedAgents.add(new AgentFitness(agent));
-			}
-			if (agent.getFitness() > bestFitness) {
-				bestFitness = agent.getFitness();
-			} else if (agent.getFitness() < worstFitness) {
-				worstFitness = agent.getFitness();
-			}
-		}
-		averageFitness = averageFitness / agents.size();
-		// Keep track of the number of generations without improvement.
-		/*if (last_best >= bestFitness) {
-noImprovementCount++;
-} else {
-noImprovementCount--;
-}*/
-		return selectedAgents;
-	}
-
-	protected ArrayList<t> GenerateChildren(
-			ArrayList<AgentFitness> selectedAgents) {
-		// Crossover - should select partner randomly (unless we are having genders).
-		ArrayList<t> children = new ArrayList<t>();
-
-		while (selectedAgents.size() > 1) {
-			AgentFitness mother = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
-			selectedAgents.remove(mother);
-			AgentFitness father = selectedAgents.get((int) (getRandom() * selectedAgents.size()));
-			selectedAgents.remove(father);
-			children.add(crossover(father, mother));
-		}
-
-		ArrayList<t> mutatedChildren = new ArrayList<t>();
-		// Put every child through mutation process
-		for (t child : children) {
-			mutatedChildren.add(mutate(child));
-		}
-
-		return mutatedChildren;
-	}
-
+	// Method to create offspring from two parents.
 	protected ArrayList<t> createOffspring(Agent mother, Agent father) {
 		AgentFitness motherFitness = new AgentFitness(mother);
 		AgentFitness fatherFitness = new AgentFitness(father);
@@ -305,15 +316,17 @@ noImprovementCount--;
 		return children;
 	}
 
+	// Return a list of offspring created from two pairs of agents with fitnesses.
 	protected abstract ArrayList<t> createOffspring(
 			AgentFitness mother, AgentFitness father);
 
+	// Crossover the two given agents to return a new offspring.
 	protected t crossover(AgentFitness mother, AgentFitness father) {
-		// If an agent has no edges, it is definitely not dominant.
 		@SuppressWarnings("unchecked")
 		t motherGen = (t) mother.geneticRep;
 		@SuppressWarnings("unchecked")
 		t fatherGen = (t) father.geneticRep;
+		// Determine the dominant parent.
 		if (mother.fitness > father.fitness) {
 			return crossover(motherGen, fatherGen);
 		} else {
@@ -321,18 +334,20 @@ noImprovementCount--;
 		}
 	}
 
+	// Return a child of type t generated by crossing over the dominant and recessive parent.
 	protected abstract t crossover(t dominant, t recessive);
 
+	// Mutate child t to generate a new genetic object.
 	protected abstract t mutate(t child);
-	
+
 	public double getBestFitness() {
 		return bestFitness;
 	}
-	
+
 	public double getWorstFitness() {
 		return worstFitness;
 	}
-	
+
 	public double getAverageFitness() {
 		return averageFitness;
 	}
@@ -351,6 +366,7 @@ noImprovementCount--;
 			this.id =id;
 		}
 
+		// When adding a new member, sort by fitness.
 		private void addMember(AgentFitness newMember) {
 			members.add(newMember);
 			Collections.sort(members);
@@ -428,6 +444,7 @@ noImprovementCount--;
 		}
 	}
 
+	// Create offspring from two parents within a thread.
 	private class CreateOffspring implements Runnable {
 		private AgentFitness mother;
 		private AgentFitness father;
@@ -442,7 +459,7 @@ noImprovementCount--;
 		}
 	}
 
-	/* Sort into species whilst the simulation is running. */
+	// Sort into species whilst the simulation is running.
 	private class CalcAllDistances implements Runnable {
 		private List<t> agents = Collections.synchronizedList(new ArrayList<t>());
 
@@ -451,7 +468,7 @@ noImprovementCount--;
 		}
 
 		public synchronized void run() {
-			// Clear species for a new gen
+			// Clear species for a new generation.
 			for (Species specie : species) {
 				specie.clear();
 			}
@@ -463,6 +480,7 @@ noImprovementCount--;
 		}
 	}
 
+	// Calculate the distance between two agents within a thread.
 	private class CalcDistance implements Runnable {
 		private AgentFitness thisAgent;
 		private AgentFitness speciesRep;
