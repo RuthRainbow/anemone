@@ -22,7 +22,7 @@ public class Wall extends SimulationObject implements Serializable{
 	private Double start;
 	private Double end;
 	private int letsThrough = -1;
-	private transient World world;
+	protected transient World world;
 	protected transient Body body;
 
 	public Wall(Double start, Double end, World world) {
@@ -34,7 +34,7 @@ public class Wall extends SimulationObject implements Serializable{
 		if(world != null) setupBox2d();
 	}
 
-	private void setupBox2d(){
+	protected void setupBox2d(){
 		float startbox2Dx = (float) (start.x/Simulation.meterToPixel);
 		float startbox2Dy = (float) (start.y/Simulation.meterToPixel);
 		float endbox2Dx = (float) (end.x/Simulation.meterToPixel);
