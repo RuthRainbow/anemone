@@ -259,6 +259,8 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 			if (fitnessOnly) {
 				children.add((t) mother.geneticRep);
 				children.add((t) father.geneticRep);
+				latch.countDown();
+				latch.countDown();
 			}
 			i++; j--;
 		}

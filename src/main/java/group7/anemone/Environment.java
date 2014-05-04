@@ -57,7 +57,7 @@ public class Environment implements Serializable{
 	private ArrayList<Collision> collisions;
 
 	// Whether to not use health:
-	protected final boolean fitnessOnly = false;
+	protected final boolean fitnessOnly = true;
 	//whether a fully connected network should be created.
 	protected final boolean FLAG_CONNECT_ALL= true;
 	// True -> use NEAT, false -> use HyperNEAT
