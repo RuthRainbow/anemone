@@ -93,7 +93,6 @@ public class Environment implements Serializable{
 		Environment.food = new ArrayList<Food>();
 		this.wall = new ArrayList<Wall>();
 		this.seaweed = new ArrayList<Seaweed>();
-		this.foodPos = new ArrayList<Point2D.Double>();
 		this.agentNumSegments = Agent.configNumSegments;
 		this.foodPos = new ArrayList<Point2D.Double>(); 
 		this.scheduledRemove = new ArrayList<Agent>();
