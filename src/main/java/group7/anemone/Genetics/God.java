@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class defines the main functionality for the NEAT algorithm, and should be extended given a
@@ -170,7 +171,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 
 		// Wait for all threads to complete:
 		try {
-			latch.await();
+			latch.await(50L, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// Continue; we'll just have to calculate the distances in sequence.
 		}
@@ -265,7 +266,7 @@ public abstract class God<t extends GeneticObject> implements Serializable{
 			i++; j--;
 		}
 		try {
-			latch.await();
+			latch.await(50L, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

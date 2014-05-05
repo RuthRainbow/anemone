@@ -30,8 +30,8 @@ public class NeatFishGod extends NeatGod {
 	public double c3 = 0.5f; //weighting of weight differences
 
 	// Threshold for max distance between species member and representative.
-	public double compatibilityThreshold = 4;
-	public double minReproduced = 8;
+	public double compatibilityThreshold = 5;
+	public double minReproduced = 3;
 	// Threshold over which an agent's fitness isn't counted in the sharing function.
 	public double sharingThreshold = 20;
 	/** End of graphical vars **/
